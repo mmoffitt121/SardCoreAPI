@@ -116,13 +116,7 @@
         {
             get { return ((DayName)Day).ToString(); }
         }
-        /*private long _timeinseconds;
-        private int _era;
-        private int _age;
-        private int _epoch;
-        private int _eon;
-        private int _stage;
-        */
+
         // stage-eon-epoch-age-era|year-month-day-hour-minute-second
         public void SetFromDBOForm(string dboform)
         {
