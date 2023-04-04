@@ -1,4 +1,4 @@
-﻿namespace SardCoreAPI.Models.SearchCriteria
+﻿namespace SardCoreAPI.Models.Document.SearchCriteria
 {
     public class MapSearchCriteria
     {

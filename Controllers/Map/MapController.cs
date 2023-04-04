@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using SardCoreAPI.Models;
 using SardCoreAPI.CodeStore;
-using SardCoreAPI.Models.SearchCriteria;
+using SardCoreAPI.Models.Document.SearchCriteria;
 
-namespace SardCoreAPI.Controllers
+namespace SardCoreAPI.Controllers.Map
 {
     [ApiController]
     [Route("Library/[controller]/[action]")]
@@ -16,7 +16,7 @@ namespace SardCoreAPI.Controllers
             _logger = logger;
         }
 
-        [HttpGet(Name = "GetMaps")]
+        /*[HttpGet(Name = "GetMaps")]
         public IEnumerable<Map> GetMaps([FromQuery] MapSearchCriteria criteria)
         {
             return MapCode.GetMaps(criteria);
@@ -59,6 +59,6 @@ namespace SardCoreAPI.Controllers
             }
 
             return "Operation failed";
-        }
+        }*/
     }
 }

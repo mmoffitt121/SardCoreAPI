@@ -1,6 +1,6 @@
-﻿namespace SardCoreAPI.Models.SearchResults
+﻿namespace SardCoreAPI.Models.Map
 {
-    public class MapSearchResult
+    public class Map
     {
         public int MapId { get; set; }
         public string? MapName { get; set; }

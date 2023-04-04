@@ -1,15 +1,14 @@
 ﻿using SardCoreAPI.Models;
-using SardCoreAPI.Models.SearchResults;
-using SardCoreAPI;
 using Microsoft.Data.SqlClient;
 using Dapper;
-using SardCoreAPI.Models.SearchCriteria;
+using SardCoreAPI.Models.Document.SearchCriteria;
+using SardCoreAPI.Models.Document.SearchResults;
 
-namespace SardCoreAPI.CodeStore
+namespace SardCoreAPI.DataAccess.Map
 {
-    public class MapCode
+    public class MapDataAccess
     {
-        public static IEnumerable<Map> GetMaps(MapSearchCriteria criteria)
+        /*public static IEnumerable<Map> GetMaps(MapSearchCriteria criteria)
         {
             string sql = @"
                 SELECT
@@ -38,7 +37,7 @@ namespace SardCoreAPI.CodeStore
 					LEFT JOIN dbo.LOCATIONS as l on p.PublisherLocationCode = l.LocationID
 					LEFT JOIN dbo.JURISDICTIONS as j on l.LocationJurisdictionID = j.JurisdictionID
 					LEFT JOIN dbo.JURISDICTIONS as j2 on j.ParentJurisdictionID = j2.JurisdictionID
-                /**where**/";
+                ";
 
             SqlBuilder builder = new SqlBuilder();
 
@@ -89,7 +88,7 @@ namespace SardCoreAPI.CodeStore
 
         public static bool PostMap(Map map)
         {
-            string sql = @"INSERT INTO dbo.MAPS values (@MapName, @MapDate, @MapAuthorCode, @MapPublisherCode, @MapLink, @MapThumbnailLink, @MapDescription)";  
+            string sql = @"INSERT INTO dbo.MAPS values (@MapName, @MapDate, @MapAuthorCode, @MapPublisherCode, @MapLink, @MapThumbnailLink, @MapDescription)";
 
             try
             {
@@ -145,13 +144,13 @@ namespace SardCoreAPI.CodeStore
                 {
                     connection.Open();
                     connection.Query<Map>(sql, new Map { MapId = mapid }).FirstOrDefault();
-                    return true; 
+                    return true;
                 }
             }
             catch (Exception ex)
             {
                 return false;
             }
-        }
+        }*/
     }
 }
