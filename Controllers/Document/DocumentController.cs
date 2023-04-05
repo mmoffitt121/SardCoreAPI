@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SardCoreAPI.CodeStore;
 using SardCoreAPI.Models.Document.SearchCriteria;
 using SardCoreAPI.Models;
 using SardCoreAPI.Controllers.Map;
@@ -13,11 +12,11 @@ namespace SardCoreAPI.Controllers.Document
     {
         private readonly ILogger<MapController> _logger;
 
-        /*public DocumentController(ILogger<MapController> logger)
+        public DocumentController(ILogger<MapController> logger)
         {
             _logger = logger;
         }
-
+        /*
         [HttpGet(Name = "GetDocuments")]
         public IEnumerable<Document> GetDocuments([FromQuery] MapSearchCriteria criteria)
         {

@@ -13,9 +13,10 @@ CREATE TABLE Eras (
 /*** Maps ***/
 
 CREATE TABLE MapTiles (
-	Z FLOAT NOT NULL,
-	Y FLOAT NOT NULL,
-	X FLOAT NOT NULL,
+	Z    FLOAT          NOT NULL,
+	Y    FLOAT          NOT NULL,
+	X    FLOAT          NOT NULL,
+	Tile VARBINARY(MAX) NOT NULL,
 	PRIMARY KEY (Z, Y, X)
 )
 
