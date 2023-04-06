@@ -24,10 +24,10 @@ namespace SardCoreAPI.Controllers.Map
         }*/
 
         [HttpGet(Name = "GetTile")]
-        public FileResult GetTile(int z, int x, int y)
+        public async Task<IActionResult> GetTile(int z, int x, int y)
         {
-            string path = x % 2 == 0 ? "C:\\Users\\Matthew\\Pictures\\Icons\\VabarikaMap.png" : "C:\\Users\\Matthew\\Pictures\\sun.jpg";
-            return new FileStreamResult(new FileStream(path, FileMode.Open), "image/jpeg");
+            MapTile result = new MapTileDataAccess().GetTile(z, x, y);
+            return new FileStreamResult(new MemoryStream(result.Tile), "image/png");
         }
 
         [HttpPost]
@@ -40,17 +40,10 @@ namespace SardCoreAPI.Controllers.Map
 
             MapTile[] mapTiles = MapTileCutter.Slice(file);
 
-            using (var outputStream = new MemoryStream())
-                for (int i = 0; i < mapTiles.Length; i++)
-                {
-                    mapTiles[i].Tile.Write($"Output {i}.png");
-                }
-
-            /*if (MapTileDataAccess.PostTiles(mapTiles))
+            if (new MapTileDataAccess().PostTiles(mapTiles))
             {
                 return new OkResult();
             }
-            Console.WriteLine(file.GetType());*/
             return new BadRequestResult();
         }
     }

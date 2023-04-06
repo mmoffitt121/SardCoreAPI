@@ -2,26 +2,71 @@
 using SardCoreAPI.Models.Document.SearchResults;
 using Dapper;
 using SardCoreAPI.Models.Map;
+using ImageMagick;
 
 namespace SardCoreAPI.DataAccess.Map
 {
     public class MapTileDataAccess
     {
-        public static bool PostTiles(MapTile[] tiles)
+        public MapTile GetTile(int Z, int X, int Y)
         {
-            string sql = @"INSERT INTO dbo.MAPS VALUES (@Z, @Y, @X, @Tile)";
+            string sql = @"SELECT TOP (1) Tile FROM dbo.MapTiles 
+                WHERE
+                    Z = @Z AND
+                    X = @X AND
+                    Y = @Y
+            ";
 
             try
             {
                 using (SqlConnection connection = new SqlConnection(Connection.GetConnectionString()))
                 {
                     connection.Open();
-                    connection.Query<MapTile>(sql, tiles);
+                    List<MapTile> mapTiles = connection.Query<MapTile>(sql, new MapTile(Z, X, Y, new byte[0])).ToList();
+                    if (mapTiles.Count > 0)
+                    {
+                        return mapTiles.First();
+                    }
+                    else
+                    {
+                        return new MapTile(Z, X, Y, new byte[0]);
+                    }
+                }
+            }
+            catch (SqlException s)
+            {
+                Console.WriteLine(s);
+                return new MapTile(Z, X, Y, new byte[0]);
+            }
+        }
+
+        public bool PostTiles(MapTile[] tiles)
+        {
+            string sql = @"
+                IF EXISTS 
+                    (SELECT 1 FROM dbo.MapTiles WHERE @Z = Z AND @X = X AND @Y = Y)
+                BEGIN
+                    UPDATE dbo.MapTiles
+                    SET TILE = @Tile
+                    WHERE @Z = Z AND @X = X AND @Y = Y
+                END
+                ELSE
+                BEGIN
+                    INSERT INTO dbo.MapTiles VALUES (@Z, @Y, @X, @Tile)
+                END";
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    connection.Execute(sql, tiles);
                     return true;
                 }
             }
-            catch (Exception)
+            catch (SqlException s)
             {
+                Console.WriteLine(s);
                 return false;
             }
         }

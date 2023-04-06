@@ -29,7 +29,7 @@ namespace SardCoreAPI.Utility.Map
                     // Resize and dd original image to the array
                     var resized = image.Clone();
                     resized.Resize(256, 256);
-                    mapTiles.Add(new MapTile(0, 0, 0, resized));
+                    mapTiles.Add(new MapTile(0, 0, 0, resized.ToByteArray()));
                     
 
                     int subdivisions = (int)Math.Log2(image.Width / 256);
@@ -37,14 +37,14 @@ namespace SardCoreAPI.Utility.Map
                     for (int k = 1; k < subdivisions; k++)
                     {
                         resized = image.Clone();
-                        resized.Resize(256 * (k + 1), 256 * (k + 1));
+                        resized.Resize(256 * (int)Math.Pow(2, k), 256 * (int)Math.Pow(2, k)); // Bounds error
                         for (int i = 0; i < Math.Pow(2, k); i++)
                         {
                             for (int j = 0; j < Math.Pow(2, k); j++)
                             {
                                 var geometry = new MagickGeometry(i * 256, j * 256, 256, 256);
                                 var cloned = resized.Clone(geometry);
-                                mapTiles.Add(new MapTile(k, i, j, cloned));
+                                mapTiles.Add(new MapTile(k, i, j, cloned.ToByteArray()));
                             }
                         }
                     }
