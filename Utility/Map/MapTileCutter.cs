@@ -12,7 +12,7 @@ namespace SardCoreAPI.Utility.Map
         /// <param name="file">A file containing an image, sized a multiple of 256, and in a square shape.</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static MapTile[] Slice(IFormFile file)
+        public static MapTile[] Slice(IFormFile file, int rootZ, int rootX, int rootY)
         {
             using (var stream = file.OpenReadStream())
             {
@@ -29,7 +29,7 @@ namespace SardCoreAPI.Utility.Map
                     // Resize and dd original image to the array
                     var resized = image.Clone();
                     resized.Resize(256, 256);
-                    mapTiles.Add(new MapTile(0, 0, 0, resized.ToByteArray()));
+                    mapTiles.Add(new MapTile(rootZ, rootX, rootY, resized.ToByteArray()));
                     
 
                     int subdivisions = (int)Math.Log2(image.Width / 256);
@@ -44,7 +44,7 @@ namespace SardCoreAPI.Utility.Map
                             {
                                 var geometry = new MagickGeometry(i * 256, j * 256, 256, 256);
                                 var cloned = resized.Clone(geometry);
-                                mapTiles.Add(new MapTile(k, i, j, cloned.ToByteArray()));
+                                mapTiles.Add(new MapTile(k + rootZ, i, j, cloned.ToByteArray()));
                             }
                         }
                     }

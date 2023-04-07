@@ -31,14 +31,14 @@ namespace SardCoreAPI.Controllers.Map
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadTile(IFormFile file)
+        public async Task<IActionResult> UploadTile(IFormFile file, int rootZ, int rootX, int rootY)
         {
             if (file == null || file.Length == 0)
             {
                 return new BadRequestResult();
             }
 
-            MapTile[] mapTiles = MapTileCutter.Slice(file);
+            MapTile[] mapTiles = MapTileCutter.Slice(file, rootZ, rootX, rootY);
 
             if (new MapTileDataAccess().PostTiles(mapTiles))
             {
