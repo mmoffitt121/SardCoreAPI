@@ -1,6 +1,6 @@
 ﻿using ImageMagick;
 using System;
-using SardCoreAPI.Models.Map;
+using SardCoreAPI.Models.Map.MapTile;
 
 namespace SardCoreAPI.Utility.Map
 {
@@ -12,8 +12,9 @@ namespace SardCoreAPI.Utility.Map
         /// <param name="file">A file containing an image, sized a multiple of 256, and in a square shape.</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static MapTile[] Slice(IFormFile file, int rootZ, int rootX, int rootY)
+        public static MapTile[] Slice(IFormFile file, int rootZ, int rootX, int rootY, int layerId)
         {
+            Console.WriteLine("Slicer: " + layerId);
             using (var stream = file.OpenReadStream())
             {
                 using (var image = new MagickImage(stream))
@@ -29,23 +30,28 @@ namespace SardCoreAPI.Utility.Map
                     // Resize and dd original image to the array
                     var resized = image.Clone();
                     resized.Resize(256, 256);
-                    mapTiles.Add(new MapTile(rootZ, rootX, rootY, resized.ToByteArray()));
+                    mapTiles.Add(new MapTile(rootZ, rootX, rootY, layerId, resized.ToByteArray()));
                     
 
                     int subdivisions = (int)Math.Log2(image.Width / 256);
 
+                    int iTransform = rootX;
+                    int jTransform = rootY;
                     for (int k = 1; k < subdivisions; k++)
                     {
                         resized = image.Clone();
                         resized.Resize(256 * (int)Math.Pow(2, k), 256 * (int)Math.Pow(2, k)); // Bounds error
+                        iTransform *= 2;
+                        jTransform *= 2;
                         for (int i = 0; i < Math.Pow(2, k); i++)
                         {
                             for (int j = 0; j < Math.Pow(2, k); j++)
                             {
                                 var geometry = new MagickGeometry(i * 256, j * 256, 256, 256);
                                 var cloned = resized.Clone(geometry);
-                                mapTiles.Add(new MapTile(k + rootZ, i, j, cloned.ToByteArray()));
+                                mapTiles.Add(new MapTile(k + rootZ, i + iTransform, j + jTransform, layerId, cloned.ToByteArray()));
                             }
+                            
                         }
                     }
                     return mapTiles.ToArray();

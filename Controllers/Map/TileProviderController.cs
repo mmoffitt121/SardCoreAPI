@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Client;
 using SardCoreAPI.DataAccess.Map;
-using SardCoreAPI.Models.Map;
+using SardCoreAPI.Models.Map.MapTile;
 using SardCoreAPI.Utility.Map;
 
 namespace SardCoreAPI.Controllers.Map
@@ -24,21 +24,22 @@ namespace SardCoreAPI.Controllers.Map
         }*/
 
         [HttpGet(Name = "GetTile")]
-        public async Task<IActionResult> GetTile(int z, int x, int y)
+        public async Task<IActionResult> GetTile(int z, int x, int y, int layerId)
         {
-            MapTile result = new MapTileDataAccess().GetTile(z, x, y);
+            Console.WriteLine($"{x}, {y}, {z}, {layerId}");
+            MapTile result = new MapTileDataAccess().GetTile(z, x, y, layerId);
             return new FileStreamResult(new MemoryStream(result.Tile), "image/png");
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadTile(IFormFile file, int rootZ, int rootX, int rootY)
+        public async Task<IActionResult> UploadTile(IFormFile file, int rootZ, int rootX, int rootY, int layerId)
         {
             if (file == null || file.Length == 0)
             {
                 return new BadRequestResult();
             }
 
-            MapTile[] mapTiles = MapTileCutter.Slice(file, rootZ, rootX, rootY);
+            MapTile[] mapTiles = MapTileCutter.Slice(file, rootZ, rootX, rootY, layerId);
 
             if (new MapTileDataAccess().PostTiles(mapTiles))
             {
