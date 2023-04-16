@@ -34,9 +34,11 @@ namespace SardCoreAPI.Controllers.Map
         }
 
         [HttpGet(Name = "GetLocationType")]
-        public IActionResult GetLocationType(int id)
+        public IActionResult GetLocationType(int? id)
         {
-            LocationType? locationType = new LocationTypeDataAccess().GetLocationType(id);
+            if (id == null) { return new BadRequestResult(); }
+
+            LocationType? locationType = new LocationTypeDataAccess().GetLocationType(id.Value);
 
             if (locationType != null)
             {

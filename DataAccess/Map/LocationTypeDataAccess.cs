@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
+using MySqlConnector;
 using SardCoreAPI.Models.Map.LocationType;
 using SardCoreAPI.Models.Map.MapTile;
 
@@ -9,14 +10,15 @@ namespace SardCoreAPI.DataAccess.Map
     {
         public LocationType? GetLocationType(int id)
         {
-            string sql = @"SELECT TOP (1) * FROM dbo.LocationTypes 
+            string sql = @"SELECT * FROM LocationTypes 
                 WHERE
                     Id = @Id
+                LIMIT 1;
             ";
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(Connection.GetConnectionString()))
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
                 {
                     connection.Open();
                     LocationType? locationType = connection.Query<LocationType>(sql, new { Id = id }).FirstOrDefault();
@@ -30,7 +32,7 @@ namespace SardCoreAPI.DataAccess.Map
                     }
                 }
             }
-            catch (SqlException s)
+            catch (MySqlException s)
             {
                 Console.WriteLine(s);
                 return null;
@@ -39,9 +41,9 @@ namespace SardCoreAPI.DataAccess.Map
 
         public List<LocationType> GetLocationTypes(string? query)
         {
-            string sql = @"SELECT * FROM dbo.LocationTypes 
+            string sql = @"SELECT * FROM LocationTypes 
                 WHERE
-                    Name LIKE CONCAT('%', @Name, '%')
+                    Name LIKE CONCAT('%', IFNULL(@Name, ''), '%')
                 ORDER BY
                     CASE WHEN Name LIKE CONCAT(@Name, '%') THEN 0 ELSE 1 END,
                     Name
@@ -49,21 +51,14 @@ namespace SardCoreAPI.DataAccess.Map
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(Connection.GetConnectionString()))
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
                 {
                     connection.Open();
                     List<LocationType> locationTypes = connection.Query<LocationType>(sql, new { Name = query }).ToList();
-                    if (locationTypes != null && locationTypes.Count > 0)
-                    {
-                        return locationTypes;
-                    }
-                    else
-                    {
-                        return null;
-                    }
+                    return locationTypes;
                 }
             }
-            catch (SqlException s)
+            catch (MySqlException s)
             {
                 Console.WriteLine(s);
                 return null;

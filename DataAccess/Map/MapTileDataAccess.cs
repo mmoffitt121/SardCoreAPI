@@ -3,6 +3,7 @@ using SardCoreAPI.Models.Document.SearchResults;
 using Dapper;
 using ImageMagick;
 using SardCoreAPI.Models.Map.MapTile;
+using MySqlConnector;
 
 namespace SardCoreAPI.DataAccess.Map
 {
@@ -10,7 +11,7 @@ namespace SardCoreAPI.DataAccess.Map
     {
         public MapTile GetTile(int Z, int X, int Y, int LayerId)
         {
-            string sql = @"SELECT TOP (1) Tile FROM dbo.MapTiles 
+            string sql = @"SELECT Tile FROM MapTiles 
                 WHERE
                     Z = @Z AND
                     X = @X AND
@@ -20,7 +21,7 @@ namespace SardCoreAPI.DataAccess.Map
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(Connection.GetConnectionString()))
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
                 {
                     connection.Open();
                     List<MapTile> mapTiles = connection.Query<MapTile>(sql, new MapTile(Z, X, Y, LayerId, new byte[0])).ToList();
@@ -34,7 +35,7 @@ namespace SardCoreAPI.DataAccess.Map
                     }
                 }
             }
-            catch (SqlException s)
+            catch (MySqlException s)
             {
                 Console.WriteLine(s);
                 return new MapTile(Z, X, Y, LayerId, new byte[0]);
@@ -44,28 +45,23 @@ namespace SardCoreAPI.DataAccess.Map
         public bool PostTiles(MapTile[] tiles)
         {
             string sql = @"
-                IF EXISTS 
-                    (SELECT 1 FROM dbo.MapTiles WHERE @Z = Z AND @X = X AND @Y = Y AND @LayerId = LayerId)
-                BEGIN
-                    UPDATE dbo.MapTiles
-                    SET TILE = @Tile
-                    WHERE @Z = Z AND @X = X AND @Y = Y AND @LayerId = LayerId
-                END
-                ELSE
-                BEGIN
-                    INSERT INTO dbo.MapTiles VALUES (@Z, @Y, @X, @LayerId, @Tile)
-                END";
+                INSERT INTO MapTiles
+	                (Z, Y, X, LayerId, Tile)
+                VALUES
+	                (@Z, @Y, @X, @LayerId, @Tile)
+                ON DUPLICATE KEY UPDATE
+	                Tile = @Tile";
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(Connection.GetConnectionString()))
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
                 {
                     connection.Open();
                     connection.Execute(sql, tiles);
                     return true;
                 }
             }
-            catch (SqlException s)
+            catch (MySqlException s)
             {
                 Console.WriteLine(s);
                 return false;

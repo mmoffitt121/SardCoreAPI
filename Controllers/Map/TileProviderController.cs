@@ -26,7 +26,6 @@ namespace SardCoreAPI.Controllers.Map
         [HttpGet(Name = "GetTile")]
         public async Task<IActionResult> GetTile(int z, int x, int y, int layerId)
         {
-            Console.WriteLine($"{x}, {y}, {z}, {layerId}");
             MapTile result = new MapTileDataAccess().GetTile(z, x, y, layerId);
             return new FileStreamResult(new MemoryStream(result.Tile), "image/png");
         }

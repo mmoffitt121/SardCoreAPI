@@ -14,7 +14,6 @@ namespace SardCoreAPI.Utility.Map
         /// <exception cref="Exception"></exception>
         public static MapTile[] Slice(IFormFile file, int rootZ, int rootX, int rootY, int layerId)
         {
-            Console.WriteLine("Slicer: " + layerId);
             using (var stream = file.OpenReadStream())
             {
                 using (var image = new MagickImage(stream))

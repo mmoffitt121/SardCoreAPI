@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SardCoreAPI.DataAccess.Map;
+using SardCoreAPI.Models.Map.Location;
 
 namespace SardCoreAPI.Controllers.Map
 {
@@ -13,29 +15,38 @@ namespace SardCoreAPI.Controllers.Map
             _logger = logger;
         }
 
-        /*[HttpGet(Name = "GetLocations")]
-        public IEnumerable<Location> GetMaps([FromQuery] MapSearchCriteria criteria)
+        [HttpGet(Name = "GetLocations")]
+        public IActionResult GetLocations([FromQuery] LocationSearchCriteria criteria)
         {
-            return MapCode.GetMaps(criteria);
-        }*/
+            if (criteria == null) { return new BadRequestResult(); }
+
+            List<Location> result = new LocationDataAccess().GetLocations(criteria);
+            if (result != null) 
+            { 
+                return new OkObjectResult(result); 
+            }
+            return new BadRequestResult();
+        }
 
         /*[HttpGet(Name = "GetMap")]
         public Map? GetMap(int mapid)
         {
             return MapCode.GetMap(mapid);
-        }
+        }*/
 
-        [HttpPost(Name = "PostMap")]
-        public string PostMap([FromBody] Map map)
+        [HttpPost(Name = "PostLocation")]
+        public IActionResult PostLocation([FromBody] Location location)
         {
-            if (MapCode.PostMap(map))
+            if (location == null) { return new BadRequestResult(); }
+
+            if (new LocationDataAccess().PostLocation(location))
             {
-                return "Operation was a success";
+                return new OkResult();
             }
 
-            return "Operation failed";
+            return new BadRequestResult();
         }
-
+        /*
         [HttpPut(Name = "PutMap")]
         public string PutMaps(Map map)
         {
