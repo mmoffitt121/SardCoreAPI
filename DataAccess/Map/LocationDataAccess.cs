@@ -46,13 +46,36 @@ namespace SardCoreAPI.DataAccess.Map
 
         public bool PostLocation(Location location)
         {
-            string sql = @"INSERT INTO Locations (LocationName, AreaId, LocationTypeId, Longitude, Latitude) VALUES (@LocationName, @AreaId, @LocationTypeId, @Longitude, @Latitude)";
+            string sql = @"INSERT INTO Locations (LocationName, AreaId, LocationTypeId, Longitude, Latitude) 
+                VALUES (@LocationName, @AreaId, @LocationTypeId, @Longitude, @Latitude)";
             try
             {
                 using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
                 {
                     connection.Open();
                     if (connection.Execute(sql, location) > 0)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return false;
+            }
+        }
+
+        public bool DeleteLocation(int Id)
+        {
+            string sql = @"DELETE FROM Locations WHERE Id = @Id;";
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    if (connection.Execute(sql, new { Id }) > 0)
                     {
                         return true;
                     }
