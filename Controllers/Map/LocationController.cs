@@ -28,11 +28,16 @@ namespace SardCoreAPI.Controllers.Map
             return new BadRequestResult();
         }
 
-        /*[HttpGet(Name = "GetMap")]
-        public Map? GetMap(int mapid)
+        [HttpGet(Name = "GetLocation")]
+        public IActionResult GetLocation([FromQuery] int? Id)
         {
-            return MapCode.GetMap(mapid);
-        }*/
+            Location result = new LocationDataAccess().GetLocation(Id);
+            if (result != null)
+            {
+                return new OkObjectResult(result);
+            }
+            return new NotFoundResult();
+        }
 
         [HttpPost(Name = "PostLocation")]
         public IActionResult PostLocation([FromBody] Location location)
@@ -46,27 +51,5 @@ namespace SardCoreAPI.Controllers.Map
 
             return new BadRequestResult();
         }
-        /*
-        [HttpPut(Name = "PutMap")]
-        public string PutMaps(Map map)
-        {
-            if (MapCode.PutMap(map))
-            {
-                return "Operation was a success";
-            }
-
-            return "Operation failed";
-        }
-
-        [HttpDelete(Name = "DeleteMap")]
-        public string DeleteMap(int id)
-        {
-            if (MapCode.DeleteMap(id))
-            {
-                return "Operation was a success";
-            }
-
-            return "Operation failed";
-        }*/
     }
 }

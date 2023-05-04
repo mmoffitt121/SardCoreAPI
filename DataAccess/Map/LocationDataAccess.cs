@@ -6,7 +6,7 @@ using SardCoreAPI.Models.Map.LocationType;
 namespace SardCoreAPI.DataAccess.Map
 {
     public class LocationDataAccess
-    {
+    { 
         public List<Location> GetLocations(LocationSearchCriteria criteria)
         {
             string sql = @"SELECT Id, LocationName, AreaId, LocationTypeId, Longitude, Latitude FROM Locations 
@@ -42,6 +42,59 @@ namespace SardCoreAPI.DataAccess.Map
                 return null;
             }
             
+        }
+
+        public Location GetLocation(int? Id)
+        {
+            if (Id == null) return null;
+
+            string sql = @"SELECT 
+                l.Id, l.LocationName, l.LocationTypeId, l.Longitude, l.Latitude, l.LocationName, 
+                    a.Id as AreaId, a.Name as AreaName, 
+                    sr.Id as SubregionId, sr.Name as SubregionName,
+                    r.Id as RegionId, r.Name as RegionName,
+                    sc.Id as SubcontinentId, sc.Name as SubcontinentName,
+                    c.Id as ContinentId, c.Name as ContinentName,
+                    cb.Id as CelestialBodyId, cb.Name as CelestialBodyName,
+                    cs.Id as CelestialSystemId, cs.Name as CelestialSystemName,
+                    m.Id as ManifoldId, m.Name as ManifoldName
+                FROM Locations l
+                    LEFT JOIN Areas a on a.Id = l.areaId
+                    LEFT JOIN Subregions sr on sr.Id = a.SubregionId
+                    LEFT JOIN Regions r on r.id = sr.RegionId
+                    LEFT JOIN Subcontinents sc on sc.id = r.SubcontinentId
+                    LEFT JOIN Continents c on c.id = sc.ContinentId
+                    LEFT JOIN CelestialObjects cb on cb.id = c.CelestialObjectId
+                    LEFT JOIN CelestialSystems cs on cs.id = cb.CelestialSystemId
+                    LEFT JOIN Manifolds m on m.id = cs.ManifoldId
+                /**where**/";
+
+            SqlBuilder builder = new SqlBuilder();
+            var template = builder.AddTemplate(sql);
+
+            builder.Where("l.Id = @Id");
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    try
+                    {
+                        Location location = connection.QueryFirst<Location>(template.RawSql, new { Id });
+                        return location;
+                    }
+                    catch
+                    {
+                        return null;
+                    }
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return null;
+            }
         }
 
         public bool PostLocation(Location location)
