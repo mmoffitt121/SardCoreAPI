@@ -35,6 +35,57 @@ namespace SardCoreAPI.DataAccess.Map
             }
         }
 
+        public Area GetArea(int? Id)
+        {
+            if (Id == null) return null;
+
+            string sql = @"SELECT 
+                    a.Id as Id, a.Name as Name, a.Longitude, a.Latitude,
+                    sr.Id as SubregionId, sr.Name as SubregionName,
+                    r.Id as RegionId, r.Name as RegionName,
+                    sc.Id as SubcontinentId, sc.Name as SubcontinentName,
+                    c.Id as ContinentId, c.Name as ContinentName,
+                    cb.Id as CelestialObjectId, cb.Name as CelestialObjectName,
+                    cs.Id as CelestialSystemId, cs.Name as CelestialSystemName,
+                    m.Id as ManifoldId, m.Name as ManifoldName
+                FROM Areas a
+                    LEFT JOIN Subregions sr on sr.Id = a.SubregionId
+                    LEFT JOIN Regions r on r.id = sr.RegionId
+                    LEFT JOIN Subcontinents sc on sc.id = r.SubcontinentId
+                    LEFT JOIN Continents c on c.id = sc.ContinentId
+                    LEFT JOIN CelestialObjects cb on cb.id = c.CelestialObjectId
+                    LEFT JOIN CelestialSystems cs on cs.id = cb.CelestialSystemId
+                    LEFT JOIN Manifolds m on m.id = cs.ManifoldId
+                /**where**/";
+
+            SqlBuilder builder = new SqlBuilder();
+            var template = builder.AddTemplate(sql);
+
+            builder.Where("a.Id = @Id");
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    try
+                    {
+                        var data = connection.QueryFirst<Area>(template.RawSql, new { Id });
+                        return data;
+                    }
+                    catch
+                    {
+                        return null;
+                    }
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return null;
+            }
+        }
+
         public bool PostArea(Area area)
         {
             string sql = @"INSERT INTO Areas (Name, SubregionId, Longitude, Latitude) 
@@ -77,6 +128,55 @@ namespace SardCoreAPI.DataAccess.Map
                     connection.Open();
                     List<Subregion> result = connection.Query<Subregion>(sql, new { Name = query }).ToList();
                     return result;
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return null;
+            }
+        }
+
+        public Subregion GetSubregion(int? Id)
+        {
+            if (Id == null) return null;
+
+            string sql = @"SELECT 
+                    sr.Id as Id, sr.Name as Name, sr.Longitude, sr.Latitude,
+                    r.Id as RegionId, r.Name as RegionName,
+                    sc.Id as SubcontinentId, sc.Name as SubcontinentName,
+                    c.Id as ContinentId, c.Name as ContinentName,
+                    cb.Id as CelestialObjectId, cb.Name as CelestialObjectName,
+                    cs.Id as CelestialSystemId, cs.Name as CelestialSystemName,
+                    m.Id as ManifoldId, m.Name as ManifoldName
+                FROM Subregions sr
+                    LEFT JOIN Regions r on r.id = sr.RegionId
+                    LEFT JOIN Subcontinents sc on sc.id = r.SubcontinentId
+                    LEFT JOIN Continents c on c.id = sc.ContinentId
+                    LEFT JOIN CelestialObjects cb on cb.id = c.CelestialObjectId
+                    LEFT JOIN CelestialSystems cs on cs.id = cb.CelestialSystemId
+                    LEFT JOIN Manifolds m on m.id = cs.ManifoldId
+                /**where**/";
+
+            SqlBuilder builder = new SqlBuilder();
+            var template = builder.AddTemplate(sql);
+
+            builder.Where("sr.Id = @Id");
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    try
+                    {
+                        var data = connection.QueryFirst<Subregion>(template.RawSql, new { Id });
+                        return data;
+                    }
+                    catch
+                    {
+                        return null;
+                    }
                 }
             }
             catch (MySqlException s)
@@ -137,6 +237,53 @@ namespace SardCoreAPI.DataAccess.Map
             }
         }
 
+        public Region GetRegion(int? Id)
+        {
+            if (Id == null) return null;
+
+            string sql = @"SELECT 
+                    r.Id as Id, r.Name as Name, r.Longitude, r.Latitude,
+                    sc.Id as SubcontinentId, sc.Name as SubcontinentName,
+                    c.Id as ContinentId, c.Name as ContinentName,
+                    cb.Id as CelestialObjectId, cb.Name as CelestialObjectName,
+                    cs.Id as CelestialSystemId, cs.Name as CelestialSystemName,
+                    m.Id as ManifoldId, m.Name as ManifoldName
+                FROM Regions r
+                    LEFT JOIN Subcontinents sc on sc.id = r.SubcontinentId
+                    LEFT JOIN Continents c on c.id = sc.ContinentId
+                    LEFT JOIN CelestialObjects cb on cb.id = c.CelestialObjectId
+                    LEFT JOIN CelestialSystems cs on cs.id = cb.CelestialSystemId
+                    LEFT JOIN Manifolds m on m.id = cs.ManifoldId
+                /**where**/";
+
+            SqlBuilder builder = new SqlBuilder();
+            var template = builder.AddTemplate(sql);
+
+            builder.Where("r.Id = @Id");
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    try
+                    {
+                        var data = connection.QueryFirst<Region>(template.RawSql, new { Id });
+                        return data;
+                    }
+                    catch
+                    {
+                        return null;
+                    }
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return null;
+            }
+        }
+
         public bool PostRegion(Region data)
         {
             string sql = @"INSERT INTO Regions (Name, SubcontinentId, Longitude, Latitude) 
@@ -179,6 +326,51 @@ namespace SardCoreAPI.DataAccess.Map
                     connection.Open();
                     List<Subcontinent> result = connection.Query<Subcontinent>(sql, new { Name = query }).ToList();
                     return result;
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return null;
+            }
+        }
+
+        public Subcontinent GetSubcontinent(int? Id)
+        {
+            if (Id == null) return null;
+
+            string sql = @"SELECT 
+                    sc.Id as Id, sc.Name as Name, sc.Longitude, sc.Latitude,
+                    c.Id as ContinentId, c.Name as ContinentName,
+                    cb.Id as CelestialObjectId, cb.Name as CelestialObjectName,
+                    cs.Id as CelestialSystemId, cs.Name as CelestialSystemName,
+                    m.Id as ManifoldId, m.Name as ManifoldName
+                FROM Subcontinents sc
+                    LEFT JOIN Continents c on c.id = sc.ContinentId
+                    LEFT JOIN CelestialObjects cb on cb.id = c.CelestialObjectId
+                    LEFT JOIN CelestialSystems cs on cs.id = cb.CelestialSystemId
+                    LEFT JOIN Manifolds m on m.id = cs.ManifoldId
+                /**where**/";
+
+            SqlBuilder builder = new SqlBuilder();
+            var template = builder.AddTemplate(sql);
+
+            builder.Where("sc.Id = @Id");
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    try
+                    {
+                        var data = connection.QueryFirst<Subcontinent>(template.RawSql, new { Id });
+                        return data;
+                    }
+                    catch
+                    {
+                        return null;
+                    }
                 }
             }
             catch (MySqlException s)
@@ -239,6 +431,49 @@ namespace SardCoreAPI.DataAccess.Map
             }
         }
 
+        public Continent GetContinent(int? Id)
+        {
+            if (Id == null) return null;
+
+            string sql = @"SELECT 
+                    c.Id as Id, c.Name as Name, c.Longitude, c.Latitude,
+                    cb.Id as CelestialObjectId, cb.Name as CelestialObjectName,
+                    cs.Id as CelestialSystemId, cs.Name as CelestialSystemName,
+                    m.Id as ManifoldId, m.Name as ManifoldName
+                FROM Continents c
+                    LEFT JOIN CelestialObjects cb on cb.id = c.CelestialObjectId
+                    LEFT JOIN CelestialSystems cs on cs.id = cb.CelestialSystemId
+                    LEFT JOIN Manifolds m on m.id = cs.ManifoldId
+                /**where**/";
+
+            SqlBuilder builder = new SqlBuilder();
+            var template = builder.AddTemplate(sql);
+
+            builder.Where("c.Id = @Id");
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    try
+                    {
+                        var data = connection.QueryFirst<Continent>(template.RawSql, new { Id });
+                        return data;
+                    }
+                    catch
+                    {
+                        return null;
+                    }
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return null;
+            }
+        }
+
         public bool PostContinent(Continent data)
         {
             string sql = @"INSERT INTO Continents (Name, CelestialObjectId, Longitude, Latitude, Aquatic) 
@@ -281,6 +516,47 @@ namespace SardCoreAPI.DataAccess.Map
                     connection.Open();
                     List<CelestialObject> result = connection.Query<CelestialObject>(sql, new { Name = query }).ToList();
                     return result;
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return null;
+            }
+        }
+
+        public CelestialObject GetCelestialObject(int? Id)
+        {
+            if (Id == null) return null;
+
+            string sql = @"SELECT 
+                    cb.Id as CelestialObjectId, cb.Name as Name,
+                    cs.Id as CelestialSystemId, cs.Name as CelestialSystemName,
+                    m.Id as ManifoldId, m.Name as ManifoldName
+                FROM CelestialObjects cb
+                    LEFT JOIN CelestialSystems cs on cs.id = cb.CelestialSystemId
+                    LEFT JOIN Manifolds m on m.id = cs.ManifoldId
+                /**where**/";
+
+            SqlBuilder builder = new SqlBuilder();
+            var template = builder.AddTemplate(sql);
+
+            builder.Where("cb.Id = @Id");
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    try
+                    {
+                        var data = connection.QueryFirst<CelestialObject>(template.RawSql, new { Id });
+                        return data;
+                    }
+                    catch
+                    {
+                        return null;
+                    }
                 }
             }
             catch (MySqlException s)
@@ -341,6 +617,45 @@ namespace SardCoreAPI.DataAccess.Map
             }
         }
 
+        public CelestialSystem GetCelestialSystem(int? Id)
+        {
+            if (Id == null) return null;
+
+            string sql = @"SELECT 
+                    cs.Id as CelestialSystemId, cs.Name as Name,
+                    m.Id as ManifoldId, m.Name as ManifoldName
+                FROM CelestialSystems cs
+                    LEFT JOIN Manifolds m on m.id = cs.ManifoldId
+                /**where**/";
+
+            SqlBuilder builder = new SqlBuilder();
+            var template = builder.AddTemplate(sql);
+
+            builder.Where("cs.Id = @Id");
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    try
+                    {
+                        var data = connection.QueryFirst<CelestialSystem>(template.RawSql, new { Id });
+                        return data;
+                    }
+                    catch
+                    {
+                        return null;
+                    }
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return null;
+            }
+        }
+
         public bool PostCelestialSystem(CelestialSystem data)
         {
             string sql = @"INSERT INTO CelestialSystems (Name, ManifoldId) 
@@ -383,6 +698,43 @@ namespace SardCoreAPI.DataAccess.Map
                     connection.Open();
                     List<Manifold> result = connection.Query<Manifold>(sql, new { Name = query }).ToList();
                     return result;
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return null;
+            }
+        }
+
+        public Manifold GetManifold(int? Id)
+        {
+            if (Id == null) return null;
+
+            string sql = @"SELECT 
+                    m.Id as ManifoldId, m.Name as Name
+                FROM Manifolds m
+                /**where**/";
+
+            SqlBuilder builder = new SqlBuilder();
+            var template = builder.AddTemplate(sql);
+
+            builder.Where("m.Id = @Id");
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    try
+                    {
+                        var data = connection.QueryFirst<Manifold>(template.RawSql, new { Id });
+                        return data;
+                    }
+                    catch
+                    {
+                        return null;
+                    }
                 }
             }
             catch (MySqlException s)

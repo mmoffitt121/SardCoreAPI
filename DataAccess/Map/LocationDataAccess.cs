@@ -50,6 +50,7 @@ namespace SardCoreAPI.DataAccess.Map
 
             string sql = @"SELECT 
                 l.Id, l.LocationName, l.LocationTypeId, l.Longitude, l.Latitude, l.LocationName, 
+                    lt.Name as LocationType,
                     a.Id as AreaId, a.Name as AreaName, 
                     sr.Id as SubregionId, sr.Name as SubregionName,
                     r.Id as RegionId, r.Name as RegionName,
@@ -59,6 +60,7 @@ namespace SardCoreAPI.DataAccess.Map
                     cs.Id as CelestialSystemId, cs.Name as CelestialSystemName,
                     m.Id as ManifoldId, m.Name as ManifoldName
                 FROM Locations l
+                    LEFT JOIN LocationTypes lt on lt.Id = l.LocationTypeId
                     LEFT JOIN Areas a on a.Id = l.areaId
                     LEFT JOIN Subregions sr on sr.Id = a.SubregionId
                     LEFT JOIN Regions r on r.id = sr.RegionId

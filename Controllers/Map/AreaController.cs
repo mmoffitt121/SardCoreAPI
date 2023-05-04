@@ -30,6 +30,17 @@ namespace SardCoreAPI.Controllers.Map
             return new BadRequestResult();
         }
 
+        [HttpGet(Name = "GetArea")]
+        public IActionResult GetArea([FromQuery] int? Id)
+        {
+            var result = new AreaDataAccess().GetArea(Id);
+            if (result != null)
+            {
+                return new OkObjectResult(result);
+            }
+            return new NotFoundResult();
+        }
+
         [HttpPost(Name = "PostArea")]
         public IActionResult PostArea([FromBody] Area area)
         {
@@ -56,6 +67,17 @@ namespace SardCoreAPI.Controllers.Map
                 return new OkObjectResult(result);
             }
             return new BadRequestResult();
+        }
+
+        [HttpGet(Name = "GetSubregion")]
+        public IActionResult GetSubregion([FromQuery] int? Id)
+        {
+            var result = new AreaDataAccess().GetSubregion(Id);
+            if (result != null)
+            {
+                return new OkObjectResult(result);
+            }
+            return new NotFoundResult();
         }
 
         [HttpPost(Name = "PostSubregion")]
@@ -86,6 +108,17 @@ namespace SardCoreAPI.Controllers.Map
             return new BadRequestResult();
         }
 
+        [HttpGet(Name = "GetRegion")]
+        public IActionResult GetRegion([FromQuery] int? Id)
+        {
+            var result = new AreaDataAccess().GetRegion(Id);
+            if (result != null)
+            {
+                return new OkObjectResult(result);
+            }
+            return new NotFoundResult();
+        }
+
         [HttpPost(Name = "PostRegion")]
         public IActionResult PostRegion([FromBody] Region data)
         {
@@ -112,6 +145,17 @@ namespace SardCoreAPI.Controllers.Map
                 return new OkObjectResult(result);
             }
             return new BadRequestResult();
+        }
+
+        [HttpGet(Name = "GetSubcontinent")]
+        public IActionResult GetSubcontinent([FromQuery] int? Id)
+        {
+            var result = new AreaDataAccess().GetSubcontinent(Id);
+            if (result != null)
+            {
+                return new OkObjectResult(result);
+            }
+            return new NotFoundResult();
         }
 
         [HttpPost(Name = "PostSubcontinent")]
@@ -142,6 +186,17 @@ namespace SardCoreAPI.Controllers.Map
             return new BadRequestResult();
         }
 
+        [HttpGet(Name = "GetContinent")]
+        public IActionResult GetContinent([FromQuery] int? Id)
+        {
+            var result = new AreaDataAccess().GetContinent(Id);
+            if (result != null)
+            {
+                return new OkObjectResult(result);
+            }
+            return new NotFoundResult();
+        }
+
         [HttpPost(Name = "PostContinent")]
         public IActionResult PostContinent([FromBody] Continent data)
         {
@@ -168,6 +223,17 @@ namespace SardCoreAPI.Controllers.Map
                 return new OkObjectResult(result);
             }
             return new BadRequestResult();
+        }
+
+        [HttpGet(Name = "GetCelestialObject")]
+        public IActionResult GetCelestialObject([FromQuery] int? Id)
+        {
+            var result = new AreaDataAccess().GetCelestialObject(Id);
+            if (result != null)
+            {
+                return new OkObjectResult(result);
+            }
+            return new NotFoundResult();
         }
 
         [HttpPost(Name = "PostCelestialObject")]
@@ -198,6 +264,17 @@ namespace SardCoreAPI.Controllers.Map
             return new BadRequestResult();
         }
 
+        [HttpGet(Name = "GetCelestialSystem")]
+        public IActionResult GetCelestialSystem([FromQuery] int? Id)
+        {
+            var result = new AreaDataAccess().GetCelestialSystem(Id);
+            if (result != null)
+            {
+                return new OkObjectResult(result);
+            }
+            return new NotFoundResult();
+        }
+
         [HttpPost(Name = "PostCelestialSystem")]
         public IActionResult PostCelestialSystem([FromBody] CelestialSystem data)
         {
@@ -224,6 +301,17 @@ namespace SardCoreAPI.Controllers.Map
                 return new OkObjectResult(result);
             }
             return new BadRequestResult();
+        }
+
+        [HttpGet(Name = "GetManifold")]
+        public IActionResult GetManifold([FromQuery] int? Id)
+        {
+            var result = new AreaDataAccess().GetManifold(Id);
+            if (result != null)
+            {
+                return new OkObjectResult(result);
+            }
+            return new NotFoundResult();
         }
 
         [HttpPost(Name = "PostManifold")]

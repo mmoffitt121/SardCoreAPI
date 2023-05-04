@@ -4,6 +4,7 @@
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public int ManifoldId { get; set; }
+        public int? ManifoldId { get; set; }
+        public string? ManifoldName { get; set; }
     }
 }
