@@ -103,6 +103,7 @@ namespace SardCoreAPI.DataAccess.Map
         {
             string sql = @"INSERT INTO Locations (LocationName, AreaId, LocationTypeId, Longitude, Latitude) 
                 VALUES (@LocationName, @AreaId, @LocationTypeId, @Longitude, @Latitude)";
+
             try
             {
                 using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
@@ -122,7 +123,32 @@ namespace SardCoreAPI.DataAccess.Map
             }
         }
 
-        public bool DeleteLocation(int Id)
+        public async Task<int> PutLocation(Location location)
+        {
+            string sql = @"UPDATE Locations SET 
+	                LocationName = @LocationName,
+                    AreaId = @AreaId,
+                    LocationTypeId = @LocationTypeId,
+                    Longitude = @Longitude,
+                    Latitude = @Latitude
+                WHERE Id = @Id";
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    return await connection.ExecuteAsync(sql, location);
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return -1;
+            }
+        }
+
+        public async Task<int> DeleteLocation(int Id)
         {
             string sql = @"DELETE FROM Locations WHERE Id = @Id;";
             try
@@ -130,17 +156,13 @@ namespace SardCoreAPI.DataAccess.Map
                 using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
                 {
                     connection.Open();
-                    if (connection.Execute(sql, new { Id }) > 0)
-                    {
-                        return true;
-                    }
-                    return false;
+                    return await connection.ExecuteAsync(sql, new { Id });
                 }
             }
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return false;
+                return -1;
             }
         }
     }

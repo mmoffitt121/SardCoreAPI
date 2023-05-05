@@ -21,9 +21,9 @@ namespace SardCoreAPI.Controllers.Map
             if (criteria == null) { return new BadRequestResult(); }
 
             List<Location> result = new LocationDataAccess().GetLocations(criteria);
-            if (result != null) 
-            { 
-                return new OkObjectResult(result); 
+            if (result != null)
+            {
+                return new OkObjectResult(result);
             }
             return new BadRequestResult();
         }
@@ -50,6 +50,45 @@ namespace SardCoreAPI.Controllers.Map
             }
 
             return new BadRequestResult();
+        }
+
+        [HttpPut(Name = "PutLocation")]
+        public async Task<IActionResult> PutLocation([FromBody] Location location)
+        {
+            int result = await new LocationDataAccess().PutLocation(location);
+            if (result > 0)
+            {
+                return new OkResult();
+            }
+            else if (result == 0)
+            {
+                return new NotFoundResult();
+            }
+            else
+            {
+                return new BadRequestResult();
+            }
+        }
+
+        [HttpDelete(Name = "DeleteLocation")]
+        public async Task<IActionResult> DeleteLocation([FromQuery] int? Id)
+        {
+            if (Id == null) { return new BadRequestResult(); }
+
+            int result = await new LocationDataAccess().DeleteLocation((int)Id);
+
+            if (result > 0)
+            {
+                return new OkResult();
+            }
+            else if (result == 0)
+            {
+                return new NotFoundResult();
+            }
+            else
+            {
+                return new BadRequestResult();
+            }
         }
     }
 }
