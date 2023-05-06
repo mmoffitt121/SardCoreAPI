@@ -108,6 +108,48 @@ namespace SardCoreAPI.DataAccess.Map
                 return false;
             }
         }
+
+        public async Task<int> PutArea(Area data)
+        {
+            string sql = @"UPDATE Areas SET 
+	                Name = @Name,
+                    SubregionId = @SubregionId,
+                    Longitude = @Longitude,
+                    Latitude = @Latitude
+                WHERE Id = @Id";
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    return await connection.ExecuteAsync(sql, data);
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return -1;
+            }
+        }
+
+        public async Task<int> DeleteArea(int Id)
+        {
+            string sql = @"DELETE FROM Areas WHERE Id = @Id;";
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    return await connection.ExecuteAsync(sql, new { Id });
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return -1;
+            }
+        }
         #endregion
 
         #region Subregion
@@ -208,6 +250,48 @@ namespace SardCoreAPI.DataAccess.Map
                 return false;
             }
         }
+
+        public async Task<int> PutSubregion(Subregion data)
+        {
+            string sql = @"UPDATE Subregions SET 
+	                Name = @Name,
+                    RegionId = @RegionId,
+                    Longitude = @Longitude,
+                    Latitude = @Latitude
+                WHERE Id = @Id";
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    return await connection.ExecuteAsync(sql, data);
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return -1;
+            }
+        }
+
+        public async Task<int> DeleteSubregion(int Id)
+        {
+            string sql = @"DELETE FROM Subregions WHERE Id = @Id;";
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    return await connection.ExecuteAsync(sql, new { Id });
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return -1;
+            }
+        }
         #endregion
 
         #region Region
@@ -306,6 +390,48 @@ namespace SardCoreAPI.DataAccess.Map
                 return false;
             }
         }
+
+        public async Task<int> PutRegion(Region data)
+        {
+            string sql = @"UPDATE Regions SET 
+	                Name = @Name,
+                    SubcontinentId = @SubcontinentId,
+                    Longitude = @Longitude,
+                    Latitude = @Latitude
+                WHERE Id = @Id";
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    return await connection.ExecuteAsync(sql, data);
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return -1;
+            }
+        }
+
+        public async Task<int> DeleteRegion(int Id)
+        {
+            string sql = @"DELETE FROM Regions WHERE Id = @Id;";
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    return await connection.ExecuteAsync(sql, new { Id });
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return -1;
+            }
+        }
         #endregion
 
         #region Subcontinent
@@ -402,6 +528,48 @@ namespace SardCoreAPI.DataAccess.Map
                 return false;
             }
         }
+
+        public async Task<int> PutSubcontinent(Subcontinent data)
+        {
+            string sql = @"UPDATE Subcontinents SET 
+	                Name = @Name,
+                    ContinentId = @ContinentId,
+                    Longitude = @Longitude,
+                    Latitude = @Latitude
+                WHERE Id = @Id";
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    return await connection.ExecuteAsync(sql, data);
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return -1;
+            }
+        }
+
+        public async Task<int> DeleteSubcontinent(int Id)
+        {
+            string sql = @"DELETE FROM Subcontinents WHERE Id = @Id;";
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    return await connection.ExecuteAsync(sql, new { Id });
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return -1;
+            }
+        }
         #endregion
 
         #region Continent
@@ -496,6 +664,48 @@ namespace SardCoreAPI.DataAccess.Map
                 return false;
             }
         }
+
+        public async Task<int> PutContinent(Continent data)
+        {
+            string sql = @"UPDATE Continents SET 
+	                Name = @Name,
+                    CelestialObjectId = @CelestialObjectId,
+                    Longitude = @Longitude,
+                    Latitude = @Latitude
+                WHERE Id = @Id";
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    return await connection.ExecuteAsync(sql, data);
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return -1;
+            }
+        }
+
+        public async Task<int> DeleteContinent(int Id)
+        {
+            string sql = @"DELETE FROM Continents WHERE Id = @Id;";
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    return await connection.ExecuteAsync(sql, new { Id });
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return -1;
+            }
+        }
         #endregion
 
         #region Celestial Object
@@ -530,7 +740,7 @@ namespace SardCoreAPI.DataAccess.Map
             if (Id == null) return null;
 
             string sql = @"SELECT 
-                    cb.Id as CelestialObjectId, cb.Name as Name,
+                    cb.Id as Id, cb.Name as Name,
                     cs.Id as CelestialSystemId, cs.Name as CelestialSystemName,
                     m.Id as ManifoldId, m.Name as ManifoldName
                 FROM CelestialObjects cb
@@ -588,6 +798,46 @@ namespace SardCoreAPI.DataAccess.Map
                 return false;
             }
         }
+
+        public async Task<int> PutCelestialObject(CelestialObject data)
+        {
+            string sql = @"UPDATE CelestialObjects SET 
+	                Name = @Name,
+                    CelestialSystemId = @CelestialSystemId
+                WHERE Id = @Id";
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    return await connection.ExecuteAsync(sql, data);
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return -1;
+            }
+        }
+
+        public async Task<int> DeleteCelestialObject(int Id)
+        {
+            string sql = @"DELETE FROM CelestialObjects WHERE Id = @Id;";
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    return await connection.ExecuteAsync(sql, new { Id });
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return -1;
+            }
+        }
         #endregion
 
         #region Celestial System
@@ -622,7 +872,7 @@ namespace SardCoreAPI.DataAccess.Map
             if (Id == null) return null;
 
             string sql = @"SELECT 
-                    cs.Id as CelestialSystemId, cs.Name as Name,
+                    cs.Id as Id, cs.Name as Name,
                     m.Id as ManifoldId, m.Name as ManifoldName
                 FROM CelestialSystems cs
                     LEFT JOIN Manifolds m on m.id = cs.ManifoldId
@@ -678,6 +928,46 @@ namespace SardCoreAPI.DataAccess.Map
                 return false;
             }
         }
+
+        public async Task<int> PutCelestialSystem(CelestialSystem data)
+        {
+            string sql = @"UPDATE CelestialSystems SET 
+	                Name = @Name,
+                    ManifoldId = @ManifoldId
+                WHERE Id = @Id";
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    return await connection.ExecuteAsync(sql, data);
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return -1;
+            }
+        }
+
+        public async Task<int> DeleteCelestialSystem(int Id)
+        {
+            string sql = @"DELETE FROM CelestialSystems WHERE Id = @Id;";
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    return await connection.ExecuteAsync(sql, new { Id });
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return -1;
+            }
+        }
         #endregion
 
         #region Manifold
@@ -712,7 +1002,7 @@ namespace SardCoreAPI.DataAccess.Map
             if (Id == null) return null;
 
             string sql = @"SELECT 
-                    m.Id as ManifoldId, m.Name as Name
+                    m.Id as Id, m.Name as Name
                 FROM Manifolds m
                 /**where**/";
 
@@ -764,6 +1054,46 @@ namespace SardCoreAPI.DataAccess.Map
             {
                 Console.WriteLine(s);
                 return false;
+            }
+        }
+
+        public async Task<int> PutManifold(Manifold data)
+        {
+            string sql = @"UPDATE Manifolds SET 
+	                Name = @Name,
+                    Number = @Number
+                WHERE Id = @Id";
+
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    return await connection.ExecuteAsync(sql, data);
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return -1;
+            }
+        }
+
+        public async Task<int> DeleteManifold(int Id)
+        {
+            string sql = @"DELETE FROM Manifolds WHERE Id = @Id;";
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                {
+                    connection.Open();
+                    return await connection.ExecuteAsync(sql, new { Id });
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                return -1;
             }
         }
         #endregion

@@ -53,6 +53,45 @@ namespace SardCoreAPI.Controllers.Map
 
             return new BadRequestResult();
         }
+
+        [HttpPut(Name = "PutArea")]
+        public async Task<IActionResult> PutArea([FromBody] Area data)
+        {
+            int result = await new AreaDataAccess().PutArea(data);
+            if (result > 0)
+            {
+                return new OkResult();
+            }
+            else if (result == 0)
+            {
+                return new NotFoundResult();
+            }
+            else
+            {
+                return new BadRequestResult();
+            }
+        }
+
+        [HttpDelete(Name = "DeleteArea")]
+        public async Task<IActionResult> DeleteArea([FromQuery] int? Id)
+        {
+            if (Id == null) { return new BadRequestResult(); }
+
+            int result = await new AreaDataAccess().DeleteArea((int)Id);
+
+            if (result > 0)
+            {
+                return new OkResult();
+            }
+            else if (result == 0)
+            {
+                return new NotFoundResult();
+            }
+            else
+            {
+                return new BadRequestResult();
+            }
+        }
         #endregion
 
         #region Subregion
@@ -91,6 +130,45 @@ namespace SardCoreAPI.Controllers.Map
             }
 
             return new BadRequestResult();
+        }
+
+        [HttpPut(Name = "PutSubregion")]
+        public async Task<IActionResult> PutSubregion([FromBody] Subregion data)
+        {
+            int result = await new AreaDataAccess().PutSubregion(data);
+            if (result > 0)
+            {
+                return new OkResult();
+            }
+            else if (result == 0)
+            {
+                return new NotFoundResult();
+            }
+            else
+            {
+                return new BadRequestResult();
+            }
+        }
+
+        [HttpDelete(Name = "DeleteSubregion")]
+        public async Task<IActionResult> DeleteSubregion([FromQuery] int? Id)
+        {
+            if (Id == null) { return new BadRequestResult(); }
+
+            int result = await new AreaDataAccess().DeleteSubregion((int)Id);
+
+            if (result > 0)
+            {
+                return new OkResult();
+            }
+            else if (result == 0)
+            {
+                return new NotFoundResult();
+            }
+            else
+            {
+                return new BadRequestResult();
+            }
         }
         #endregion
 
@@ -131,6 +209,45 @@ namespace SardCoreAPI.Controllers.Map
 
             return new BadRequestResult();
         }
+
+        [HttpPut(Name = "PutRegion")]
+        public async Task<IActionResult> PutRegion([FromBody] Region data)
+        {
+            int result = await new AreaDataAccess().PutRegion(data);
+            if (result > 0)
+            {
+                return new OkResult();
+            }
+            else if (result == 0)
+            {
+                return new NotFoundResult();
+            }
+            else
+            {
+                return new BadRequestResult();
+            }
+        }
+
+        [HttpDelete(Name = "DeleteRegion")]
+        public async Task<IActionResult> DeleteRegion([FromQuery] int? Id)
+        {
+            if (Id == null) { return new BadRequestResult(); }
+
+            int result = await new AreaDataAccess().DeleteRegion((int)Id);
+
+            if (result > 0)
+            {
+                return new OkResult();
+            }
+            else if (result == 0)
+            {
+                return new NotFoundResult();
+            }
+            else
+            {
+                return new BadRequestResult();
+            }
+        }
         #endregion
 
         #region Subcontinent
@@ -169,6 +286,45 @@ namespace SardCoreAPI.Controllers.Map
             }
 
             return new BadRequestResult();
+        }
+
+        [HttpPut(Name = "PutSubcontinent")]
+        public async Task<IActionResult> PutSubcontinent([FromBody] Subcontinent data)
+        {
+            int result = await new AreaDataAccess().PutSubcontinent(data);
+            if (result > 0)
+            {
+                return new OkResult();
+            }
+            else if (result == 0)
+            {
+                return new NotFoundResult();
+            }
+            else
+            {
+                return new BadRequestResult();
+            }
+        }
+
+        [HttpDelete(Name = "DeleteSubcontinent")]
+        public async Task<IActionResult> DeleteSubcontinent([FromQuery] int? Id)
+        {
+            if (Id == null) { return new BadRequestResult(); }
+
+            int result = await new AreaDataAccess().DeleteSubcontinent((int)Id);
+
+            if (result > 0)
+            {
+                return new OkResult();
+            }
+            else if (result == 0)
+            {
+                return new NotFoundResult();
+            }
+            else
+            {
+                return new BadRequestResult();
+            }
         }
         #endregion
 
@@ -209,6 +365,45 @@ namespace SardCoreAPI.Controllers.Map
 
             return new BadRequestResult();
         }
+
+        [HttpPut(Name = "PutContinent")]
+        public async Task<IActionResult> PutContinent([FromBody] Continent data)
+        {
+            int result = await new AreaDataAccess().PutContinent(data);
+            if (result > 0)
+            {
+                return new OkResult();
+            }
+            else if (result == 0)
+            {
+                return new NotFoundResult();
+            }
+            else
+            {
+                return new BadRequestResult();
+            }
+        }
+
+        [HttpDelete(Name = "DeleteContinent")]
+        public async Task<IActionResult> DeleteContinent([FromQuery] int? Id)
+        {
+            if (Id == null) { return new BadRequestResult(); }
+
+            int result = await new AreaDataAccess().DeleteContinent((int)Id);
+
+            if (result > 0)
+            {
+                return new OkResult();
+            }
+            else if (result == 0)
+            {
+                return new NotFoundResult();
+            }
+            else
+            {
+                return new BadRequestResult();
+            }
+        }
         #endregion
 
         #region Celestial Object
@@ -247,6 +442,45 @@ namespace SardCoreAPI.Controllers.Map
             }
 
             return new BadRequestResult();
+        }
+
+        [HttpPut(Name = "PutCelestialObject")]
+        public async Task<IActionResult> PutCelestialObject([FromBody] CelestialObject data)
+        {
+            int result = await new AreaDataAccess().PutCelestialObject(data);
+            if (result > 0)
+            {
+                return new OkResult();
+            }
+            else if (result == 0)
+            {
+                return new NotFoundResult();
+            }
+            else
+            {
+                return new BadRequestResult();
+            }
+        }
+
+        [HttpDelete(Name = "DeleteCelestialObject")]
+        public async Task<IActionResult> DeleteCelestialObject([FromQuery] int? Id)
+        {
+            if (Id == null) { return new BadRequestResult(); }
+
+            int result = await new AreaDataAccess().DeleteCelestialObject((int)Id);
+
+            if (result > 0)
+            {
+                return new OkResult();
+            }
+            else if (result == 0)
+            {
+                return new NotFoundResult();
+            }
+            else
+            {
+                return new BadRequestResult();
+            }
         }
         #endregion
 
@@ -287,6 +521,45 @@ namespace SardCoreAPI.Controllers.Map
 
             return new BadRequestResult();
         }
+
+        [HttpPut(Name = "PutCelestialSystem")]
+        public async Task<IActionResult> PutCelestialSystem([FromBody] CelestialSystem data)
+        {
+            int result = await new AreaDataAccess().PutCelestialSystem(data);
+            if (result > 0)
+            {
+                return new OkResult();
+            }
+            else if (result == 0)
+            {
+                return new NotFoundResult();
+            }
+            else
+            {
+                return new BadRequestResult();
+            }
+        }
+
+        [HttpDelete(Name = "DeleteCelestialSystem")]
+        public async Task<IActionResult> DeleteCelestialSystem([FromQuery] int? Id)
+        {
+            if (Id == null) { return new BadRequestResult(); }
+
+            int result = await new AreaDataAccess().DeleteCelestialSystem((int)Id);
+
+            if (result > 0)
+            {
+                return new OkResult();
+            }
+            else if (result == 0)
+            {
+                return new NotFoundResult();
+            }
+            else
+            {
+                return new BadRequestResult();
+            }
+        }
         #endregion
 
         #region Manifold
@@ -325,6 +598,45 @@ namespace SardCoreAPI.Controllers.Map
             }
 
             return new BadRequestResult();
+        }
+
+        [HttpPut(Name = "PutManifold")]
+        public async Task<IActionResult> PutManifold([FromBody] Manifold data)
+        {
+            int result = await new AreaDataAccess().PutManifold(data);
+            if (result > 0)
+            {
+                return new OkResult();
+            }
+            else if (result == 0)
+            {
+                return new NotFoundResult();
+            }
+            else
+            {
+                return new BadRequestResult();
+            }
+        }
+
+        [HttpDelete(Name = "DeleteManifold")]
+        public async Task<IActionResult> DeleteManifold([FromQuery] int? Id)
+        {
+            if (Id == null) { return new BadRequestResult(); }
+
+            int result = await new AreaDataAccess().DeleteManifold((int)Id);
+
+            if (result > 0)
+            {
+                return new OkResult();
+            }
+            else if (result == 0)
+            {
+                return new NotFoundResult();
+            }
+            else
+            {
+                return new BadRequestResult();
+            }
         }
         #endregion
     }
