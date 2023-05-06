@@ -3,6 +3,7 @@ using Dapper;
 using SardCoreAPI.Models.Map.LocationType;
 using SardCoreAPI.Models.Map.Area;
 using SardCoreAPI.Models.Map.Location;
+using Microsoft.AspNetCore.Mvc;
 
 namespace SardCoreAPI.DataAccess.Map
 {
@@ -31,13 +32,13 @@ namespace SardCoreAPI.DataAccess.Map
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return null;
+                throw s;
             }
         }
 
         public Area GetArea(int? Id)
         {
-            if (Id == null) return null;
+            if (Id == null) throw new Exception();
 
             string sql = @"SELECT 
                     a.Id as Id, a.Name as Name, a.Longitude, a.Latitude,
@@ -67,22 +68,14 @@ namespace SardCoreAPI.DataAccess.Map
             {
                 using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
                 {
-                    connection.Open();
-                    try
-                    {
-                        var data = connection.QueryFirst<Area>(template.RawSql, new { Id });
-                        return data;
-                    }
-                    catch
-                    {
-                        return null;
-                    }
+                    var data = connection.QueryFirst<Area>(template.RawSql, new { Id });
+                    return data;
                 }
             }
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return null;
+                throw s;
             }
         }
 
@@ -129,7 +122,7 @@ namespace SardCoreAPI.DataAccess.Map
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return -1;
+                throw s;
             }
         }
 
@@ -147,7 +140,7 @@ namespace SardCoreAPI.DataAccess.Map
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return -1;
+                throw s;
             }
         }
         #endregion
@@ -175,13 +168,13 @@ namespace SardCoreAPI.DataAccess.Map
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return null;
+                throw s;
             }
         }
 
         public Subregion GetSubregion(int? Id)
         {
-            if (Id == null) return null;
+            if (Id == null) throw new Exception();
 
             string sql = @"SELECT 
                     sr.Id as Id, sr.Name as Name, sr.Longitude, sr.Latitude,
@@ -210,21 +203,14 @@ namespace SardCoreAPI.DataAccess.Map
                 using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
                 {
                     connection.Open();
-                    try
-                    {
-                        var data = connection.QueryFirst<Subregion>(template.RawSql, new { Id });
-                        return data;
-                    }
-                    catch
-                    {
-                        return null;
-                    }
+                    var data = connection.QueryFirst<Subregion>(template.RawSql, new { Id });
+                    return data;
                 }
             }
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return null;
+                throw s;
             }
         }
 
@@ -271,7 +257,7 @@ namespace SardCoreAPI.DataAccess.Map
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return -1;
+                throw s;
             }
         }
 
@@ -289,7 +275,7 @@ namespace SardCoreAPI.DataAccess.Map
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return -1;
+                throw s;
             }
         }
         #endregion
@@ -317,13 +303,13 @@ namespace SardCoreAPI.DataAccess.Map
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return null;
+                throw s;
             }
         }
 
         public Region GetRegion(int? Id)
         {
-            if (Id == null) return null;
+            if (Id == null) throw new Exception();
 
             string sql = @"SELECT 
                     r.Id as Id, r.Name as Name, r.Longitude, r.Latitude,
@@ -350,21 +336,14 @@ namespace SardCoreAPI.DataAccess.Map
                 using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
                 {
                     connection.Open();
-                    try
-                    {
-                        var data = connection.QueryFirst<Region>(template.RawSql, new { Id });
-                        return data;
-                    }
-                    catch
-                    {
-                        return null;
-                    }
+                    var data = connection.QueryFirst<Region>(template.RawSql, new { Id });
+                    return data;
                 }
             }
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return null;
+                throw s;
             }
         }
 
@@ -411,7 +390,7 @@ namespace SardCoreAPI.DataAccess.Map
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return -1;
+                throw s;
             }
         }
 
@@ -429,7 +408,7 @@ namespace SardCoreAPI.DataAccess.Map
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return -1;
+                throw s;
             }
         }
         #endregion
@@ -457,13 +436,13 @@ namespace SardCoreAPI.DataAccess.Map
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return null;
+                throw s;
             }
         }
 
         public Subcontinent GetSubcontinent(int? Id)
         {
-            if (Id == null) return null;
+            if (Id == null) throw new Exception();
 
             string sql = @"SELECT 
                     sc.Id as Id, sc.Name as Name, sc.Longitude, sc.Latitude,
@@ -488,21 +467,14 @@ namespace SardCoreAPI.DataAccess.Map
                 using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
                 {
                     connection.Open();
-                    try
-                    {
-                        var data = connection.QueryFirst<Subcontinent>(template.RawSql, new { Id });
-                        return data;
-                    }
-                    catch
-                    {
-                        return null;
-                    }
+                    var data = connection.QueryFirst<Subcontinent>(template.RawSql, new { Id });
+                    return data;
                 }
             }
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return null;
+                throw s;
             }
         }
 
@@ -549,7 +521,7 @@ namespace SardCoreAPI.DataAccess.Map
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return -1;
+                throw s;
             }
         }
 
@@ -567,7 +539,7 @@ namespace SardCoreAPI.DataAccess.Map
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return -1;
+                throw s;
             }
         }
         #endregion
@@ -595,13 +567,13 @@ namespace SardCoreAPI.DataAccess.Map
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return null;
+                throw s;
             }
         }
 
         public Continent GetContinent(int? Id)
         {
-            if (Id == null) return null;
+            if (Id == null) throw new Exception();
 
             string sql = @"SELECT 
                     c.Id as Id, c.Name as Name, c.Longitude, c.Latitude,
@@ -624,21 +596,14 @@ namespace SardCoreAPI.DataAccess.Map
                 using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
                 {
                     connection.Open();
-                    try
-                    {
-                        var data = connection.QueryFirst<Continent>(template.RawSql, new { Id });
-                        return data;
-                    }
-                    catch
-                    {
-                        return null;
-                    }
+                    var data = connection.QueryFirst<Continent>(template.RawSql, new { Id });
+                    return data;
                 }
             }
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return null;
+                throw s;
             }
         }
 
@@ -685,13 +650,14 @@ namespace SardCoreAPI.DataAccess.Map
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return -1;
+                throw s;
             }
         }
 
         public async Task<int> DeleteContinent(int Id)
         {
             string sql = @"DELETE FROM Continents WHERE Id = @Id;";
+
             try
             {
                 using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
@@ -703,7 +669,7 @@ namespace SardCoreAPI.DataAccess.Map
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return -1;
+                throw s;
             }
         }
         #endregion
@@ -731,13 +697,13 @@ namespace SardCoreAPI.DataAccess.Map
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return null;
+                throw s;
             }
         }
 
         public CelestialObject GetCelestialObject(int? Id)
         {
-            if (Id == null) return null;
+            if (Id == null) throw new Exception();
 
             string sql = @"SELECT 
                     cb.Id as Id, cb.Name as Name,
@@ -758,21 +724,14 @@ namespace SardCoreAPI.DataAccess.Map
                 using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
                 {
                     connection.Open();
-                    try
-                    {
-                        var data = connection.QueryFirst<CelestialObject>(template.RawSql, new { Id });
-                        return data;
-                    }
-                    catch
-                    {
-                        return null;
-                    }
+                    var data = connection.QueryFirst<CelestialObject>(template.RawSql, new { Id });
+                    return data;
                 }
             }
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return null;
+                throw s;
             }
         }
 
@@ -817,7 +776,7 @@ namespace SardCoreAPI.DataAccess.Map
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return -1;
+                throw s;
             }
         }
 
@@ -835,7 +794,7 @@ namespace SardCoreAPI.DataAccess.Map
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return -1;
+                throw s;
             }
         }
         #endregion
@@ -863,13 +822,13 @@ namespace SardCoreAPI.DataAccess.Map
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return null;
+                throw s;
             }
         }
 
         public CelestialSystem GetCelestialSystem(int? Id)
         {
-            if (Id == null) return null;
+            if (Id == null) throw new Exception();
 
             string sql = @"SELECT 
                     cs.Id as Id, cs.Name as Name,
@@ -888,21 +847,14 @@ namespace SardCoreAPI.DataAccess.Map
                 using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
                 {
                     connection.Open();
-                    try
-                    {
-                        var data = connection.QueryFirst<CelestialSystem>(template.RawSql, new { Id });
-                        return data;
-                    }
-                    catch
-                    {
-                        return null;
-                    }
+                    var data = connection.QueryFirst<CelestialSystem>(template.RawSql, new { Id });
+                    return data;
                 }
             }
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return null;
+                throw s;
             }
         }
 
@@ -925,7 +877,7 @@ namespace SardCoreAPI.DataAccess.Map
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return false;
+                throw s;
             }
         }
 
@@ -947,7 +899,7 @@ namespace SardCoreAPI.DataAccess.Map
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return -1;
+                throw s;
             }
         }
 
@@ -965,7 +917,7 @@ namespace SardCoreAPI.DataAccess.Map
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return -1;
+                throw s;
             }
         }
         #endregion
@@ -993,13 +945,13 @@ namespace SardCoreAPI.DataAccess.Map
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return null;
+                throw s;
             }
         }
 
         public Manifold GetManifold(int? Id)
         {
-            if (Id == null) return null;
+            if (Id == null) throw new Exception();
 
             string sql = @"SELECT 
                     m.Id as Id, m.Name as Name
@@ -1016,21 +968,14 @@ namespace SardCoreAPI.DataAccess.Map
                 using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
                 {
                     connection.Open();
-                    try
-                    {
-                        var data = connection.QueryFirst<Manifold>(template.RawSql, new { Id });
-                        return data;
-                    }
-                    catch
-                    {
-                        return null;
-                    }
+                    var data = connection.QueryFirst<Manifold>(template.RawSql, new { Id });
+                    return data;
                 }
             }
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return null;
+                throw s;
             }
         }
 
@@ -1053,7 +998,7 @@ namespace SardCoreAPI.DataAccess.Map
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return false;
+                throw s;
             }
         }
 
@@ -1075,7 +1020,7 @@ namespace SardCoreAPI.DataAccess.Map
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return -1;
+                throw s;
             }
         }
 
@@ -1093,7 +1038,7 @@ namespace SardCoreAPI.DataAccess.Map
             catch (MySqlException s)
             {
                 Console.WriteLine(s);
-                return -1;
+                throw s;
             }
         }
         #endregion

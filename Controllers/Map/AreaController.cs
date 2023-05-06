@@ -2,6 +2,8 @@
 using SardCoreAPI.DataAccess.Map;
 using SardCoreAPI.Models.Map.Location;
 using SardCoreAPI.Models.Map.Area;
+using SardCoreAPI.Utility.Error;
+using MySqlConnector;
 
 namespace SardCoreAPI.Controllers.Map
 {
@@ -77,19 +79,18 @@ namespace SardCoreAPI.Controllers.Map
         {
             if (Id == null) { return new BadRequestResult(); }
 
-            int result = await new AreaDataAccess().DeleteArea((int)Id);
-
-            if (result > 0)
+            try
             {
-                return new OkResult();
+                int result = await new AreaDataAccess().DeleteArea((int)Id);
+                return result.HandleDelete();
             }
-            else if (result == 0)
+            catch (MySqlException ex)
             {
-                return new NotFoundResult();
+                return ex.Handle();
             }
-            else
+            catch (Exception ex)
             {
-                return new BadRequestResult();
+                return ex.Handle();
             }
         }
         #endregion
@@ -155,19 +156,18 @@ namespace SardCoreAPI.Controllers.Map
         {
             if (Id == null) { return new BadRequestResult(); }
 
-            int result = await new AreaDataAccess().DeleteSubregion((int)Id);
-
-            if (result > 0)
+            try
             {
-                return new OkResult();
+                int result = await new AreaDataAccess().DeleteSubregion((int)Id);
+                return result.HandleDelete();
             }
-            else if (result == 0)
+            catch (MySqlException ex)
             {
-                return new NotFoundResult();
+                return ex.Handle();
             }
-            else
+            catch (Exception ex)
             {
-                return new BadRequestResult();
+                return ex.Handle();
             }
         }
         #endregion
@@ -233,19 +233,18 @@ namespace SardCoreAPI.Controllers.Map
         {
             if (Id == null) { return new BadRequestResult(); }
 
-            int result = await new AreaDataAccess().DeleteRegion((int)Id);
-
-            if (result > 0)
+            try
             {
-                return new OkResult();
+                int result = await new AreaDataAccess().DeleteRegion((int)Id);
+                return result.HandleDelete();
             }
-            else if (result == 0)
+            catch (MySqlException ex)
             {
-                return new NotFoundResult();
+                return ex.Handle();
             }
-            else
+            catch (Exception ex)
             {
-                return new BadRequestResult();
+                return ex.Handle();
             }
         }
         #endregion
@@ -311,19 +310,18 @@ namespace SardCoreAPI.Controllers.Map
         {
             if (Id == null) { return new BadRequestResult(); }
 
-            int result = await new AreaDataAccess().DeleteSubcontinent((int)Id);
-
-            if (result > 0)
+            try
             {
-                return new OkResult();
+                int result = await new AreaDataAccess().DeleteSubcontinent((int)Id);
+                return result.HandleDelete();
             }
-            else if (result == 0)
+            catch (MySqlException ex)
             {
-                return new NotFoundResult();
+                return ex.Handle();
             }
-            else
+            catch (Exception ex)
             {
-                return new BadRequestResult();
+                return ex.Handle();
             }
         }
         #endregion
@@ -389,19 +387,18 @@ namespace SardCoreAPI.Controllers.Map
         {
             if (Id == null) { return new BadRequestResult(); }
 
-            int result = await new AreaDataAccess().DeleteContinent((int)Id);
-
-            if (result > 0)
+            try
             {
-                return new OkResult();
+                int result = await new AreaDataAccess().DeleteContinent((int)Id);
+                return result.HandleDelete();
             }
-            else if (result == 0)
+            catch (MySqlException ex) 
             {
-                return new NotFoundResult();
+                return ex.Handle();
             }
-            else
+            catch (Exception ex)
             {
-                return new BadRequestResult();
+                return ex.Handle();
             }
         }
         #endregion
@@ -467,19 +464,18 @@ namespace SardCoreAPI.Controllers.Map
         {
             if (Id == null) { return new BadRequestResult(); }
 
-            int result = await new AreaDataAccess().DeleteCelestialObject((int)Id);
-
-            if (result > 0)
+            try
             {
-                return new OkResult();
+                int result = await new AreaDataAccess().DeleteCelestialObject((int)Id);
+                return result.HandleDelete();
             }
-            else if (result == 0)
+            catch (MySqlException ex)
             {
-                return new NotFoundResult();
+                return ex.Handle();
             }
-            else
+            catch (Exception ex)
             {
-                return new BadRequestResult();
+                return ex.Handle();
             }
         }
         #endregion
@@ -545,19 +541,18 @@ namespace SardCoreAPI.Controllers.Map
         {
             if (Id == null) { return new BadRequestResult(); }
 
-            int result = await new AreaDataAccess().DeleteCelestialSystem((int)Id);
-
-            if (result > 0)
+            try
             {
-                return new OkResult();
+                int result = await new AreaDataAccess().DeleteCelestialSystem((int)Id);
+                return result.HandleDelete();
             }
-            else if (result == 0)
+            catch (MySqlException ex)
             {
-                return new NotFoundResult();
+                return ex.Handle();
             }
-            else
+            catch (Exception ex)
             {
-                return new BadRequestResult();
+                return ex.Handle();
             }
         }
         #endregion
@@ -623,19 +618,18 @@ namespace SardCoreAPI.Controllers.Map
         {
             if (Id == null) { return new BadRequestResult(); }
 
-            int result = await new AreaDataAccess().DeleteManifold((int)Id);
-
-            if (result > 0)
+            try
             {
-                return new OkResult();
+                int result = await new AreaDataAccess().DeleteManifold((int)Id);
+                return result.HandleDelete();
             }
-            else if (result == 0)
+            catch (MySqlException ex)
             {
-                return new NotFoundResult();
+                return ex.Handle();
             }
-            else
+            catch (Exception ex)
             {
-                return new BadRequestResult();
+                return ex.Handle();
             }
         }
         #endregion
