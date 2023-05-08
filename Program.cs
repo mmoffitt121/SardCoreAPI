@@ -8,6 +8,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddLogging();
 builder.Services.AddCors(options =>
     {
         options.AddPolicy("AllowOrigin",
@@ -29,6 +30,15 @@ app.UseCors(builder =>
     builder.WithOrigins("http://localhost:4200")
            .AllowAnyHeader()
            .AllowAnyMethod());
+
+app.Use(async (context, next) =>
+{
+    var request = context.Request;
+    var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+    logger.LogInformation($"Received Request: {request.Method} {request.Path}");
+
+    await next.Invoke();
+});
 
 app.UseHttpsRedirection();
 

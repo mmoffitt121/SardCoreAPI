@@ -17,12 +17,6 @@ namespace SardCoreAPI.Controllers.Map
             _logger = logger;
         }
 
-        /*[HttpGet(Name = "GetMaps")]
-        public IEnumerable<Map> GetMaps([FromQuery] MapSearchCriteria criteria)
-        {
-            return MapCode.GetMaps(criteria);
-        }*/
-
         [HttpGet(Name = "GetTile")]
         public async Task<IActionResult> GetTile(int z, int x, int y, int layerId)
         {
