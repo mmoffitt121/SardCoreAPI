@@ -10,14 +10,33 @@ CREATE TABLE IF NOT EXISTS Eras (
 	PRIMARY KEY (Id)
 );
 
+/*** Document Types ***/
+
+CREATE TABLE IF NOT EXISTS DocumentTypes (
+	Id        INT            NOT NULL AUTO_INCREMENT,
+	Name      VARCHAR (1000) NOT NULL,
+	Diagetic  BIT            NOT NULL,
+	PRIMARY KEY (Id)
+);
+
 /*** Document ***/
 
 CREATE TABLE IF NOT EXISTS Documents (
-	Id          INT              NOT NULL AUTO_INCREMENT,
-	Title       VARCHAR (1000)   NOT NULL,
-	Subtitle    VARCHAR (1000),
-	Summary     VARCHAR (6000),
-	Content     MEDIUMTEXT,
+	Id             INT              NOT NULL AUTO_INCREMENT,
+	Title          VARCHAR (1000)   NOT NULL,
+	Subtitle       VARCHAR (1000),
+    DocumentTypeId INT,
+	Summary        VARCHAR (6000),
+	Content        MEDIUMTEXT,
+	PRIMARY KEY (Id),
+    FOREIGN KEY (DocumentTypeId) REFERENCES DocumentTypes (Id)
+);
+
+/*** Document Information ***/
+
+CREATE TABLE IF NOT EXISTS Publishers (
+	Id            INT           NOT NULL AUTO_INCREMENT,
+	PublisherName INT           NOT NULL,
 	PRIMARY KEY (Id)
 );
 
@@ -197,23 +216,4 @@ CREATE TABLE IF NOT EXISTS People (
 	FOREIGN KEY (RaceId) REFERENCES Races (Id),
 	FOREIGN KEY (BirthEraId) REFERENCES Eras (Id),
 	FOREIGN KEY (TitleId) REFERENCES Titles (Id)
-);
-
-/*** Document Types ***/
-
-CREATE TABLE IF NOT EXISTS DocumentTypes (
-	Id        INT            NOT NULL AUTO_INCREMENT,
-	Name      VARCHAR (1000) NOT NULL,
-	Diagetic  BIT            NOT NULL,
-	PRIMARY KEY (Id)
-);
-
-/*** Document Information ***/
-
-CREATE TABLE IF NOT EXISTS Publishers (
-	Id            INT           NOT NULL AUTO_INCREMENT,
-	PublisherName INT           NOT NULL,
-	LocationId    INT,
-	PRIMARY KEY (Id),
-	FOREIGN KEY (LocationId) REFERENCES Locations(Id)
 );

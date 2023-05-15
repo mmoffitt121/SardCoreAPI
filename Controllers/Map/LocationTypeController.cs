@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using SardCoreAPI.DataAccess.Map;
-using SardCoreAPI.Models.Document.SearchCriteria;
 using SardCoreAPI.Models.Map.Location;
 using SardCoreAPI.Models.Map.LocationType;
 using SardCoreAPI.Models.Map.MapTile;

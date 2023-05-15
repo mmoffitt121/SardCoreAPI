@@ -1,5 +1,4 @@
 ﻿using Microsoft.Data.SqlClient;
-using SardCoreAPI.Models.Document.SearchResults;
 using Dapper;
 using ImageMagick;
 using SardCoreAPI.Models.Map.MapTile;

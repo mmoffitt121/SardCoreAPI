@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SardCoreAPI.Models.Document.SearchCriteria;
 using SardCoreAPI.Models;
 using SardCoreAPI.Controllers.Map;
 using SardCoreAPI.Models.Document;
