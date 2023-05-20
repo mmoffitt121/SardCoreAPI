@@ -1,12 +1,17 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SardCoreAPI.Controllers.Map;
 
 namespace SardCoreAPI.Controllers.DataPoint
 {
+    [ApiController]
+    [Route("Library/[controller]/[action]")]
     public class DataPointController : Controller
     {
-        public IActionResult Index()
+        private readonly ILogger<MapController> _logger;
+
+        public DataPointController(ILogger<MapController> logger)
         {
-            return View();
+            _logger = logger;
         }
     }
 }
