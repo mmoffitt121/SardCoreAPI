@@ -1,4 +1,4 @@
-﻿namespace SardCoreAPI.DataAccess.DataPoint
+﻿namespace SardCoreAPI.DataAccess.DataPoints
 {
     public class DataPointDataAccess
     {

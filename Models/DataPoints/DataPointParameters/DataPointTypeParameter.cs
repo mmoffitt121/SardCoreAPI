@@ -1,4 +1,4 @@
-﻿namespace SardCoreAPI.Models.DataPoint.DataPointParameter
+﻿namespace SardCoreAPI.Models.DataPoints.DataPointParameters
 {
     public class DataPointTypeParameter
     {
