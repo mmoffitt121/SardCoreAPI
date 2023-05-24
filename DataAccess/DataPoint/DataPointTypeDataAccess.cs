@@ -49,18 +49,18 @@ namespace SardCoreAPI.DataAccess.DataPoints
             }
         }
 
-        /*
-        public bool PostLocation(Location location)
+        
+        public bool PostDataPointType(DataPointType data)
         {
-            string sql = @"INSERT INTO Locations (LocationName, AreaId, LocationTypeId, Longitude, Latitude) 
-                VALUES (@LocationName, @AreaId, @LocationTypeId, @Longitude, @Latitude)";
+            string sql = @"INSERT INTO DataPointTypes (Name, Summary) 
+                VALUES (@Name, @Summary)";
 
             try
             {
                 using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
                 {
                     connection.Open();
-                    if (connection.Execute(sql, location) > 0)
+                    if (connection.Execute(sql, data) > 0)
                     {
                         return true;
                     }
@@ -73,7 +73,7 @@ namespace SardCoreAPI.DataAccess.DataPoints
                 return false;
             }
         }
-
+        /*
         public async Task<int> PutLocation(Location location)
         {
             string sql = @"UPDATE Locations SET 

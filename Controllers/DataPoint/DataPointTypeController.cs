@@ -49,19 +49,19 @@ namespace SardCoreAPI.Controllers.DataPoint
             return new OkObjectResult(result);
         }
 
-        /*[HttpPost(Name = "PostDataPointType")]
-        public IActionResult PostDataPointType([FromBody] Location location)
+        [HttpPost(Name = "PostDataPointType")]
+        public IActionResult PostDataPointType([FromBody] DataPointType data)
         {
-            if (location == null) { return new BadRequestResult(); }
+            if (data == null) { return new BadRequestResult(); }
 
-            if (new LocationDataAccess().PostLocation(location))
+            if (new DataPointTypeDataAccess().PostDataPointType(data))
             {
                 return new OkResult();
             }
 
             return new BadRequestResult();
         }
-
+        /*
         [HttpPut(Name = "PutDataPointType")]
         public async Task<IActionResult> PutDataPointType([FromBody] Location location)
         {
