@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace SardCoreAPI.DataAccess.DataPoints
 {
-    public class DataPointTypeDataAccess
+    public class DataPointTypeDataAccess : GenericDataAccess
     {
         public async Task<List<DataPointType>> GetDataPointTypes(PagedSearchCriteria criteria)
         {
@@ -33,88 +33,33 @@ namespace SardCoreAPI.DataAccess.DataPoints
 
             builder.OrderBy("Name");
 
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
-                {
-                    connection.Open();
-                    List<DataPointType> dataPointTypes = (await connection.QueryAsync<DataPointType>(template.RawSql, criteria)).ToList();
-                    return dataPointTypes;
-                }
-            }
-            catch (MySqlException s)
-            {
-                Console.WriteLine(s);
-                return null;
-            }
+            return await Query<DataPointType>(template.RawSql, criteria);
         }
 
         
-        public bool PostDataPointType(DataPointType data)
+        public async Task<int> PostDataPointType(DataPointType data)
         {
             string sql = @"INSERT INTO DataPointTypes (Name, Summary) 
                 VALUES (@Name, @Summary)";
 
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
-                {
-                    connection.Open();
-                    if (connection.Execute(sql, data) > 0)
-                    {
-                        return true;
-                    }
-                    return false;
-                }
-            }
-            catch (MySqlException s)
-            {
-                Console.WriteLine(s);
-                return false;
-            }
+            return await Execute(sql, data);
         }
-        /*
-        public async Task<int> PutLocation(Location location)
+        
+        public async Task<int> PutDataPointType(DataPointType data)
         {
-            string sql = @"UPDATE Locations SET 
-	                LocationName = @LocationName,
-                    AreaId = @AreaId,
-                    LocationTypeId = @LocationTypeId,
-                    Longitude = @Longitude,
-                    Latitude = @Latitude
+            string sql = @"UPDATE DataPointTypes SET 
+	                Name = @Name,
+                    Summary = @Summary
                 WHERE Id = @Id";
 
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
-                {
-                    connection.Open();
-                    return await connection.ExecuteAsync(sql, location);
-                }
-            }
-            catch (MySqlException s)
-            {
-                Console.WriteLine(s);
-                return -1;
-            }
+            return await Execute(sql, data);
         }
-
-        public async Task<int> DeleteLocation(int Id)
+        
+        public async Task<int> DeleteDataPointType(int Id)
         {
-            string sql = @"DELETE FROM Locations WHERE Id = @Id;";
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
-                {
-                    connection.Open();
-                    return await connection.ExecuteAsync(sql, new { Id });
-                }
-            }
-            catch (MySqlException s)
-            {
-                Console.WriteLine(s);
-                return -1;
-            }
-        }*/
+            string sql = @"DELETE FROM DataPointTypes WHERE Id = @Id;";
+            
+            return await Execute(sql, Id);
+        }
     }
 }

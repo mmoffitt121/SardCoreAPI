@@ -6,14 +6,12 @@ using System.Linq;
 
 namespace SardCoreAPI.DataAccess.DataPoint
 {
-    public class DataPointTypeParameterDataAccess
+    public class DataPointTypeParameterDataAccess : GenericDataAccess
     {
-        public async Task<List<DataPointTypeParameter>> GetDataPointTypeParameters(int? Id)
+        public async Task<List<DataPointTypeParameter>> GetDataPointTypeParameters(int Id)
         {
-            if (Id == null) return null;
-
             string sql = @"SELECT Id, Name, Summary, DataPointTypeId, TypeValue, Sequence 
-                    FROM datapointtypeparameter
+                    FROM DataPointTypeParameter
                     /**where**/
                     ORDER BY Sequence";
 
@@ -22,27 +20,42 @@ namespace SardCoreAPI.DataAccess.DataPoint
 
             builder.Where("DataPointTypeId = @Id");
 
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
-                {
-                    connection.Open();
-                    try
-                    {
-                        List<DataPointTypeParameter> result = (await connection.QueryAsync<DataPointTypeParameter>(template.RawSql, new { Id })).ToList();
-                        return result;
-                    }
-                    catch
-                    {
-                        return null;
-                    }
-                }
-            }
-            catch (MySqlException s)
-            {
-                Console.WriteLine(s);
-                return null;
-            }
+            return await Query<DataPointTypeParameter>(template.RawSql, new { Id });
+        }
+
+        public async Task<int> PostDataPointTypeParameter(DataPointTypeParameter data)
+        {
+            string sql = @"INSERT INTO DataPointTypeParameter (Name, Summary, DataPointTypeId, TypeValue, Sequence)
+                    VALUES (@Name, @Summary, @DataPointTypeId, @TypeValue, @Sequence)";
+
+            SqlBuilder builder = new SqlBuilder();
+            var template = builder.AddTemplate(sql);
+
+            builder.Where("DataPointTypeId = @Id");
+
+            return await Execute(template.RawSql, data);
+        }
+
+        public async Task<int> PutDataPointTypeParameter(DataPointTypeParameter data)
+        {
+            string sql = @"UPDATE DataPointTypeParameter
+                SET
+                    Name = @Name,
+                    Summary = @Summary,
+                    DataPointTypeId = @DataPointTypeId,
+                    Typevalue = @TypeValue,
+                    Sequence = @Sequence
+                WHERE Id = @Id";
+
+            return await Execute(sql, data);
+        }
+
+        public async Task<int> DeleteDataPointTypeParameter(DataPointTypeParameter data)
+        {
+            string sql = @"DELETE FROM DataPointTypeParameter
+                WHERE Id = @Id";
+
+            return await Execute(sql, data);
         }
     }
 }

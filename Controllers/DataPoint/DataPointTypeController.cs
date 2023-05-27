@@ -39,10 +39,12 @@ namespace SardCoreAPI.Controllers.DataPoint
         {
             if (Id == null) { return new BadRequestResult(); }
 
+            // Get Data Point Type
             DataPointType? result = (await new DataPointTypeDataAccess().GetDataPointTypes(new PagedSearchCriteria() { Id = Id })).FirstOrDefault();
 
             if (result == null) { return new NotFoundResult(); }
 
+            // Attach Parameters
             List<DataPointTypeParameter> parameters = (await new DataPointTypeParameterDataAccess().GetDataPointTypeParameters(result.Id)).ToList();
             result.TypeParameters = parameters;
 
@@ -50,22 +52,51 @@ namespace SardCoreAPI.Controllers.DataPoint
         }
 
         [HttpPost(Name = "PostDataPointType")]
-        public IActionResult PostDataPointType([FromBody] DataPointType data)
+        public async Task<IActionResult> PostDataPointType([FromBody] DataPointType data)
         {
             if (data == null) { return new BadRequestResult(); }
 
-            if (new DataPointTypeDataAccess().PostDataPointType(data))
+            if (await new DataPointTypeDataAccess().PostDataPointType(data) == 1)
             {
                 return new OkResult();
             }
 
             return new BadRequestResult();
         }
-        /*
+        
         [HttpPut(Name = "PutDataPointType")]
-        public async Task<IActionResult> PutDataPointType([FromBody] Location location)
+        public async Task<IActionResult> PutDataPointType([FromBody] DataPointType data)
         {
-            int result = await new LocationDataAccess().PutLocation(location);
+            int result = await new DataPointTypeDataAccess().PutDataPointType(data);
+
+            List<DataPointTypeParameter> currentParameters = (await new DataPointTypeParameterDataAccess().GetDataPointTypeParameters(data.Id)).ToList();
+            List<DataPointTypeParameter> newParameters = data.TypeParameters ?? new List<DataPointTypeParameter>();
+
+            DataPointTypeParameterComparer comparer = new DataPointTypeParameterComparer();
+
+            List<DataPointTypeParameter> toEdit = newParameters.Intersect(currentParameters, comparer).ToList();
+            List<DataPointTypeParameter> toCreate = newParameters.Except(toEdit, comparer).ToList();
+            List<DataPointTypeParameter> toDelete = currentParameters.Except(toEdit, comparer).ToList();
+
+            DataPointTypeParameterDataAccess parameterDataAccess = new DataPointTypeParameterDataAccess();
+
+            List<Task> tasks = new List<Task>();
+
+            foreach (DataPointTypeParameter parameter in toCreate)
+            {
+                tasks.Add(parameterDataAccess.PostDataPointTypeParameter(parameter));
+            }
+            foreach (DataPointTypeParameter parameter in toEdit)
+            {
+                tasks.Add(parameterDataAccess.PutDataPointTypeParameter(parameter));
+            }
+            foreach (DataPointTypeParameter parameter in toDelete)
+            {
+                tasks.Add(parameterDataAccess.DeleteDataPointTypeParameter(parameter));
+            }
+
+            await Task.WhenAll(tasks);
+
             if (result > 0)
             {
                 return new OkResult();
@@ -79,13 +110,13 @@ namespace SardCoreAPI.Controllers.DataPoint
                 return new BadRequestResult();
             }
         }
-
-        [HttpDelete(Name = "DeleteDataPointType")]
+        
+        /*[HttpDelete(Name = "DeleteDataPointType")]
         public async Task<IActionResult> DeleteDataPointType([FromQuery] int? Id)
         {
             if (Id == null) { return new BadRequestResult(); }
 
-            int result = await new LocationDataAccess().DeleteLocation((int)Id);
+            int result = await new DataPointTypeDataAccess().DeleteDataPointType((int)Id);
 
             if (result > 0)
             {
