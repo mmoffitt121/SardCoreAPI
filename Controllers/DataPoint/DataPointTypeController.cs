@@ -111,7 +111,7 @@ namespace SardCoreAPI.Controllers.DataPoint
             }
         }
         
-        /*[HttpDelete(Name = "DeleteDataPointType")]
+        [HttpDelete(Name = "DeleteDataPointType")]
         public async Task<IActionResult> DeleteDataPointType([FromQuery] int? Id)
         {
             if (Id == null) { return new BadRequestResult(); }
@@ -130,6 +130,6 @@ namespace SardCoreAPI.Controllers.DataPoint
             {
                 return new BadRequestResult();
             }
-        }*/
+        }
     }
 }
