@@ -54,12 +54,39 @@ namespace SardCoreAPI.Controllers.DataPoints
 
             // Attach Parameters
             result.Parameters = new List<DataPointParameter>();
-            DataPointParameterDataAccess da = new DataPointParameterDataAccess();
+            DataPointParameterDataAccess dataAccess = new DataPointParameterDataAccess();
             foreach (DataPointTypeParameter tp in type.TypeParameters)
             {
                 if (tp.Id == null) { continue; }
-                DataPointParameter p = await da.GetParameter<DataPointParameter>(result.Id, (int)tp.Id, tp.TypeValue);
-                result.Parameters.Add(p);
+                DataPointParameter p;
+
+                switch (tp.TypeValue)
+                {
+                    case "int":
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterInt>(result.Id, (int)tp.Id, tp.TypeValue));
+                        break;
+                    case "dub":
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterDouble>(result.Id, (int)tp.Id, tp.TypeValue));
+                        break;
+                    case "str":
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterString>(result.Id, (int)tp.Id, tp.TypeValue));
+                        break;
+                    case "sum":
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterSummary>(result.Id, (int)tp.Id, tp.TypeValue));
+                        break;
+                    case "doc":
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterDocument>(result.Id, (int)tp.Id, tp.TypeValue));
+                        break;
+                    case "dat":
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterDataPoint>(result.Id, (int)tp.Id, tp.TypeValue));
+                        break;
+                    case "bit":
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterBoolean>(result.Id, (int)tp.Id, tp.TypeValue));
+                        break;
+                    default:
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameter>(result.Id, (int)tp.Id, tp.TypeValue));
+                        break;
+                }
             }
 
             return new OkObjectResult(result);
@@ -70,18 +97,85 @@ namespace SardCoreAPI.Controllers.DataPoints
         {
             if (data == null) { return new BadRequestResult(); }
 
-            if (await new DataPointDataAccess().PostDataPoint(data) != null)
-            {
+            // Get data point type
+            DataPointType? type = (await new DataPointTypeDataAccess().GetDataPointTypes(new PagedSearchCriteria() { Id = data.TypeId })).FirstOrDefault();
+            if (type == null) { return new BadRequestResult(); }
+            // Attach type Parameters
+            List<DataPointTypeParameter> typeParameters = (await new DataPointTypeParameterDataAccess().GetDataPointTypeParameters(type.Id)).ToList();
+            type.TypeParameters = typeParameters;
 
-                return new OkResult();
+            // Post initial data point
+            int? id = await new DataPointDataAccess().PostDataPoint(data);
+            if (id == null)
+            {
+                return new BadRequestResult();
             }
 
-            return new BadRequestResult();
+            // Initialize parameter data access
+            DataPointParameterDataAccess parameterDataAccess = new DataPointParameterDataAccess();
+
+            // Post all parameters
+            if (data.Parameters == null) { return new OkResult(); }
+            List<Task> tasks = new List<Task>();
+            foreach (DataPointParameter param in data.Parameters)
+            {
+                string? typeValue = type.TypeParameters.Where(p => p.Id == param.DataPointTypeParameterId).FirstOrDefault()?.TypeValue;
+                if (typeValue != null)
+                {
+                    param.DataPointId = (int)id;
+                    tasks.Add(parameterDataAccess.PostParameter(param, typeValue));
+                }
+            }
+            await Task.WhenAll(tasks);
+
+            return new OkObjectResult(id);
         }
 
         [HttpPut(Name = "PutDataPoint")]
         public async Task<IActionResult> PutDataPoint([FromBody] DataPoint data)
         {
+            /*int result = await new DataPointTypeDataAccess().PutDataPointType(data);
+
+            List<DataPointTypeParameter> currentParameters = (await new DataPointTypeParameterDataAccess().GetDataPointTypeParameters(data.Id)).ToList();
+            List<DataPointTypeParameter> newParameters = data.TypeParameters ?? new List<DataPointTypeParameter>();
+
+            DataPointTypeParameterComparer comparer = new DataPointTypeParameterComparer();
+
+            List<DataPointTypeParameter> toEdit = newParameters.Intersect(currentParameters, comparer).ToList();
+            List<DataPointTypeParameter> toCreate = newParameters.Except(toEdit, comparer).ToList();
+            List<DataPointTypeParameter> toDelete = currentParameters.Except(toEdit, comparer).ToList();
+
+            DataPointTypeParameterDataAccess parameterDataAccess = new DataPointTypeParameterDataAccess();
+
+            List<Task> tasks = new List<Task>();
+
+            foreach (DataPointTypeParameter parameter in toCreate)
+            {
+                tasks.Add(parameterDataAccess.PostDataPointTypeParameter(parameter));
+            }
+            foreach (DataPointTypeParameter parameter in toEdit)
+            {
+                tasks.Add(parameterDataAccess.PutDataPointTypeParameter(parameter));
+            }
+            foreach (DataPointTypeParameter parameter in toDelete)
+            {
+                tasks.Add(parameterDataAccess.DeleteDataPointTypeParameter(parameter));
+            }
+
+            await Task.WhenAll(tasks);
+
+            if (result > 0)
+            {
+                return new OkResult();
+            }
+            else if (result == 0)
+            {
+                return new NotFoundResult();
+            }
+            else
+            {
+                return new BadRequestResult();
+            }*/
             return null;
         }
 
