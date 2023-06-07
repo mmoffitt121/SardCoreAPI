@@ -5,7 +5,7 @@
     PRIMARY KEY (Id)
  );
  
- CREATE TABLE IF NOT EXISTS DataPointParameter (
+ CREATE TABLE IF NOT EXISTS DataPointTypeParameter (
 	Id               INT               NOT NULL AUTO_INCREMENT,
     Name             VARCHAR (1000),
     Summary          VARCHAR (3000),
@@ -16,10 +16,24 @@
     FOREIGN KEY (DataPointTypeId) REFERENCES DataPointTypes (Id)
  );
  
+  /*
+ The TypeValue field contains a character value representing what data type this is.
+    -> ‘int’ for integer
+    -> ‘dub’ for double
+    -> ‘str’ for string
+    -> ‘sum’ for summary
+    -> ‘doc’ for document
+    -> ‘img’ for image
+    -> ‘dat’ for data point
+    -> ‘bit’ for boolean
+ */
+ 
  CREATE TABLE IF NOT EXISTS DataPoints (
 	Id      INT               NOT NULL AUTO_INCREMENT,
     Name    VARCHAR (1000),
-    PRIMARY KEY (Id)
+    TypeId  INT               NOT NULL,
+    PRIMARY KEY (Id),
+    FOREIGN KEY (TypeId) REFERENCES DataPointTypes (Id)
  );
  
  CREATE TABLE IF NOT EXISTS DataPointParameterInt (
@@ -50,12 +64,19 @@
     PRIMARY KEY (DataPointId, DataPointTypeParameterId)
  );
  
+ CREATE TABLE IF NOT EXISTS DataPointParameterDocument (
+	DataPointId               INT        NOT NULL,
+    DataPointTypeParameterId  INT        NOT NULL,
+    Value                     LONGTEXT   NOT NULL,
+    PRIMARY KEY (DataPointId, DataPointTypeParameterId)
+ );
+ 
   CREATE TABLE IF NOT EXISTS DataPointParameterDataPoint (
 	DataPointId               INT NOT NULL,
     DataPointTypeParameterId  INT NOT NULL,
-    ValueId                   INT NOT NULL,
+    Value                     INT NOT NULL,
     PRIMARY KEY (DataPointId, DataPointTypeParameterId),
-    FOREIGN KEY (ValueId) REFERENCES DataPoints (Id)
+    FOREIGN KEY (Value) REFERENCES DataPoints (Id)
  );
  
  CREATE TABLE IF NOT EXISTS DataPointParameterBoolean (
@@ -64,18 +85,6 @@
     Value                     BIT NOT NULL,
     PRIMARY KEY (DataPointId, DataPointTypeParameterId)
  );
- 
- /*
- The TypeValue field contains a character value representing what data type this is.
-    -> ‘int’ for integer
-    -> ‘dub’ for double
-    -> ‘str’ for string
-    -> ‘sum’ for summary
-    -> ‘doc’ for document
-    -> ‘img’ for image
-    -> ‘dat’ for data point
-    -> ‘bit’ for boolean
- */
 
 /*** Time ***/
 
@@ -269,30 +278,3 @@ CREATE TABLE IF NOT EXISTS Locations (
     FOREIGN KEY (DocumentId) REFERENCES Documents (Id)
 );
 
-/*** Characters ***/
-
-CREATE TABLE IF NOT EXISTS Races (
-	Id       INT            NOT NULL AUTO_INCREMENT,
-	RaceName VARCHAR(1000)  NOT NULL,
-	PRIMARY KEY (Id)
-);
-
-CREATE TABLE IF NOT EXISTS Titles (
-	Id         INT             NOT NULL AUTO_INCREMENT,
-	TitleName  VARCHAR(1000)  NOT NULL,
-	PRIMARY KEY (Id)
-);
-
-CREATE TABLE IF NOT EXISTS People (
-	Id         INT             NOT NULL AUTO_INCREMENT,
-	FirstName  VARCHAR(1000),
-	LastName   VARCHAR(1000),
-	RaceId     INT,
-	BirthEraId INT,
-	BirthDate  BIGINT,
-	TitleId    INT,
-	PRIMARY KEY (Id),
-	FOREIGN KEY (RaceId) REFERENCES Races (Id),
-	FOREIGN KEY (BirthEraId) REFERENCES Eras (Id),
-	FOREIGN KEY (TitleId) REFERENCES Titles (Id)
-);

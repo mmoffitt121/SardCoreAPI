@@ -6,6 +6,7 @@ namespace SardCoreAPI.Models.DataPoints
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        List<DataPointParameter> Parameters { get; set; }
+        public int TypeId { get; set; }
+        public List<DataPointParameter>? Parameters { get; set; }
     }
 }

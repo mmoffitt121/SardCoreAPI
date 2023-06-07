@@ -4,7 +4,7 @@ using SardCoreAPI.Models.DataPoints.DataPointParameters;
 using SardCoreAPI.Models.Map.Location;
 using System.Linq;
 
-namespace SardCoreAPI.DataAccess.DataPoint
+namespace SardCoreAPI.DataAccess.DataPoints
 {
     public class DataPointTypeParameterDataAccess : GenericDataAccess
     {

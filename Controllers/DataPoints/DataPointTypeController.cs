@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SardCoreAPI.Controllers.Map;
-using SardCoreAPI.DataAccess.DataPoint;
 using SardCoreAPI.DataAccess.DataPoints;
 using SardCoreAPI.DataAccess.Map;
 using SardCoreAPI.Models.Common;
@@ -8,7 +7,7 @@ using SardCoreAPI.Models.DataPoints;
 using SardCoreAPI.Models.DataPoints.DataPointParameters;
 using SardCoreAPI.Models.Map.Location;
 
-namespace SardCoreAPI.Controllers.DataPoint
+namespace SardCoreAPI.Controllers.DataPoints
 {
     [ApiController]
     [Route("Library/[controller]/[action]")]

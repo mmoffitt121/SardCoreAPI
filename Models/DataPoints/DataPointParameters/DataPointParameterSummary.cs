@@ -2,6 +2,6 @@
 {
     public class DataPointParameterSummary : DataPointParameter
     {
-        public string Value { get; set; }
+        public string SummaryValue { get; set; }
     }
 }

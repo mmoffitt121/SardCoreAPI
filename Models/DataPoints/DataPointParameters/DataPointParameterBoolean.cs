@@ -2,6 +2,6 @@
 {
     public class DataPointParameterBoolean : DataPointParameter
     {
-        public bool Value { get; set; }
+        public bool BoolValue { get; set; }
     }
 }

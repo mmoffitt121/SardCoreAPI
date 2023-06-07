@@ -2,6 +2,6 @@
 {
     public class DataPointParameterDouble : DataPointParameter
     {
-        public double Value { get; set; }
+        public double DoubleValue { get; set; }
     }
 }

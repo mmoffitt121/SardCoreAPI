@@ -2,6 +2,6 @@
 {
     public class DataPointParameterDataPoint : DataPointParameter
     {
-        public int ValueId;
+        public int DataPointValueId { get; set; }
     }
 }
