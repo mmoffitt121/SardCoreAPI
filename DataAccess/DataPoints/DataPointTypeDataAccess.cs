@@ -40,9 +40,11 @@ namespace SardCoreAPI.DataAccess.DataPoints
         public async Task<int> PostDataPointType(DataPointType data)
         {
             string sql = @"INSERT INTO DataPointTypes (Name, Summary) 
-                VALUES (@Name, @Summary)";
+                VALUES (@Name, @Summary);
+            
+                SELECT LAST_INSERT_ID();";
 
-            return await Execute(sql, data);
+            return (await Query<int>(sql, data)).FirstOrDefault();
         }
         
         public async Task<int> PutDataPointType(DataPointType data)

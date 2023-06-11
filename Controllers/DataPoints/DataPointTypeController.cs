@@ -55,9 +55,11 @@ namespace SardCoreAPI.Controllers.DataPoints
         {
             if (data == null) { return new BadRequestResult(); }
 
-            if (await new DataPointTypeDataAccess().PostDataPointType(data) == 1)
+            int result = await new DataPointTypeDataAccess().PostDataPointType(data);
+
+            if (result != 0)
             {
-                return new OkResult();
+                return new OkObjectResult(result);
             }
 
             return new BadRequestResult();
@@ -114,6 +116,8 @@ namespace SardCoreAPI.Controllers.DataPoints
         public async Task<IActionResult> DeleteDataPointType([FromQuery] int? Id)
         {
             if (Id == null) { return new BadRequestResult(); }
+
+            await new DataPointTypeParameterDataAccess().DeleteDataPointTypeParametersOfDataType((int)Id);
 
             int result = await new DataPointTypeDataAccess().DeleteDataPointType((int)Id);
 

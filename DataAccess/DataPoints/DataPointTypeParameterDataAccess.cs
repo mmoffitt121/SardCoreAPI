@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using MySqlConnector;
+using SardCoreAPI.Models.DataPoints;
 using SardCoreAPI.Models.DataPoints.DataPointParameters;
 using SardCoreAPI.Models.Map.Location;
 using System.Linq;
@@ -56,6 +57,14 @@ namespace SardCoreAPI.DataAccess.DataPoints
                 WHERE Id = @Id";
 
             return await Execute(sql, data);
+        }
+
+        public async Task<int> DeleteDataPointTypeParametersOfDataType(int id)
+        {
+            string sql = @"DELETE FROM DataPointTypeParameter
+                WHERE DataPointTypeId = @Id";
+
+            return await Execute(sql, new { id });
         }
     }
 }
