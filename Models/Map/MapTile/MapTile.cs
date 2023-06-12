@@ -8,6 +8,14 @@
         public int LayerId { get; set; }
         public byte[] Tile { get; set; }
 
+        public string FileName
+        {
+            get
+            {
+                return LayerId + "." + Z + "." + X + "." + Y + ".png";
+            }
+        }
+
         public MapTile(int Z, int X, int Y, int layerId, byte[] Tile)
         {
             this.Z = Z;

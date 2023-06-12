@@ -61,7 +61,7 @@ namespace SardCoreAPI.DataAccess.DataPoints
         {
             string sql = @"DELETE FROM DataPointTypes WHERE Id = @Id;";
             
-            return await Execute(sql, Id);
+            return await Execute(sql, new { Id });
         }
     }
 }

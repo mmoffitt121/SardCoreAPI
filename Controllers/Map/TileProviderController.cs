@@ -20,7 +20,7 @@ namespace SardCoreAPI.Controllers.Map
         [HttpGet(Name = "GetTile")]
         public async Task<IActionResult> GetTile(int z, int x, int y, int layerId)
         {
-            MapTile result = new MapTileDataAccess().GetTile(z, x, y, layerId);
+            MapTile result = await new MapTileDataAccess().GetTile(z, x, y, layerId);
             return new FileStreamResult(new MemoryStream(result.Tile), "image/png");
         }
 
@@ -34,7 +34,7 @@ namespace SardCoreAPI.Controllers.Map
 
             MapTile[] mapTiles = MapTileCutter.Slice(file, rootZ, rootX, rootY, layerId);
 
-            if (new MapTileDataAccess().PostTiles(mapTiles))
+            if (await new MapTileDataAccess().PostTiles(mapTiles) != 0)
             {
                 return new OkResult();
             }

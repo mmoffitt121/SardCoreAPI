@@ -86,65 +86,33 @@
     PRIMARY KEY (DataPointId, DataPointTypeParameterId)
  );
 
-/*** Time ***/
-
-CREATE TABLE IF NOT EXISTS Eras (
-	Id       INT           NOT NULL AUTO_INCREMENT,
-	Stage    INT           NOT NULL,
-	Eon      INT           NOT NULL,
-	Epoch    INT           NOT NULL,
-	Age      INT           NOT NULL,
-	Era      INT           NOT NULL,
-	PRIMARY KEY (Id)
-);
-
-/*** Document Types ***/
-
-CREATE TABLE IF NOT EXISTS DocumentTypes (
-	Id        INT            NOT NULL AUTO_INCREMENT,
-	Name      VARCHAR (1000) NOT NULL,
-	Diagetic  BIT            NOT NULL,
-	PRIMARY KEY (Id)
-);
-
-/*** Document ***/
-
-CREATE TABLE IF NOT EXISTS Documents (
-	Id             INT              NOT NULL AUTO_INCREMENT,
-	Title          VARCHAR (1000)   NOT NULL,
-	Subtitle       VARCHAR (1000),
-    DocumentTypeId INT,
-	Summary        VARCHAR (6000),
-	Content        MEDIUMTEXT,
-	PRIMARY KEY (Id),
-    FOREIGN KEY (DocumentTypeId) REFERENCES DocumentTypes (Id)
-);
-
-/*** Document Information ***/
-
-CREATE TABLE IF NOT EXISTS Publishers (
-	Id            INT           NOT NULL AUTO_INCREMENT,
-	PublisherName INT           NOT NULL,
-	PRIMARY KEY (Id)
-);
-
 /*** Maps ***/
+
+CREATE TABLE IF NOT EXISTS Map (
+	Id                         INT            NOT NULL AUTO_INCREMENT,
+    Name                       VARCHAR(1000)  NOT NULL,
+    AreaZoomProminence         INT,
+    SubregionZoomProminence    INT,
+    RegionZoomProminence       INT,
+    SubcontinentZoomProminence INT,
+    ContinentZoomProminence    INT,
+    IconPath                   VARCHAR(10000),
+    PRIMARY KEY (Id)
+);
 
 CREATE TABLE IF NOT EXISTS MapLayers (
 	Id         INT            NOT NULL AUTO_INCREMENT,
 	Name       VARCHAR(1000)  NOT NULL,
-	LayerDate  BIGINT,
-	LayerEraId INT,
+    MapId      INT            NOT NULL,
 	PRIMARY KEY (Id),
-	FOREIGN KEY (LayerEraId) REFERENCES Eras (Id)
+    FOREIGN KEY (MapId) REFERENCES Map (Id)
 );
 
 CREATE TABLE IF NOT EXISTS MapTiles (
-	Z       FLOAT          NOT NULL,
-	Y       FLOAT          NOT NULL,
-	X       FLOAT          NOT NULL,
-	LayerId INT            NOT NULL,
-	Tile  MEDIUMBLOB NOT NULL,
+	Z        FLOAT          NOT NULL,
+	Y        FLOAT          NOT NULL,
+	X        FLOAT          NOT NULL,
+	LayerId  INT            NOT NULL,
 	PRIMARY KEY (Z, Y, X, LayerId),
 	FOREIGN KEY (LayerId) REFERENCES MapLayers (Id)
 );
@@ -163,29 +131,23 @@ CREATE TABLE IF NOT EXISTS Manifolds (
 	Id         INT NOT NULL AUTO_INCREMENT,
 	Number     INT NOT NULL UNIQUE,
 	Name       VARCHAR(1000),
-	DocumentId INT,
-	PRIMARY KEY (Id),
-    FOREIGN KEY (DocumentId) REFERENCES Documents (Id)
+	PRIMARY KEY (Id)
 );
 
 CREATE TABLE IF NOT EXISTS CelestialSystems (
 	Id         INT            NOT NULL AUTO_INCREMENT,
 	Name       VARCHAR(1000)  NOT NULL,
 	ManifoldId INT            NOT NULL,
-	DocumentId INT,
 	PRIMARY KEY (Id),
-	FOREIGN KEY (ManifoldId) REFERENCES Manifolds (Id),
-    FOREIGN KEY (DocumentId) REFERENCES Documents (Id)
+	FOREIGN KEY (ManifoldId) REFERENCES Manifolds (Id)
 );
 
 CREATE TABLE IF NOT EXISTS CelestialObjects (
 	Id                  INT            NOT NULL AUTO_INCREMENT,
 	Name                VARCHAR(1000)  NOT NULL,
 	CelestialSystemId   INT,
-	DocumentId         INT,
 	PRIMARY KEY (Id),
-	FOREIGN KEY (CelestialSystemId) REFERENCES CelestialSystems (Id),
-    FOREIGN KEY (DocumentId) REFERENCES Documents (Id)
+	FOREIGN KEY (CelestialSystemId) REFERENCES CelestialSystems (Id)
 );
 
 CREATE TABLE IF NOT EXISTS Continents (
@@ -194,11 +156,9 @@ CREATE TABLE IF NOT EXISTS Continents (
 	CelestialObjectId  INT,
 	Longitude          FLOAT,
 	Latitude           FLOAT,
-	Aquatic            INT,
-	DocumentId         INT,
+	Oceanic            INT,
 	PRIMARY KEY (Id),
-	FOREIGN KEY (CelestialObjectId) REFERENCES CelestialObjects (Id),
-    FOREIGN KEY (DocumentId) REFERENCES Documents (Id)
+	FOREIGN KEY (CelestialObjectId) REFERENCES CelestialObjects (Id)
 );
 
 CREATE TABLE IF NOT EXISTS Subcontinents (
@@ -207,10 +167,8 @@ CREATE TABLE IF NOT EXISTS Subcontinents (
 	ContinentId        INT,
 	Longitude          FLOAT,
 	Latitude           FLOAT,
-	DocumentId         INT,
 	PRIMARY KEY (Id),
-	FOREIGN KEY (ContinentId) REFERENCES Continents (Id),
-    FOREIGN KEY (DocumentId) REFERENCES Documents (Id)
+	FOREIGN KEY (ContinentId) REFERENCES Continents (Id)
 );
 
 CREATE TABLE IF NOT EXISTS Regions (
@@ -219,10 +177,8 @@ CREATE TABLE IF NOT EXISTS Regions (
 	SubContinentId     INT,
 	Longitude          FLOAT,
 	Latitude           FLOAT,
-	DocumentId         INT,
 	PRIMARY KEY (Id),
-	FOREIGN KEY (SubContinentId) REFERENCES SubContinents (Id),
-    FOREIGN KEY (DocumentId) REFERENCES Documents (Id)
+	FOREIGN KEY (SubContinentId) REFERENCES SubContinents (Id)
 );
 
 CREATE TABLE IF NOT EXISTS Subregions (
@@ -231,10 +187,8 @@ CREATE TABLE IF NOT EXISTS Subregions (
 	RegionId           INT,
 	Longitude          FLOAT,
 	Latitude           FLOAT,
-	DocumentId         INT,
 	PRIMARY KEY (Id),
-	FOREIGN KEY (RegionId) REFERENCES Regions (Id),
-    FOREIGN KEY (DocumentId) REFERENCES Documents (Id)
+	FOREIGN KEY (RegionId) REFERENCES Regions (Id)
 );
 
 CREATE TABLE IF NOT EXISTS Areas (
@@ -243,15 +197,15 @@ CREATE TABLE IF NOT EXISTS Areas (
 	SubregionId        INT,
 	Longitude          FLOAT,
 	Latitude           FLOAT,
-	DocumentId         INT,
 	PRIMARY KEY (Id),
-	FOREIGN KEY (SubregionId) REFERENCES Subregions (Id),
-    FOREIGN KEY (DocumentId) REFERENCES Documents (Id)
+	FOREIGN KEY (SubregionId) REFERENCES Subregions (Id)
 );
 
 CREATE TABLE IF NOT EXISTS LocationTypes (
 	Id                 INT           NOT NULL AUTO_INCREMENT,
 	Name               VARCHAR(1000) NOT NULL,
+    IconPath           VARCHAR(10000),
+    ZoomProminence     INT,
 	PRIMARY KEY (Id)
 );
 
@@ -271,10 +225,10 @@ CREATE TABLE IF NOT EXISTS Locations (
 	LocationTypeId INT,
 	Longitude      FLOAT,
 	Latitude       FLOAT,
-    DocumentId     INT,
+    IconPath       VARCHAR(10000),
+    ZoomProminence INT,
 	PRIMARY KEY (Id),
 	FOREIGN KEY (AreaId) REFERENCES Areas (Id),
-	FOREIGN KEY (LocationTypeId) REFERENCES LocationTypes (Id),
-    FOREIGN KEY (DocumentId) REFERENCES Documents (Id)
+	FOREIGN KEY (LocationTypeId) REFERENCES LocationTypes (Id)
 );
 
