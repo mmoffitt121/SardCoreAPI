@@ -23,6 +23,20 @@ namespace SardCoreAPI.Utility.Error
         }
 
         /// <summary>
+        /// Handles MySqlException errors
+        /// </summary>
+        /// <param name="ex"></param>
+        /// <returns></returns>
+        public static IActionResult Handle(this IOException ex)
+        {
+            if (ex.GetType() == typeof(System.IO.DirectoryNotFoundException))
+            {
+                return new NotFoundObjectResult("Directory not found.");
+            }
+            return new BadRequestObjectResult("An unknown error occured. Check the server logs for more information.");
+        }
+
+        /// <summary>
         /// Handles generic exception errors
         /// </summary>
         /// <param name="ex"></param>

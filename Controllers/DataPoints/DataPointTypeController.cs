@@ -13,9 +13,9 @@ namespace SardCoreAPI.Controllers.DataPoints
     [Route("Library/[controller]/[action]")]
     public class DataPointTypeController
     {
-        private readonly ILogger<MapController> _logger;
+        private readonly ILogger<DataPointTypeController> _logger;
 
-        public DataPointTypeController(ILogger<MapController> logger)
+        public DataPointTypeController(ILogger<DataPointTypeController> logger)
         {
             _logger = logger;
         }

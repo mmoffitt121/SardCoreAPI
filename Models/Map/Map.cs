@@ -2,23 +2,20 @@
 {
     public class Map
     {
-        public int MapId { get; set; }
-        public string? MapName { get; set; }
-        public string? MapDate { get; set; }
-        public string? MapAuthorCode { get; set; }
-        public string? AuthorFirstName { get; set; }
-        public string? AuthorMiddleName { get; set; }
-        public string? AuthorLastName { get; set; }
-        public string? MapPublisherCode { get; set; }
-        public string? PublisherName { get; set; }
-        public string? PublisherLocationCode { get; set; }
-        public string? LocationName { get; set; }
-        public string? LocationJurisdictionID { get; set; }
-        public string? JurisdictionName { get; set; }
-        public string? ParentJurisdictionID { get; set; }
-        public string? ParentJurisdictionName { get; set; }
-        public string? MapLink { get; set; }
-        public string? MapThumbnailLink { get; set; }
-        public string? MapDescription { get; set; }
+        public int Id { get; set; }
+        public string? Name { get; set; }
+        public bool? Loops { get; set; }
+        public int? AreaZoomProminence { get; set; }
+        public int? SubregionZoomProminence { get; set; }
+        public int? RegionZoomProminence { get; set; }
+        public int? SubcontinentZoomProminence { get; set; }
+        public int? ContinentZoomProminence { get; set; }
+        public float? DefaultZ { get; set; }
+        public float? DefaultX { get; set; }
+        public float? DefaultY { get; set; }
+        public int? MinZoom { get; set; }
+        public int? MaxZoom { get; set; }
+        public bool? IsDefault { get; set; }
+        public byte[]? Icon { get; set; }
     }
 }

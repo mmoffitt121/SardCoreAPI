@@ -1,4 +1,7 @@
 ﻿using System.IO;
+using ImageMagick;
+using Microsoft.AspNetCore.Routing;
+using SardCoreAPI.Models.Map.MapTile;
 
 namespace SardCoreAPI.Utility.Files
 {
@@ -50,6 +53,27 @@ namespace SardCoreAPI.Utility.Files
             }
 
             throw new Exception();
+        }
+
+        public async Task<byte[]> CompressImage(byte[] data, int x, int y)
+        {
+            using (var stream = new MemoryStream(data))
+            {
+                using (var image = new MagickImage(stream))
+                {
+                    image.Resize(x, y);
+                    return image.ToByteArray();
+                }
+            }
+        }
+
+        public async Task<byte[]> FormToByteArray(IFormFile file)
+        {
+            using (var stream = new MemoryStream())
+            {
+                await file.CopyToAsync(stream);
+                return stream.ToArray();
+            }
         }
     }
 }

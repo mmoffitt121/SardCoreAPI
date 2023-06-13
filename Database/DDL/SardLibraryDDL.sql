@@ -91,19 +91,26 @@
 CREATE TABLE IF NOT EXISTS Map (
 	Id                         INT            NOT NULL AUTO_INCREMENT,
     Name                       VARCHAR(1000)  NOT NULL,
+    Loops                      BIT,
     AreaZoomProminence         INT,
     SubregionZoomProminence    INT,
     RegionZoomProminence       INT,
     SubcontinentZoomProminence INT,
     ContinentZoomProminence    INT,
-    IconPath                   VARCHAR(10000),
+    DefaultZ                   FLOAT,
+    DefaultX                   FLOAT,
+    DefaultY                   FLOAT,
+    MinZoom                    INT,
+    MaxZoom                    INT,
+    IsDefault                  BIT,
     PRIMARY KEY (Id)
 );
 
 CREATE TABLE IF NOT EXISTS MapLayers (
-	Id         INT            NOT NULL AUTO_INCREMENT,
-	Name       VARCHAR(1000)  NOT NULL,
-    MapId      INT            NOT NULL,
+	Id          INT            NOT NULL AUTO_INCREMENT,
+	Name        VARCHAR(1000)  NOT NULL,
+    MapId       INT            NOT NULL,
+    IsBaseLayer BIT,
 	PRIMARY KEY (Id),
     FOREIGN KEY (MapId) REFERENCES Map (Id)
 );
