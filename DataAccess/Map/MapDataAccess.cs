@@ -17,12 +17,13 @@ namespace SardCoreAPI.DataAccess.Map
             string pageSettings = "";
             if (criteria.PageNumber != null && criteria.PageSize != null)
             {
-                pageSettings = $"LIMIT {criteria.PageSize} OFFSET {(criteria.PageNumber - 1) * criteria.PageSize}";
+                pageSettings = $"LIMIT {criteria.PageSize} OFFSET {(criteria.PageNumber) * criteria.PageSize}";
             }
 
             string sql = $@"SELECT 
                     Id, 
                     Name,
+                    Summary,
                     Loops,
                     AreaZoomProminence,
                     SubregionZoomProminence,
@@ -54,7 +55,8 @@ namespace SardCoreAPI.DataAccess.Map
         public async Task<int> PostMap(mp.Map data)
         {
             string sql = @"INSERT INTO Map (
-                    Name, 
+                    Name,
+                    Summary,
                     Loops,
                     AreaZoomProminence,
                     SubregionZoomProminence,
@@ -70,6 +72,7 @@ namespace SardCoreAPI.DataAccess.Map
                 ) 
                 VALUES (
                     @Name, 
+                    @Summary,
                     @Loops,
                     @AreaZoomProminence,
                     @SubregionZoomProminence,
@@ -81,7 +84,8 @@ namespace SardCoreAPI.DataAccess.Map
                     @DefaultY,
                     @MinZoom,
                     @MaxZoom,
-                    @IsDefault);
+                    @IsDefault
+                );
             
                 SELECT LAST_INSERT_ID();";
 
@@ -90,8 +94,9 @@ namespace SardCoreAPI.DataAccess.Map
 
         public async Task<int> PutMap(mp.Map data)
         {
-            string sql = @"UPDATE Maps SET 
+            string sql = @"UPDATE Map SET 
                     Name = @Name, 
+                    Summary = @Summary,
                     Loops = @Loops,
                     AreaZoomProminence = @AreaZoomProminence,
                     SubregionZoomProminence = @SubregionZoomProminence,
@@ -111,7 +116,7 @@ namespace SardCoreAPI.DataAccess.Map
 
         public async Task<int> DeleteMap(int Id)
         {
-            string sql = @"DELETE FROM Maps WHERE Id = @Id;";
+            string sql = @"DELETE FROM Map WHERE Id = @Id;";
 
             return await Execute(sql, new { Id });
         }

@@ -40,6 +40,15 @@ namespace SardCoreAPI.Controllers.Map
             return new BadRequestResult();
         }
 
+        [HttpGet(Name = "GetMapCount")]
+        public async Task<IActionResult> GetMapCount([FromQuery] MapSearchCriteria criteria)
+        {
+            if (criteria == null) { return new BadRequestResult(); }
+
+            int result = (await new MapDataAccess().GetMaps(criteria)).Count();
+            return new OkObjectResult(result);
+        }
+
         [HttpPost(Name = "PostMap")]
         public async Task<IActionResult> PostMap([FromBody] m.Map data)
         {
@@ -107,32 +116,39 @@ namespace SardCoreAPI.Controllers.Map
                 byte[] result = await new MapDataAccess().GetMapIcon(id);
                 return new FileStreamResult(new MemoryStream(result), "image/png");
             }
+            catch (FileNotFoundException ex)
+            {
+                return new OkObjectResult(null);
+            }
+            catch (DirectoryNotFoundException ex)
+            {
+                return new OkObjectResult(null);
+            }
             catch (IOException ex)
             {
                 return ex.Handle();
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Other exception");
                 return new BadRequestResult();
             }
             
         }
 
         [HttpPost(Name = "PostMapIcon")]
-        public async Task<IActionResult> PostMapIcon(IFormFile file, int id)
+        public async Task<IActionResult> PostMapIcon([FromForm] ImageUploadRequest file)
         {
-            if (file == null || file.Length == 0)
+            if (file == null || file.Data.Length == 0)
             {
                 return new BadRequestResult();
             }
 
-            byte[] bytes = await new FileHandler().FormToByteArray(file);
+            byte[] bytes = await new FileHandler().FormToByteArray(file.Data);
             byte[] compressed = await new FileHandler().CompressImage(bytes, 256, 256);
 
             try
             {
-                await new MapDataAccess().UploadMapIcon(compressed, id);
+                await new MapDataAccess().UploadMapIcon(compressed, file.Id);
                 return new OkResult();
             }
             catch (IOException ex)
