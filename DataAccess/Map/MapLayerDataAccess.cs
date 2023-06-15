@@ -4,88 +4,87 @@ using SardCoreAPI.Models.Map.MapLayer;
 using SardCoreAPI.Models.Common;
 using Microsoft.AspNetCore.Mvc;
 using MySqlConnector;
+using SardCoreAPI.Utility.Files;
 
 namespace SardCoreAPI.DataAccess.Map
 {
-    public class MapLayerDataAccess
+    public class MapLayerDataAccess : GenericDataAccess
     {
-        public MapLayer? GetMapLayer(int Id)
-        {
-            string sql = @"SELECT TOP (1) * FROM MapLayers WHERE Id = @Id";
+        public string ImagePath = "./storage/mapicons/";
 
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
-                {
-                    connection.Open();
-                    List<MapLayer> layers = connection.Query<MapLayer>(sql, new { Id = Id }).ToList();
-                    if (layers.Count > 0)
-                    {
-                        return layers.First();
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                }
-            }
-            catch (MySqlException s)
-            {
-                Console.WriteLine(s);
-                return null;
-            }
-        }
-
-        public List<MapLayer>? GetMapLayers(DatedSearchCriteria criteria)
+        #region Map Layer
+        public async Task<List<MapLayer>> GetMapLayers(MapLayerSearchCriteria criteria)
         {
-            string sql = @"SELECT * FROM MapLayers /**where**/ /**orderby**/";
+            string pageSettings = "";
+            if (criteria.PageNumber != null && criteria.PageSize != null)
+            {
+                pageSettings = $"LIMIT {criteria.PageSize} OFFSET {(criteria.PageNumber) * criteria.PageSize}";
+            }
+
+            string sql = $@"SELECT Id, Name, Summary, MapId, IsBaseLayer, IsIconLayer, IconURL
+                    FROM MapLayers 
+                    /**where**/ 
+                    ORDER BY Name
+                    {pageSettings}";
 
             SqlBuilder builder = new SqlBuilder();
             var template = builder.AddTemplate(sql);
 
-            if (!string.IsNullOrEmpty(criteria.Query)) { builder.Where("Name LIKE CONCAT('%', @Query, '%')"); Console.WriteLine("thing"); }
-            if (criteria.BeginDate != null) { builder.Where("LayerDate > @BeginDate"); Console.WriteLine("thing"); }
-            if (criteria.EndDate != null) { builder.Where("LayerDate < @EndDate"); Console.WriteLine("thing"); }
-            if (criteria.Era != null){ builder.Where("LayerEraId = @Era"); Console.WriteLine("thing"); }
+            if (!string.IsNullOrEmpty(criteria.Query)) { builder.Where("Name LIKE CONCAT('%', IFNULL(@Query, ''), '%')"); }
+            if (criteria.Id != null) { builder.Where("Id = @Id"); }
+            if (criteria.MapId != null) { builder.Where("MapId = @MapId"); }
+            if (criteria.IsBaseLayer != null) { builder.Where("IsBaseLayer = @IsBaseLayer"); }
 
-            builder.OrderBy("CASE WHEN Name LIKE CONCAT(@Query, '%') THEN 0 ELSE 1 END, Name");
-
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
-                {
-                    connection.Open();
-                    List<MapLayer> layers = connection.Query<MapLayer>(template.RawSql, criteria).ToList();
-                    return layers;
-                }
-            }
-            catch (MySqlException s)
-            {
-                Console.WriteLine(s);
-                return null;
-            }
+            return await Query<MapLayer>(template.RawSql, criteria);
         }
 
-        public bool PostMapLayer(MapLayer layer)
+        public async Task<int> PostMapLayer(MapLayer layer)
         {
-            string sql = @"INSERT INTO MapLayers (Name, LayerDate, LayerEraId) VALUES (@Name, @LayerDate, @LayerEraId)";
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
-                {
-                    connection.Open();
-                    if (connection.Execute(sql, layer) > 0)
-                    {
-                        return true;
-                    }
-                    return false;
-                }
-            }
-            catch (MySqlException s)
-            {
-                Console.WriteLine(s);
-                return false;
-            }
+            string sql = @"INSERT INTO MapLayers (Name, Summary, MapId, IsBaseLayer, IsIconLayer, IconURL) VALUES (@Name, @Summary, @MapId, @IsBaseLayer, @IsIconLayer, @IconURL);
+
+                SELECT LAST_INSERT_ID();
+            ";
+
+            return await QueryFirst<int>(sql, layer);
         }
+
+        public async Task<int> PutMapLayer(MapLayer layer)
+        {
+            string sql = @"UPDATE MapLayers SET 
+                    Name = @Name,
+                    Summary = @Summary,
+                    MapId = @MapId,
+                    IsBaseLayer = @IsBaseLayer,
+                    IsIconLayer = @IsIconLayer,
+                    IconURL = @IconURL
+                WHERE
+                    Id = @Id;
+            ";
+
+            return await Execute(sql, layer);
+        }
+
+        public async Task<int> DeleteMapLayer(int Id)
+        {
+            string sql = @"DELETE FROM MapLayers
+                WHERE
+                    Id = @Id;
+            ";
+
+            return await Execute(sql, new { Id });
+        }
+        #endregion
+
+        #region Map Layer Icon
+        public async Task PostMapLayerIcon(byte[] data, int id)
+        {
+            await new FileHandler().SaveImage(ImagePath, "MapLayer-" + id + ".png", data);
+        }
+
+        public async Task<byte[]> GetMapLayerIcon(int id)
+        {
+            return await new FileHandler().LoadImage(ImagePath + "MapLayer-" + id + ".png");
+        }
+        #endregion
     }
 }

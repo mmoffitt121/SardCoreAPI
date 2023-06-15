@@ -2,6 +2,7 @@
 using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.DataPoints;
 using SardCoreAPI.Models.Map;
+using SardCoreAPI.Models.Map.MapLayer;
 using SardCoreAPI.Utility.Files;
 using mp = SardCoreAPI.Models.Map;
 

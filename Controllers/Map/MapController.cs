@@ -11,6 +11,7 @@ using SardCoreAPI.Utility.Map;
 using SardCoreAPI.Utility.Files;
 using SardCoreAPI.Utility.Error;
 using SardCoreAPI.Models.Map;
+using SardCoreAPI.Models.Map.MapLayer;
 
 namespace SardCoreAPI.Controllers.Map
 {

@@ -111,8 +111,10 @@ CREATE TABLE IF NOT EXISTS Map (
 CREATE TABLE IF NOT EXISTS MapLayers (
 	Id          INT            NOT NULL AUTO_INCREMENT,
 	Name        VARCHAR(1000)  NOT NULL,
+    Summary     VARCHAR(3000),
     MapId       INT            NOT NULL,
     IsBaseLayer BIT,
+    IsIconLayer BIT,
     IconURL     VARCHAR(3000),
 	PRIMARY KEY (Id),
     FOREIGN KEY (MapId) REFERENCES Map (Id)

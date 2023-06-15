@@ -4,7 +4,10 @@
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public double? LayerDate { get; set; }
-        public int? LayerEraId { get; set; }
+        public string? Summary { get; set; }
+        public int? MapId { get; set; }
+        public bool? IsBaseLayer { get; set; }
+        public bool? IsIconLayer { get; set; }
+        public string? IconURL { get; set; }
     }
 }
