@@ -103,6 +103,27 @@ namespace SardCoreAPI.Controllers.Map
                 return new BadRequestResult();
             }
         }
+
+        [HttpDelete(Name = "DeleteMapLayersOfMapId")]
+        public async Task<IActionResult> DeleteMapLayersOfMapId([FromQuery] int? Id)
+        {
+            if (Id == null) { return new BadRequestResult(); }
+
+            int result = await new MapLayerDataAccess().DeleteMapLayersOfMapId((int)Id);
+
+            if (result > 0)
+            {
+                return new OkResult();
+            }
+            else if (result == 0)
+            {
+                return new NotFoundResult();
+            }
+            else
+            {
+                return new BadRequestResult();
+            }
+        }
         #endregion
 
         #region Map Layer Icon

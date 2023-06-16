@@ -5,6 +5,8 @@ using SardCoreAPI.Models.Common;
 using Microsoft.AspNetCore.Mvc;
 using MySqlConnector;
 using SardCoreAPI.Utility.Files;
+using Microsoft.VisualBasic;
+using SardCoreAPI.Models.Map;
 
 namespace SardCoreAPI.DataAccess.Map
 {
@@ -50,7 +52,18 @@ namespace SardCoreAPI.DataAccess.Map
 
         public async Task<int> PutMapLayer(MapLayer layer)
         {
-            string sql = @"UPDATE MapLayers SET 
+            string sql = @"";
+
+            if (layer.IsBaseLayer ?? false)
+            {
+                sql += @"UPDATE MapLayers SET
+                        IsBaseLayer = false
+                    WHERE
+                        @MapId = MapId;
+                ";
+            }
+
+            sql += @"UPDATE MapLayers SET
                     Name = @Name,
                     Summary = @Summary,
                     MapId = @MapId,
@@ -60,6 +73,7 @@ namespace SardCoreAPI.DataAccess.Map
                 WHERE
                     Id = @Id;
             ";
+
 
             return await Execute(sql, layer);
         }
@@ -72,6 +86,16 @@ namespace SardCoreAPI.DataAccess.Map
             ";
 
             return await Execute(sql, new { Id });
+        }
+
+        public async Task<int> DeleteMapLayersOfMapId(int MapId)
+        {
+            string sql = @"DELETE FROM MapLayers
+                WHERE
+                    MapId = @MapId;
+            ";
+
+            return await Execute(sql, new { MapId });
         }
         #endregion
 
