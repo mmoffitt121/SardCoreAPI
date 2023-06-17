@@ -3,6 +3,8 @@ using Microsoft.Identity.Client;
 using SardCoreAPI.DataAccess.Map;
 using SardCoreAPI.Models.Map.MapTile;
 using SardCoreAPI.Utility.Map;
+using Microsoft.AspNetCore.SignalR;
+using SardCoreAPI.Utility.Progress;
 
 namespace SardCoreAPI.Controllers.Map
 {
@@ -11,10 +13,12 @@ namespace SardCoreAPI.Controllers.Map
     public class TileProviderController
     {
         private readonly ILogger<MapController> _logger;
+        private readonly IHubContext<ProgressManager> _progressHubContext;
 
-        public TileProviderController(ILogger<MapController> logger)
+        public TileProviderController(ILogger<MapController> logger, IHubContext<ProgressManager> hubContext)
         {
             _logger = logger;
+            _progressHubContext = hubContext;
         }
 
         [HttpGet(Name = "GetTile")]
@@ -25,20 +29,53 @@ namespace SardCoreAPI.Controllers.Map
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadTile(IFormFile file, int rootZ, int rootX, int rootY, int layerId)
+        public async Task<IActionResult> UploadTile([FromForm] TileUploadRequest request)
         {
-            if (file == null || file.Length == 0)
+            if (request == null || request.Data == null || request.Data.Length == 0)
             {
                 return new BadRequestResult();
             }
 
-            MapTile[] mapTiles = MapTileCutter.Slice(file, rootZ, rootX, rootY, layerId);
+            await _progressHubContext.Clients.All.SendAsync("ProgressUpdate", 10, "Slicing tiles...");
+
+            MapTile[] mapTiles = await MapTileCutter.Slice(request.Data, request.Z, request.X, request.Y, request.LayerId, _progressHubContext);
+
+            if (request.ReplaceRoot != null && !(bool)request.ReplaceRoot)
+            {
+                mapTiles = mapTiles.Where(m => !m.Equals(new MapTile() { Z = request.Z, X = request.X, Y = request.Y, LayerId = request.LayerId })).ToArray();
+            }
+
+            await _progressHubContext.Clients.All.SendAsync("ProgressUpdate", 95, "Comparing Tiles...");
+
+            // Remove tiles that already exist if option is set.
+            if (request.ReplaceMode != null && request.ReplaceMode.Equals("fill"))
+            {
+                MapTile[] existing = await new MapTileDataAccess().GetTiles(request.Z, request.X, request.Y, mapTiles.Last().Z, request.LayerId);
+                mapTiles = mapTiles.Where(m => !existing.Contains(m)).ToArray();
+                if (mapTiles.Length == 0)
+                {
+                    return new OkResult();
+                }
+            }
+
+            await _progressHubContext.Clients.All.SendAsync("ProgressUpdate", 98, "Saving Tiles...");
 
             if (await new MapTileDataAccess().PostTiles(mapTiles) != 0)
             {
                 return new OkResult();
             }
             return new BadRequestResult();
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteTile(int z, int x, int y, int layerId)
+        {
+            int result = await new MapTileDataAccess().DeleteTile(z, x, y, layerId);
+            if (result == 0)
+            {
+                return new NotFoundResult();
+            }
+            return new OkResult();
         }
     }
 }

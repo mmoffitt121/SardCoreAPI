@@ -8,6 +8,23 @@
         public int LayerId { get; set; }
         public byte[] Tile { get; set; }
 
+        public override bool Equals(object obj)
+        {
+            if (obj == null) 
+            {
+                return false;
+            }
+
+            MapTile tile = obj as MapTile;
+
+            if (tile == null) 
+            { 
+                return false; 
+            }
+            
+            return tile.Z == Z && tile.X == X && tile.Y == Y && tile.LayerId == LayerId;
+        }
+
         public string FileName
         {
             get

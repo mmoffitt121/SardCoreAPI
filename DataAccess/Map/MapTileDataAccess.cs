@@ -4,12 +4,14 @@ using ImageMagick;
 using SardCoreAPI.Models.Map.MapTile;
 using MySqlConnector;
 using SardCoreAPI.Utility.Files;
+using System.Data;
+using Microsoft.AspNetCore.Routing;
 
 namespace SardCoreAPI.DataAccess.Map
 {
-    public class MapTileDataAccess
+    public class MapTileDataAccess : GenericDataAccess
     {
-        public string ImagePath = "/storage/maptiles/";
+        public string ImagePath = "./storage/maptiles/";
 
         public async Task<MapTile> GetTile(int Z, int X, int Y, int LayerId)
         {
@@ -53,6 +55,23 @@ namespace SardCoreAPI.DataAccess.Map
             }
         }
 
+        public async Task<MapTile[]> GetTiles(int RootZ, int RootX, int RootY, int MaxZ, int LayerId)
+        {
+            string sql = @"
+            SELECT Z, X, Y, LayerId, POWER(2, Z - @RootZ) FROM MapTiles
+                WHERE
+                    Z >= @RootZ AND
+                    Z <= @MaxZ AND
+                    X >= @RootX * (POWER(2, Z - @RootZ)) AND
+                    X < (@RootX + 1) * (POWER(2, Z - @RootZ)) AND
+                    Y >= @RootY * (POWER(2, Z - @RootZ)) AND
+                    Y < (@RootY + 1) * (POWER(2, Z - @RootZ)) AND
+                    LayerId = @LayerId;
+            ";
+
+            return (await Query<MapTile>(sql, new { RootZ, RootX, RootY, MaxZ, LayerId })).ToArray();
+        }
+
         public async Task<int> PostTiles(MapTile[] tiles)
         {
             string sql = @"
@@ -86,6 +105,19 @@ namespace SardCoreAPI.DataAccess.Map
                 Console.WriteLine(s);
                 throw s;
             }
+        }
+
+        public async Task<int> DeleteTile(int Z, int X, int Y, int LayerId)
+        {
+            string sql = @"DELETE FROM MapTiles
+                WHERE
+                    Z = @Z AND
+                    X = @X AND
+                    Y = @Y AND
+                    LayerId = @LayerId
+            ";
+
+            return await Execute(sql, new { Z, X, Y, LayerId });
         }
     }
 }

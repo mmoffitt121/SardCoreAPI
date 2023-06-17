@@ -1,3 +1,5 @@
+using SardCoreAPI.Utility.Progress;
+
 var builder = WebApplication.CreateBuilder(args);
 
 Console.WriteLine(builder.Host);
@@ -10,6 +12,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddLogging();
 builder.Services.AddControllers().AddNewtonsoftJson();
+builder.Services.AddSignalR();
 builder.Services.AddCors(options =>
     {
         options.AddPolicy("AllowOrigin",
@@ -30,7 +33,8 @@ if (app.Environment.IsDevelopment())
 app.UseCors(builder =>
     builder.WithOrigins("http://localhost:4200")
            .AllowAnyHeader()
-           .AllowAnyMethod());
+           .AllowAnyMethod()
+           .AllowCredentials());
 
 app.Use(async (context, next) =>
 {
@@ -43,7 +47,14 @@ app.Use(async (context, next) =>
 
 app.UseHttpsRedirection();
 
+app.UseRouting();
+
 app.UseAuthorization();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<ProgressManager>("/Progress");
+});
 
 app.MapControllers();
 
