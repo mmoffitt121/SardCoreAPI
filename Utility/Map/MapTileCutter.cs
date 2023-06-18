@@ -29,37 +29,26 @@ namespace SardCoreAPI.Utility.Map
                 await hubContext.Clients.All.SendAsync("ProgressUpdate", 20, "Converting tiles...");
                 using (var image = new MagickImage(stream))
                 {
-                    // If the input image is not a power of 2 above 256 in size, or is not a square, throw.
-                    if (image.Width != image.Height || Math.Ceiling(Math.Log2(image.Width)) != Math.Floor(Math.Log2(image.Width)) || image.Width < 256)
-                    {
-                        throw new Exception("Input image was an invalid size. Images must be squares, sized a multiple of two.");
-                    }
+                    await hubContext.Clients.All.SendAsync("ProgressUpdate", 25, "Matching root to size...");
+                    ResizeImage(image);
 
                     List<MapTile> mapTiles = new List<MapTile>();
 
                     // Report Progress ---
-                    await hubContext.Clients.All.SendAsync("ProgressUpdate", 30, "Adjusting root image...");
+                    await hubContext.Clients.All.SendAsync("ProgressUpdate", 30, "Preparing");
 
-                    // Resize and dd original image to the array
                     var resized = image.Clone();
-                    resized.Resize(256, 256);
-                    mapTiles.Add(new MapTile(rootZ, rootX, rootY, layerId, resized.ToByteArray()));
-
-                    // Report Progress ---
-                    await hubContext.Clients.All.SendAsync("ProgressUpdate", 40, "Slicing tiles...");
 
                     int subdivisions = (int)Math.Log2(image.Width / 256);
 
                     int iTransform = rootX;
                     int jTransform = rootY;
-                    for (int k = 1; k <= subdivisions; k++)
+                    for (int k = 0; k <= subdivisions; k++)
                     {
                         double progress = (double)k / (double)subdivisions * (SLICING_PROGRESS_MAX - SLICING_PROGRESS_MIN) + SLICING_PROGRESS_MIN;
                         await hubContext.Clients.All.SendAsync("ProgressUpdate", progress, "Creating levels... (" + k + "/" + subdivisions + " levels)");
                         resized = image.Clone();
                         resized.Resize(256 * (int)Math.Pow(2, k), 256 * (int)Math.Pow(2, k)); // Bounds error
-                        iTransform *= 2;
-                        jTransform *= 2;
                         for (int i = 0; i < Math.Pow(2, k); i++)
                         {
                             for (int j = 0; j < Math.Pow(2, k); j++)
@@ -69,9 +58,42 @@ namespace SardCoreAPI.Utility.Map
                                 mapTiles.Add(new MapTile(k + rootZ, i + iTransform, j + jTransform, layerId, cloned.ToByteArray()));
                             }
                         }
+                        iTransform *= 2;
+                        jTransform *= 2;
                     }
                     return mapTiles.ToArray();
                 }
+            }
+        }
+
+        public static void ResizeImage(MagickImage image)
+        {
+            int newSize;
+            MagickGeometry geometry = new MagickGeometry();
+
+            if (image.Width > image.Height)
+            {
+                newSize = (int)Math.Pow(2, Math.Ceiling(Math.Log2(image.Width)));
+            }
+            else
+            {
+                newSize = (int)Math.Pow(2, Math.Ceiling(Math.Log2(image.Height)));
+            }
+
+            image.HasAlpha = true;
+            image.Format = MagickFormat.Png;
+
+            geometry.Width = newSize;
+            geometry.Height = newSize;
+            image.Resize(geometry);
+
+            using (var newImage = new MagickImage(MagickColor.FromRgba(0, 0, 0, 0), newSize, newSize))
+            {
+                newImage.Composite(image, CompositeOperator.Copy);
+                geometry.IgnoreAspectRatio = true;
+                image.Resize(geometry);
+                image.Composite(newImage, CompositeOperator.Replace);
+                Console.WriteLine(image.Width);
             }
         }
     }

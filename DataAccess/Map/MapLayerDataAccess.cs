@@ -36,6 +36,7 @@ namespace SardCoreAPI.DataAccess.Map
             if (criteria.Id != null) { builder.Where("Id = @Id"); }
             if (criteria.MapId != null) { builder.Where("MapId = @MapId"); }
             if (criteria.IsBaseLayer != null) { builder.Where("IsBaseLayer = @IsBaseLayer"); }
+            if (criteria.IsIconLayer != null) { builder.Where("IsIconLayer = @IsIconLayer"); }
 
             return await Query<MapLayer>(template.RawSql, criteria);
         }
@@ -59,7 +60,7 @@ namespace SardCoreAPI.DataAccess.Map
                 sql += @"UPDATE MapLayers SET
                         IsBaseLayer = false
                     WHERE
-                        @MapId = MapId;
+                        @MapId = MapId AND @IsIconLayer = IsIconLayer;
                 ";
             }
 
