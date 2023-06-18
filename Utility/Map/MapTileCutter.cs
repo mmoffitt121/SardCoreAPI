@@ -46,7 +46,7 @@ namespace SardCoreAPI.Utility.Map
                     for (int k = 0; k <= subdivisions; k++)
                     {
                         double progress = (double)k / (double)subdivisions * (SLICING_PROGRESS_MAX - SLICING_PROGRESS_MIN) + SLICING_PROGRESS_MIN;
-                        await hubContext.Clients.All.SendAsync("ProgressUpdate", progress, "Creating levels... (" + k + "/" + subdivisions + " levels)");
+                        await hubContext.Clients.All.SendAsync("ProgressUpdate", progress, "Creating levels... (" + (k+1) + "/" + (subdivisions+1) + " levels)");
                         resized = image.Clone();
                         resized.Resize(256 * (int)Math.Pow(2, k), 256 * (int)Math.Pow(2, k)); // Bounds error
                         for (int i = 0; i < Math.Pow(2, k); i++)
@@ -55,7 +55,12 @@ namespace SardCoreAPI.Utility.Map
                             {
                                 var geometry = new MagickGeometry(i * 256, j * 256, 256, 256);
                                 var cloned = resized.Clone(geometry);
-                                mapTiles.Add(new MapTile(k + rootZ, i + iTransform, j + jTransform, layerId, cloned.ToByteArray()));
+                                var stats = cloned.Statistics();
+                                double? average = stats.GetChannel(PixelChannel.Alpha)?.Mean;
+                                if (average.HasValue && average != 0)
+                                {
+                                    mapTiles.Add(new MapTile(k + rootZ, i + iTransform, j + jTransform, layerId, cloned.ToByteArray()));
+                                }
                             }
                         }
                         iTransform *= 2;

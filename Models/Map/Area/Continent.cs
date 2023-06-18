@@ -6,7 +6,7 @@
         public string Name { get; set; }
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
-        public bool? Aquatic { get; set; }
+        public bool? Oceanic { get; set; }
         public int? CelestialObjectId { get; set; }
         public string? CelestialObjectName { get; set; }
         public int? CelestialSystemId { get; set; }

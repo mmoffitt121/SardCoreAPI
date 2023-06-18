@@ -119,5 +119,24 @@ namespace SardCoreAPI.DataAccess.Map
 
             return await Execute(sql, new { Z, X, Y, LayerId });
         }
+
+        public async Task<int> DeleteTiles(int LayerId)
+        {
+            string sql = @"DELETE FROM MapTiles
+                WHERE LayerId = @LayerId
+            ";
+
+            return await Execute(sql, new { LayerId });
+        }
+
+        public async Task<int> DeleteTilesOfMap(int MapId)
+        {
+            string sql = @"DELETE mt FROM MapTiles mt
+                LEFT JOIN MapLayers ml ON ml.Id = mt.LayerId
+                WHERE ml.MapId = @MapId
+            ";
+
+            return await Execute(sql, new { MapId });
+        }
     }
 }

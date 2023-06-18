@@ -352,11 +352,11 @@ namespace SardCoreAPI.Controllers.Map
         }
 
         [HttpPost(Name = "PostContinent")]
-        public IActionResult PostContinent([FromBody] Continent data)
+        public async Task<IActionResult> PostContinent([FromBody] Continent data)
         {
             if (data == null) { return new BadRequestResult(); }
 
-            if (new AreaDataAccess().PostContinent(data))
+            if ((await new AreaDataAccess().PostContinent(data)) > 0)
             {
                 return new OkResult();
             }

@@ -24,7 +24,6 @@ namespace SardCoreAPI.Controllers.Map
         [HttpGet(Name = "GetTile")]
         public async Task<IActionResult> GetTile(int z, int x, int y, int layerId)
         {
-            Console.WriteLine(layerId);
             MapTile result = await new MapTileDataAccess().GetTile(z, x, y, layerId);
             return new FileStreamResult(new MemoryStream(result.Tile), "image/png");
         }
@@ -72,6 +71,28 @@ namespace SardCoreAPI.Controllers.Map
         public async Task<IActionResult> DeleteTile(int z, int x, int y, int layerId)
         {
             int result = await new MapTileDataAccess().DeleteTile(z, x, y, layerId);
+            if (result == 0)
+            {
+                return new NotFoundResult();
+            }
+            return new OkResult();
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteTilesOfLayer(int layerId)
+        {
+            int result = await new MapTileDataAccess().DeleteTiles(layerId);
+            if (result == 0)
+            {
+                return new NotFoundResult();
+            }
+            return new OkResult();
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteTilesOfMap(int mapId)
+        {
+            int result = await new MapTileDataAccess().DeleteTilesOfMap(mapId);
             if (result == 0)
             {
                 return new NotFoundResult();

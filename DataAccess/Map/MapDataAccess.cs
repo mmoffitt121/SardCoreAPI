@@ -40,7 +40,7 @@ namespace SardCoreAPI.DataAccess.Map
                 FROM Map
                 /**where**/
                 ORDER BY Name
-                {pageSettings}
+                {pageSettings};
             ";
 
             SqlBuilder builder = new SqlBuilder();
@@ -55,7 +55,16 @@ namespace SardCoreAPI.DataAccess.Map
 
         public async Task<int> PostMap(mp.Map data)
         {
-            string sql = @"INSERT INTO Map (
+            string updateDefaults = "";
+
+            if (data.IsDefault ?? false)
+            {
+                updateDefaults = "UPDATE Map SET IsDefault = false;";
+            }
+
+            string sql = $@"
+                {updateDefaults}
+                INSERT INTO Map (
                     Name,
                     Summary,
                     Loops,
@@ -95,7 +104,15 @@ namespace SardCoreAPI.DataAccess.Map
 
         public async Task<int> PutMap(mp.Map data)
         {
-            string sql = @"UPDATE Map SET 
+            string updateDefaults = "";
+
+            if (data.IsDefault ?? false)
+            {
+                updateDefaults = "UPDATE Map SET IsDefault = false;";
+            }
+            string sql = $@"
+                {updateDefaults}
+                UPDATE Map SET 
                     Name = @Name, 
                     Summary = @Summary,
                     Loops = @Loops,

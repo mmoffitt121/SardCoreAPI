@@ -111,18 +111,7 @@ namespace SardCoreAPI.Controllers.Map
 
             int result = await new MapLayerDataAccess().DeleteMapLayersOfMapId((int)Id);
 
-            if (result > 0)
-            {
-                return new OkResult();
-            }
-            else if (result == 0)
-            {
-                return new NotFoundResult();
-            }
-            else
-            {
-                return new BadRequestResult();
-            }
+            return new OkResult();
         }
         #endregion
 

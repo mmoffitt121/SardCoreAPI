@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace SardCoreAPI.DataAccess.Map
 {
-    public class AreaDataAccess
+    public class AreaDataAccess : GenericDataAccess
     {
         #region Area
         public List<Area> GetAreas(string? query)
@@ -576,7 +576,7 @@ namespace SardCoreAPI.DataAccess.Map
             if (Id == null) throw new Exception();
 
             string sql = @"SELECT 
-                    c.Id as Id, c.Name as Name, c.Longitude, c.Latitude,
+                    c.Id as Id, c.Name as Name, c.Longitude, c.Latitude, c.Oceanic,
                     cb.Id as CelestialObjectId, cb.Name as CelestialObjectName,
                     cs.Id as CelestialSystemId, cs.Name as CelestialSystemName,
                     m.Id as ManifoldId, m.Name as ManifoldName
@@ -607,27 +607,12 @@ namespace SardCoreAPI.DataAccess.Map
             }
         }
 
-        public bool PostContinent(Continent data)
+        public async Task<int> PostContinent(Continent data)
         {
-            string sql = @"INSERT INTO Continents (Name, CelestialObjectId, Longitude, Latitude, Aquatic) 
-                VALUES (@Name, @CelestialObjectId, @Longitude, @Latitude, @Aquatic)";
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
-                {
-                    connection.Open();
-                    if (connection.Execute(sql, data) > 0)
-                    {
-                        return true;
-                    }
-                    return false;
-                }
-            }
-            catch (MySqlException s)
-            {
-                Console.WriteLine(s);
-                return false;
-            }
+            string sql = @"INSERT INTO Continents (Name, CelestialObjectId, Longitude, Latitude, Oceanic) 
+                VALUES (@Name, @CelestialObjectId, @Longitude, @Latitude, @Oceanic)";
+
+            return await Execute(sql, data);
         }
 
         public async Task<int> PutContinent(Continent data)
@@ -636,7 +621,8 @@ namespace SardCoreAPI.DataAccess.Map
 	                Name = @Name,
                     CelestialObjectId = @CelestialObjectId,
                     Longitude = @Longitude,
-                    Latitude = @Latitude
+                    Latitude = @Latitude,
+                    Oceanic = @Oceanic
                 WHERE Id = @Id";
 
             try
