@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SardCoreAPI.DataAccess.Map;
-using SardCoreAPI.Models.Common;
+using SardCoreAPI.Models.Content;
 using SardCoreAPI.Models.Map.LocationType;
 using SardCoreAPI.Models.Map.MapLayer;
 using SardCoreAPI.Utility.Error;
@@ -143,7 +143,7 @@ namespace SardCoreAPI.Controllers.Map
         }
 
         [HttpPost(Name = "PostMapLayerIcon")]
-        public async Task<IActionResult> PostMapLayerIcon([FromForm] ImageUploadRequest file)
+        public async Task<IActionResult> PostMapLayerIcon([FromForm] ImageRequest file)
         {
             if (file == null || file.Data.Length == 0)
             {

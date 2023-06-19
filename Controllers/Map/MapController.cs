@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SardCoreAPI.DataAccess.DataPoints;
 using SardCoreAPI.Models;
-using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.DataPoints.DataPointParameters;
 using SardCoreAPI.Models.DataPoints;
 using SardCoreAPI.DataAccess.Map;
@@ -12,6 +11,7 @@ using SardCoreAPI.Utility.Files;
 using SardCoreAPI.Utility.Error;
 using SardCoreAPI.Models.Map;
 using SardCoreAPI.Models.Map.MapLayer;
+using SardCoreAPI.Models.Content;
 
 namespace SardCoreAPI.Controllers.Map
 {
@@ -137,7 +137,7 @@ namespace SardCoreAPI.Controllers.Map
         }
 
         [HttpPost(Name = "PostMapIcon")]
-        public async Task<IActionResult> PostMapIcon([FromForm] ImageUploadRequest file)
+        public async Task<IActionResult> PostMapIcon([FromForm] ImageRequest file)
         {
             if (file == null || file.Data.Length == 0)
             {

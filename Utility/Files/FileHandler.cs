@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using ImageMagick;
 using Microsoft.AspNetCore.Routing;
+using SardCoreAPI.Models.Content;
 using SardCoreAPI.Models.Map.MapTile;
 
 namespace SardCoreAPI.Utility.Files
@@ -19,11 +20,31 @@ namespace SardCoreAPI.Utility.Files
                 try
                 {
                     File.WriteAllBytes(fileDirectory + fileName, data);
+                    return;
                 }
                 catch (IOException)
                 {
                     await Task.Delay(retryDelay);
                 }
+            }
+            throw new Exception();
+        }
+
+        public async Task SaveImage(ImageRequest request)
+        {
+            Directory.CreateDirectory(request.Directory);
+            for (int i = 0; i < retryCount; i++)
+            {
+                try
+                {
+                    File.WriteAllBytes(request.URL, await request.GetByteArray());
+                    return;
+                }
+                catch (IOException)
+                {
+                    await Task.Delay(retryDelay);
+                }
+                throw new Exception();
             }
         }
 
