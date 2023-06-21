@@ -137,7 +137,7 @@ namespace SardCoreAPI.Controllers.Map
         }
 
         [HttpPost(Name = "PostMapIcon")]
-        public async Task<IActionResult> PostMapIcon([FromForm] ImageRequest file)
+        public async Task<IActionResult> PostMapIcon([FromForm] ImagePostRequest file)
         {
             if (file == null || file.Data.Length == 0)
             {

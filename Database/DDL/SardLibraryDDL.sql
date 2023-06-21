@@ -93,11 +93,6 @@ CREATE TABLE IF NOT EXISTS Map (
     Name                       VARCHAR(1000)  NOT NULL,
     Summary                    VARCHAR(3000),
     Loops                      BIT,
-    AreaZoomProminence         INT,
-    SubregionZoomProminence    INT,
-    RegionZoomProminence       INT,
-    SubcontinentZoomProminence INT,
-    ContinentZoomProminence    INT,
     DefaultZ                   FLOAT,
     DefaultX                   FLOAT,
     DefaultY                   FLOAT,
@@ -129,106 +124,19 @@ CREATE TABLE IF NOT EXISTS MapTiles (
 	FOREIGN KEY (LayerId) REFERENCES MapLayers (Id)
 );
 
-/*** Location Types ***/
-
-CREATE TABLE IF NOT EXISTS CelestialObjectTypes (
-	Id                INT            NOT NULL AUTO_INCREMENT,
-	Name              VARCHAR(1000)  NOT NULL,
-    PRIMARY KEY (Id)
-);
-
 /*** Locations ***/
 
-CREATE TABLE IF NOT EXISTS Manifolds (
-	Id         INT NOT NULL AUTO_INCREMENT,
-	Number     INT NOT NULL UNIQUE,
-	Name       VARCHAR(1000),
-	PRIMARY KEY (Id)
-);
-
-CREATE TABLE IF NOT EXISTS CelestialSystems (
-	Id         INT            NOT NULL AUTO_INCREMENT,
-	Name       VARCHAR(1000)  NOT NULL,
-	ManifoldId INT            NOT NULL,
-	PRIMARY KEY (Id),
-	FOREIGN KEY (ManifoldId) REFERENCES Manifolds (Id)
-);
-
-CREATE TABLE IF NOT EXISTS CelestialObjects (
-	Id                  INT            NOT NULL AUTO_INCREMENT,
-	Name                VARCHAR(1000)  NOT NULL,
-	CelestialSystemId   INT,
-	PRIMARY KEY (Id),
-	FOREIGN KEY (CelestialSystemId) REFERENCES CelestialSystems (Id)
-);
-
-CREATE TABLE IF NOT EXISTS Continents (
-	Id                 INT           NOT NULL AUTO_INCREMENT,
-	Name               VARCHAR(1000) NOT NULL,
-	CelestialObjectId  INT,
-	Longitude          FLOAT,
-	Latitude           FLOAT,
-	Oceanic            INT,
-	PRIMARY KEY (Id),
-	FOREIGN KEY (CelestialObjectId) REFERENCES CelestialObjects (Id)
-);
-
-CREATE TABLE IF NOT EXISTS Subcontinents (
-	Id                 INT           NOT NULL AUTO_INCREMENT,
-	Name               VARCHAR(1000) NOT NULL,
-	ContinentId        INT,
-	Longitude          FLOAT,
-	Latitude           FLOAT,
-	PRIMARY KEY (Id),
-	FOREIGN KEY (ContinentId) REFERENCES Continents (Id)
-);
-
-CREATE TABLE IF NOT EXISTS Regions (
-	Id                 INT           NOT NULL AUTO_INCREMENT,
-	Name               VARCHAR(1000) NOT NULL,
-	SubContinentId     INT,
-	Longitude          FLOAT,
-	Latitude           FLOAT,
-	PRIMARY KEY (Id),
-	FOREIGN KEY (SubContinentId) REFERENCES SubContinents (Id)
-);
-
-CREATE TABLE IF NOT EXISTS Subregions (
-	Id                 INT           NOT NULL AUTO_INCREMENT,
-	Name               VARCHAR(1000) NOT NULL,
-	RegionId           INT,
-	Longitude          FLOAT,
-	Latitude           FLOAT,
-	PRIMARY KEY (Id),
-	FOREIGN KEY (RegionId) REFERENCES Regions (Id)
-);
-
-CREATE TABLE IF NOT EXISTS Areas (
-	Id                 INT           NOT NULL AUTO_INCREMENT,
-	Name               VARCHAR(1000) NOT NULL,
-	SubregionId        INT,
-	Longitude          FLOAT,
-	Latitude           FLOAT,
-	PRIMARY KEY (Id),
-	FOREIGN KEY (SubregionId) REFERENCES Subregions (Id)
-);
-
 CREATE TABLE IF NOT EXISTS LocationTypes (
-	Id                 INT           NOT NULL AUTO_INCREMENT,
-	Name               VARCHAR(1000) NOT NULL,
-    IconPath           VARCHAR(10000),
-    ZoomProminence     INT,
-	PRIMARY KEY (Id)
+	Id                   INT           NOT NULL AUTO_INCREMENT,
+	Name                 VARCHAR(1000) NOT NULL,
+    Summary              VARCHAR(3000),
+    ParentTypeId         INT,
+    AnyTypeParent        BIT,
+    IconPath             VARCHAR(3000),
+    ZoomProminence       INT,
+	PRIMARY KEY (Id),
+    FOREIGN KEY (ParentTypeId) REFERENCES LocationTypes (Id)
 );
-
-INSERT IGNORE INTO LocationTypes (Id, Name) VALUES
-	(1, 'City'),
-	(2, 'Town'),
-	(3, 'Village'),
-	(4, 'Hamlet'),
-	(5, 'Fortress'),
-	(6, 'River');
-
 
 CREATE TABLE IF NOT EXISTS Locations (
 	Id             INT           NOT NULL AUTO_INCREMENT,
@@ -237,10 +145,12 @@ CREATE TABLE IF NOT EXISTS Locations (
 	LocationTypeId INT,
 	Longitude      FLOAT,
 	Latitude       FLOAT,
+    ParentId       INT,
     IconPath       VARCHAR(10000),
     ZoomProminence INT,
 	PRIMARY KEY (Id),
 	FOREIGN KEY (AreaId) REFERENCES Areas (Id),
-	FOREIGN KEY (LocationTypeId) REFERENCES LocationTypes (Id)
+	FOREIGN KEY (LocationTypeId) REFERENCES LocationTypes (Id),
+    FOREIGN KEY (ParentId) REFERENCES Locations (Id)
 );
 

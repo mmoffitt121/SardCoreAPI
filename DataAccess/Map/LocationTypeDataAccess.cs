@@ -1,68 +1,83 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using MySqlConnector;
+using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.Map.LocationType;
 using SardCoreAPI.Models.Map.MapTile;
 
 namespace SardCoreAPI.DataAccess.Map
 {
-    public class LocationTypeDataAccess
+    public class LocationTypeDataAccess : GenericDataAccess
     {
-        public LocationType? GetLocationType(int id)
+        public async Task<List<LocationType>> GetLocationTypes(PagedSearchCriteria criteria)
         {
-            string sql = @"SELECT * FROM LocationTypes 
+            string pageSettings = "";
+            if (criteria.PageNumber != null && criteria.PageSize != null)
+            {
+                pageSettings = $"LIMIT {criteria.PageSize} OFFSET {criteria.PageNumber * criteria.PageSize}";
+            }
+
+            string sql = $@"SELECT Id, Name, Summary, ParentTypeId, AnyTypeParent, IconPath, ZoomProminence FROM LocationTypes 
                 WHERE
-                    Id = @Id
-                LIMIT 1;
+                    Name LIKE CONCAT('%', IFNULL(@Query, ''), '%')
+                ORDER BY
+                    CASE WHEN Name LIKE CONCAT(@Query, '%') THEN 0 ELSE 1 END,
+                    Name
+                {pageSettings}
             ";
 
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
-                {
-                    connection.Open();
-                    LocationType? locationType = connection.Query<LocationType>(sql, new { Id = id }).FirstOrDefault();
-                    if (locationType != null)
-                    {
-                        return locationType;
-                    }
-                    else
-                    {
-                        return null;
-                    }
-                }
-            }
-            catch (MySqlException s)
-            {
-                Console.WriteLine(s);
-                return null;
-            }
+            SqlBuilder builder = new SqlBuilder();
+            var template = builder.AddTemplate(sql);
+
+            if (!string.IsNullOrEmpty(criteria.Query)) { builder.Where("Name LIKE CONCAT('%', IFNULL(@Query, ''), '%')"); }
+            if (criteria.Id != null) { builder.Where("Id = @Id"); }
+
+            return await Query<LocationType>(template.RawSql, criteria);
         }
 
-        public List<LocationType> GetLocationTypes(string? query)
+        public async Task<int> PostLocationType(LocationType data)
         {
-            string sql = @"SELECT * FROM LocationTypes 
-                WHERE
-                    Name LIKE CONCAT('%', IFNULL(@Name, ''), '%')
-                ORDER BY
-                    CASE WHEN Name LIKE CONCAT(@Name, '%') THEN 0 ELSE 1 END,
-                    Name
-            ";
+            string sql = $@"
+                INSERT INTO LocationTypes (
+                    Name,
+                    Summary,
+                    ParentTypeId,
+                    AnyTypeParent,
+                    ZoomProminence
+                ) 
+                VALUES (
+                    @Name,
+                    @Summary,
+                    @ParentTypeId,
+                    @AnyTypeParent,
+                    @ZoomProminence
+                );
+            
+                SELECT LAST_INSERT_ID();";
 
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
-                {
-                    connection.Open();
-                    List<LocationType> locationTypes = connection.Query<LocationType>(sql, new { Name = query }).ToList();
-                    return locationTypes;
-                }
-            }
-            catch (MySqlException s)
-            {
-                Console.WriteLine(s);
-                return null;
-            }
+            return (await Query<int>(sql, data)).FirstOrDefault();
+        }
+
+        public async Task<int> PutLocationType(LocationType data)
+        {
+            string sql = @"
+                UPDATE LocationTypes
+                SET
+                    Name = @Name,
+                    Summary = @Summary,
+                    ParentTypeId = @ParentTypeId,
+                    AnyTypeParent = @AnyTypeParent,
+                    ZoomProminence = @ZoomProminence
+                WHERE Id = @Id";
+
+            return await Execute(sql, data);
+        }
+
+        public async Task<int> DeleteLocationType(int Id)
+        {
+            string sql = @"DELTE FROM LocationTypes WHERE Id = @Id";
+
+            return await Execute(sql, new { Id });
         }
     }
 }

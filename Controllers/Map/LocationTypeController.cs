@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using SardCoreAPI.DataAccess.Map;
+using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.Map.Location;
 using SardCoreAPI.Models.Map.LocationType;
 using SardCoreAPI.Models.Map.MapTile;
@@ -21,9 +22,9 @@ namespace SardCoreAPI.Controllers.Map
         }
 
         [HttpGet(Name = "GetLocationTypes")]
-        public IActionResult GetLocationTypes(string? query)
+        public async Task<IActionResult> GetLocationTypes([FromQuery] PagedSearchCriteria criteria)
         {
-            List<LocationType> locationTypes = new LocationTypeDataAccess().GetLocationTypes(query);
+            List<LocationType> locationTypes = await new LocationTypeDataAccess().GetLocationTypes(criteria);
 
             if (locationTypes != null)
             {
@@ -32,18 +33,88 @@ namespace SardCoreAPI.Controllers.Map
             return new BadRequestResult();
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetLocationTypeCount([FromQuery] PagedSearchCriteria criteria)
+        {
+            List<LocationType> locationTypes = await new LocationTypeDataAccess().GetLocationTypes(criteria);
+
+            if (locationTypes != null)
+            {
+                return new OkObjectResult(locationTypes.Count());
+            }
+            return new BadRequestResult();
+        }
+
+
         [HttpGet(Name = "GetLocationType")]
-        public IActionResult GetLocationType(int? id)
+        public async Task<IActionResult> GetLocationType(int? id)
         {
             if (id == null) { return new BadRequestResult(); }
 
-            LocationType? locationType = new LocationTypeDataAccess().GetLocationType(id.Value);
+            LocationType? locationType = (await new LocationTypeDataAccess().GetLocationTypes(new PagedSearchCriteria() { Id = id.Value })).FirstOrDefault();
 
             if (locationType != null)
             {
                 return new OkObjectResult(locationType);
             }
             return new NotFoundResult();
+        }
+
+        [HttpPost(Name = "PostLocationType")]
+        public async Task<IActionResult> PostLocationType([FromBody] LocationType data)
+        {
+            if (data == null) { return new BadRequestResult(); }
+
+            int result = await new LocationTypeDataAccess().PostLocationType(data);
+
+            if (result != 0)
+            {
+                return new OkObjectResult(result);
+            }
+
+            return new BadRequestResult();
+        }
+
+        [HttpPut(Name = "PutLocationType")]
+        public async Task<IActionResult> PutLocationType([FromBody] LocationType data)
+        {
+            if (data == null) { return new BadRequestResult(); }
+
+            int result = await new LocationTypeDataAccess().PutLocationType(data);
+
+            if (result > 0)
+            {
+                return new OkResult();
+            }
+            else if (result == 0)
+            {
+                return new NotFoundResult();
+            }
+            else
+            {
+                return new BadRequestResult();
+            }
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteLocationType(int? Id)
+        {
+            if (Id == null) { return new BadRequestResult(); }
+
+            int result = await new LocationTypeDataAccess().DeleteLocationType((int)Id);
+
+            if (result > 0)
+            {
+                return new OkResult();
+            }
+            else if (result == 0)
+            {
+                return new NotFoundResult();
+            }
+            else
+            {
+                return new BadRequestResult();
+            }
         }
     }
 }

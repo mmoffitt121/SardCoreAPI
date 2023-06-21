@@ -18,11 +18,11 @@ namespace SardCoreAPI.DataAccess.Map
             var template = builder.AddTemplate(sql);
 
             if (!string.IsNullOrEmpty(criteria.Query)) { builder.Where("LocationName LIKE CONCAT('%', IFNULL(@Query, ''), '%')"); }
-            if (criteria.Cities) { builder.OrWhere("LocationTypeId = 1"); }
+            /*if (criteria.Cities) { builder.OrWhere("LocationTypeId = 1"); }
             if (criteria.Towns) { builder.OrWhere("LocationTypeId = 2"); }
             if (criteria.Villages) { builder.OrWhere("LocationTypeId = 3"); }
             if (criteria.Hamlets) { builder.OrWhere("LocationTypeId = 4"); }
-            if (criteria.Fortresses) { builder.OrWhere("LocationTypeId = 5"); }
+            if (criteria.Fortresses) { builder.OrWhere("LocationTypeId = 5"); }*/
             
 
             builder.OrderBy("CASE WHEN LocationName LIKE CONCAT(@Query, '%') THEN 0 ELSE 1 END, LocationName");

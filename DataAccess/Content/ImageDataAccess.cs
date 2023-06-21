@@ -5,15 +5,20 @@ namespace SardCoreAPI.DataAccess.Content
 {
     public class ImageDataAccess
     {
-        public async Task<int> PostImage(ImageRequest request)
+        public async Task<byte[]> GetImage(ImageRequest request)
+        {
+            return await new FileHandler().LoadImage(request);
+        }
+
+        public async Task<int> PostImage(ImagePostRequest request)
         {
             await new FileHandler().SaveImage(request);
             return 1;
         }
 
-        public async Task<byte[]> GetImage(int id)
+        public async Task<int> DeleteImage(ImageRequest request)
         {
-            return new byte[6];
+            return await new FileHandler().DeleteImage(request);
         }
     }
 }

@@ -1,12 +1,18 @@
-﻿namespace SardCoreAPI.Models.Map.Location
+﻿using lt = SardCoreAPI.Models.Map.LocationType;
+using SardCoreAPI.Models.Common;
+
+namespace SardCoreAPI.Models.Map.Location
 {
-    public class LocationSearchCriteria
+    public class LocationSearchCriteria : PagedSearchCriteria
     {
-        public string? Query { get; set; }
-        public bool Cities { get; set; }
-        public bool Towns { get; set; }
-        public bool Villages { get; set; }
-        public bool Hamlets { get; set; }
-        public bool Fortresses { get; set; }
+        public List<lt.LocationType>? LocationTypes { get; set; }
+        public int? MapLayerId { get; set; }
+        public int? MapId { get; set; }
+        public double? MinLatitude { get; set; }
+        public double? MaxLatitude { get; set; }
+        public double? MinLongitude { get; set; }
+        public double? MaxLongitude { get; set; }
+        public double? MinZoom { get; set; }
+        public double? MaxZoom { get; set; }
     }
 }

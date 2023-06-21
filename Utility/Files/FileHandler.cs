@@ -30,14 +30,14 @@ namespace SardCoreAPI.Utility.Files
             throw new Exception();
         }
 
-        public async Task SaveImage(ImageRequest request)
+        public async Task SaveImage(ImagePostRequest request)
         {
             Directory.CreateDirectory(request.Directory);
             for (int i = 0; i < retryCount; i++)
             {
                 try
                 {
-                    File.WriteAllBytes(request.URL, await request.GetByteArray());
+                    File.WriteAllBytes(request.FilePath, await request.GetByteArray());
                     return;
                 }
                 catch (IOException)
@@ -73,6 +73,59 @@ namespace SardCoreAPI.Utility.Files
                 }
             }
 
+            throw new Exception();
+        }
+
+        public async Task<byte[]> LoadImage(ImageRequest request)
+        {
+            byte[] data;
+
+            for (int i = 0; i < retryCount; i++)
+            {
+                try
+                {
+                    data = File.ReadAllBytes(request.FilePath);
+                    return data;
+                }
+                catch (FileNotFoundException e)
+                {
+                    throw e;
+                }
+                catch (DirectoryNotFoundException e)
+                {
+                    throw e;
+                }
+                catch (IOException)
+                {
+                    await Task.Delay(retryDelay);
+                }
+            }
+
+            throw new Exception();
+        }
+
+        public async Task<int> DeleteImage(ImageRequest request)
+        {
+            for (int i = 0; i < retryCount; i++)
+            {
+                try
+                {
+                    File.Delete(request.FilePath);
+                    return 1;
+                }
+                catch (FileNotFoundException e)
+                {
+                    return 0;
+                }
+                catch (DirectoryNotFoundException e)
+                {
+                    return 0;
+                }
+                catch (IOException)
+                {
+                    await Task.Delay(retryDelay);
+                }
+            }
             throw new Exception();
         }
 

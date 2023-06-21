@@ -11,15 +11,26 @@ namespace SardCoreAPI.Controllers.Content
     [Route("Map/[controller]/[action]")]
     public class ImageController
     {
-        /*[HttpGet]
-        public async Task<IActionResult> GetImage()
+        [HttpGet]
+        public async Task<IActionResult> GetImage([FromQuery] ImageRequest request)
         {
-            MapTile result = await new MapTileDataAccess().GetTile();
-            return new FileStreamResult(new MemoryStream(result.Tile), "image/png");
-        }*/
+            try
+            {
+                byte[] result = await new ImageDataAccess().GetImage(request);
+                return new FileStreamResult(new MemoryStream(result), "image/png");
+            }
+            catch (FileNotFoundException e)
+            {
+                return new NotFoundResult();
+            }
+            catch (DirectoryNotFoundException e)
+            {
+                return new NotFoundResult();
+            }
+        }
 
         [HttpPost]
-        public async Task<IActionResult> PostImage([FromForm] ImageRequest request)
+        public async Task<IActionResult> PostImage([FromForm] ImagePostRequest request)
         {
             if (request == null || request.Data == null || request.Data.Length == 0)
             {
@@ -34,9 +45,9 @@ namespace SardCoreAPI.Controllers.Content
         }
 
         [HttpDelete]
-        public async Task<IActionResult> DeleteImage(int z, int x, int y, int layerId)
+        public async Task<IActionResult> DeleteImage([FromForm] ImageRequest request)
         {
-            int result = await new MapTileDataAccess().DeleteTile(z, x, y, layerId);
+            int result = await new ImageDataAccess().DeleteImage(request);
             if (result == 0)
             {
                 return new NotFoundResult();

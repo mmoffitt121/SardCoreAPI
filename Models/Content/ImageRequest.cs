@@ -6,8 +6,7 @@ namespace SardCoreAPI.Models.Content
     {
         public int Id { get; set; }
         public int? Id2 { get; set; }
-        public IFormFile Data { get; set; }
-        public ImageType Type { get; set; }
+        public ImageType? Type { get; set; }
 
         public string Directory
         {
@@ -36,31 +35,25 @@ namespace SardCoreAPI.Models.Content
                 switch (Type)
                 {
                     case ImageType.DataPointImage:
-                        return "Parameter " + Id + " - " + Id2 + ".png";
+                        return "Parameter-" + Id + " - " + Id2 + ".png";
                     case ImageType.MapIcon:
-                        return "Map Icon " + Id + ".png";
+                        return "Map-" + Id + ".png";
                     case ImageType.LocationIcon:
-                        return "Location Icon " + Id + ".png";
+                        return "Location-Icon-" + Id + ".png";
                     case ImageType.LocationTypeIcon:
-                        return "Location Type " + Id + ".png";
+                        return "Location-Type-" + Id + ".png";
                     default:
                         return Id + ".png";
                 }
             }
         }
 
-        public string URL
+        public string FilePath
         {
             get
             {
                 return Directory + FileName;
             }
-        }
-
-        public async Task<byte[]> GetByteArray()
-        {
-            byte[] bytes = await new FileHandler().FormToByteArray(Data);
-            return bytes;
         }
 
         public enum ImageType
