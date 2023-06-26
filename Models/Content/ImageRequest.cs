@@ -58,10 +58,10 @@ namespace SardCoreAPI.Models.Content
 
         public enum ImageType
         {
-            MapIcon,
-            LocationIcon,
-            LocationTypeIcon,
-            DataPointImage
+            MapIcon = 0,
+            LocationTypeIcon = 1,
+            LocationIcon = 2,
+            DataPointImage = 3
         }
     }
 }

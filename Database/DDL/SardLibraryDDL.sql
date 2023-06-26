@@ -133,24 +133,28 @@ CREATE TABLE IF NOT EXISTS LocationTypes (
     ParentTypeId         INT,
     AnyTypeParent        BIT,
     IconPath             VARCHAR(3000),
-    ZoomProminence       INT,
+    ZoomProminenceMin    INT,
+    ZoomProminenceMax    INT,
+    UsesIcon             BIT,
+    UsesLabel            BIT,
 	PRIMARY KEY (Id),
     FOREIGN KEY (ParentTypeId) REFERENCES LocationTypes (Id)
 );
 
 CREATE TABLE IF NOT EXISTS Locations (
-	Id             INT           NOT NULL AUTO_INCREMENT,
-	LocationName   VARCHAR(1000) NOT NULL,
-	AreaId         INT,
-	LocationTypeId INT,
-	Longitude      FLOAT,
-	Latitude       FLOAT,
-    ParentId       INT,
-    IconPath       VARCHAR(10000),
-    ZoomProminence INT,
+	Id                INT           NOT NULL AUTO_INCREMENT,
+	name              VARCHAR(1000) NOT NULL,
+	LocationTypeId    INT,
+    LayerId           INT,
+	Longitude         FLOAT,
+	Latitude          FLOAT,
+    ParentId          INT,
+    IconPath          VARCHAR(10000),
+    ZoomProminenceMin INT,
+    ZoomProminenceMax INT,
 	PRIMARY KEY (Id),
-	FOREIGN KEY (AreaId) REFERENCES Areas (Id),
 	FOREIGN KEY (LocationTypeId) REFERENCES LocationTypes (Id),
-    FOREIGN KEY (ParentId) REFERENCES Locations (Id)
+    FOREIGN KEY (ParentId) REFERENCES Locations (Id),
+    FOREIGN KEY (LayerId) REFERENCES MapLayers (Id)
 );
 

@@ -8,7 +8,7 @@ using SardCoreAPI.Utility.Map;
 namespace SardCoreAPI.Controllers.Content
 {
     [ApiController]
-    [Route("Map/[controller]/[action]")]
+    [Route("Library/[controller]/[action]")]
     public class ImageController
     {
         [HttpGet]
@@ -21,11 +21,11 @@ namespace SardCoreAPI.Controllers.Content
             }
             catch (FileNotFoundException e)
             {
-                return new NotFoundResult();
+                return new OkObjectResult(null);
             }
             catch (DirectoryNotFoundException e)
             {
-                return new NotFoundResult();
+                return new OkObjectResult(null);
             }
         }
 

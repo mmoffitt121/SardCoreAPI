@@ -17,7 +17,7 @@ namespace SardCoreAPI.DataAccess.Map
                 pageSettings = $"LIMIT {criteria.PageSize} OFFSET {criteria.PageNumber * criteria.PageSize}";
             }
 
-            string sql = $@"SELECT Id, Name, Summary, ParentTypeId, AnyTypeParent, IconPath, ZoomProminence FROM LocationTypes 
+            string sql = $@"SELECT Id, Name, Summary, ParentTypeId, AnyTypeParent, IconPath, ZoomProminenceMin, ZoomProminenceMax, UsesIcon, UsesLabel FROM LocationTypes 
                 WHERE
                     Name LIKE CONCAT('%', IFNULL(@Query, ''), '%')
                 ORDER BY
@@ -43,14 +43,20 @@ namespace SardCoreAPI.DataAccess.Map
                     Summary,
                     ParentTypeId,
                     AnyTypeParent,
-                    ZoomProminence
+                    ZoomProminenceMin,
+                    ZoomProminenceMax,
+                    UsesIcon,
+                    UsesLabel
                 ) 
                 VALUES (
                     @Name,
                     @Summary,
                     @ParentTypeId,
                     @AnyTypeParent,
-                    @ZoomProminence
+                    @ZoomProminenceMin,
+                    @ZoomProminenceMax,
+                    @UsesIcon,
+                    @UsesLabel
                 );
             
                 SELECT LAST_INSERT_ID();";
@@ -67,7 +73,10 @@ namespace SardCoreAPI.DataAccess.Map
                     Summary = @Summary,
                     ParentTypeId = @ParentTypeId,
                     AnyTypeParent = @AnyTypeParent,
-                    ZoomProminence = @ZoomProminence
+                    ZoomProminenceMin = @ZoomProminenceMin,
+                    ZoomProminenceMax = @ZoomProminenceMax,
+                    UsesIcon = @UsesIcon,
+                    UsesLabel = @UsesLabel
                 WHERE Id = @Id";
 
             return await Execute(sql, data);
@@ -75,7 +84,7 @@ namespace SardCoreAPI.DataAccess.Map
 
         public async Task<int> DeleteLocationType(int Id)
         {
-            string sql = @"DELTE FROM LocationTypes WHERE Id = @Id";
+            string sql = @"DELETE FROM LocationTypes WHERE Id = @Id";
 
             return await Execute(sql, new { Id });
         }

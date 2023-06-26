@@ -9,7 +9,13 @@ namespace SardCoreAPI.DataAccess.Map
     { 
         public List<Location> GetLocations(LocationSearchCriteria criteria)
         {
-            string sql = @"SELECT Id, LocationName, AreaId, LocationTypeId, Longitude, Latitude FROM Locations 
+            string sql = @"
+                SELECT 
+                    l.Id, l.Name, LocationTypeId, LayerId, Longitude, Latitude, ParentId, 
+                    IFNULL(l.ZoomProminenceMin, lt.ZoomProminenceMin) AS ZoomProminenceMin,
+                    IFNULL(l.ZoomProminenceMax, lt.ZoomProminenceMax) AS ZoomProminenceMax
+                FROM Locations l
+                    LEFT JOIN LocationTypes lt on lt.Id = l.LocationTypeId
                 /**where**/
                 /**orderby**/
             ";
@@ -17,15 +23,18 @@ namespace SardCoreAPI.DataAccess.Map
             SqlBuilder builder = new SqlBuilder();
             var template = builder.AddTemplate(sql);
 
-            if (!string.IsNullOrEmpty(criteria.Query)) { builder.Where("LocationName LIKE CONCAT('%', IFNULL(@Query, ''), '%')"); }
-            /*if (criteria.Cities) { builder.OrWhere("LocationTypeId = 1"); }
-            if (criteria.Towns) { builder.OrWhere("LocationTypeId = 2"); }
-            if (criteria.Villages) { builder.OrWhere("LocationTypeId = 3"); }
-            if (criteria.Hamlets) { builder.OrWhere("LocationTypeId = 4"); }
-            if (criteria.Fortresses) { builder.OrWhere("LocationTypeId = 5"); }*/
-            
+            if (!string.IsNullOrEmpty(criteria.Query)) { builder.Where("Name LIKE CONCAT('%', IFNULL(@Query, ''), '%')"); }
+            if (criteria.MapLayerIds != null) { builder.Where("LayerId in @MapLayerIds"); }
+            if (criteria.LocationTypes != null && criteria.LocationTypes.Count() > 0) { builder.Where("LocationTypeId in @LocationTypes"); }
+            if (criteria.MinLatitude != null) { builder.Where("Latitude >= @MinLatitude"); }
+            if (criteria.MaxLatitude != null) { builder.Where("Latitude <= @MaxLatitude"); }
+            if (criteria.MinLongitude != null) { builder.Where("Longitude >= @MinLongitude"); }
+            if (criteria.MaxLongitude != null) { builder.Where("Longitude <= @MaxLongitude"); }
+            if (criteria.MinZoom != null) { builder.Where("@MinZoom >= IFNULL(l.ZoomProminenceMin, lt.ZoomProminenceMin)"); }
+            if (criteria.MaxZoom != null) { builder.Where("@MaxZoom <= IFNULL(l.ZoomProminenceMax, lt.ZoomProminenceMax)"); }
 
-            builder.OrderBy("CASE WHEN LocationName LIKE CONCAT(@Query, '%') THEN 0 ELSE 1 END, LocationName");
+
+            builder.OrderBy("CASE WHEN l.Name LIKE CONCAT(@Query, '%') THEN 0 ELSE 1 END, l.Name");
 
             try
             {
@@ -48,27 +57,8 @@ namespace SardCoreAPI.DataAccess.Map
         {
             if (Id == null) return null;
 
-            string sql = @"SELECT 
-                l.Id, l.LocationName, l.LocationTypeId, l.Longitude, l.Latitude, l.LocationName, 
-                    lt.Name as LocationType,
-                    a.Id as AreaId, a.Name as AreaName, 
-                    sr.Id as SubregionId, sr.Name as SubregionName,
-                    r.Id as RegionId, r.Name as RegionName,
-                    sc.Id as SubcontinentId, sc.Name as SubcontinentName,
-                    c.Id as ContinentId, c.Name as ContinentName,
-                    cb.Id as CelestialBodyId, cb.Name as CelestialBodyName,
-                    cs.Id as CelestialSystemId, cs.Name as CelestialSystemName,
-                    m.Id as ManifoldId, m.Name as ManifoldName
+            string sql = @"SELECT Id, Name, LocationTypeId, LayerId, Longitude, Latitude, ParentId, ZoomProminenceMin, ZoomProminenceMax
                 FROM Locations l
-                    LEFT JOIN LocationTypes lt on lt.Id = l.LocationTypeId
-                    LEFT JOIN Areas a on a.Id = l.areaId
-                    LEFT JOIN Subregions sr on sr.Id = a.SubregionId
-                    LEFT JOIN Regions r on r.id = sr.RegionId
-                    LEFT JOIN Subcontinents sc on sc.id = r.SubcontinentId
-                    LEFT JOIN Continents c on c.id = sc.ContinentId
-                    LEFT JOIN CelestialObjects cb on cb.id = c.CelestialObjectId
-                    LEFT JOIN CelestialSystems cs on cs.id = cb.CelestialSystemId
-                    LEFT JOIN Manifolds m on m.id = cs.ManifoldId
                 /**where**/";
 
             SqlBuilder builder = new SqlBuilder();
@@ -101,8 +91,8 @@ namespace SardCoreAPI.DataAccess.Map
 
         public bool PostLocation(Location location)
         {
-            string sql = @"INSERT INTO Locations (LocationName, AreaId, LocationTypeId, Longitude, Latitude) 
-                VALUES (@LocationName, @AreaId, @LocationTypeId, @Longitude, @Latitude)";
+            string sql = @"INSERT INTO Locations (Name, LocationTypeId, LayerId, Longitude, Latitude, ParentId, ZoomProminenceMin, ZoomProminenceMax) 
+                VALUES (@Name, @LocationTypeId, @LayerId, @Longitude, @Latitude, @ParentId, @ZoomProminenceMin, @ZoomProminenceMax)";
 
             try
             {
@@ -126,11 +116,14 @@ namespace SardCoreAPI.DataAccess.Map
         public async Task<int> PutLocation(Location location)
         {
             string sql = @"UPDATE Locations SET 
-	                LocationName = @LocationName,
-                    AreaId = @AreaId,
+	                Name = @Name,
                     LocationTypeId = @LocationTypeId,
+                    LayerId = @LayerId,
                     Longitude = @Longitude,
-                    Latitude = @Latitude
+                    Latitude = @Latitude,
+                    ParentId = @ParentId,
+                    ZoomProminenceMin = @ZoomProminenceMin,
+                    ZoomProminenceMax = @ZoomProminenceMax
                 WHERE Id = @Id";
 
             try
