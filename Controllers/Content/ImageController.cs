@@ -39,6 +39,7 @@ namespace SardCoreAPI.Controllers.Content
 
             if (await new ImageDataAccess().PostImage(request) != 0)
             {
+                await new ImageDataAccess().PutImageUrl(request);
                 return new OkResult();
             }
             return new BadRequestResult();

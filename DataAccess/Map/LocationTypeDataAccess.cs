@@ -17,7 +17,8 @@ namespace SardCoreAPI.DataAccess.Map
                 pageSettings = $"LIMIT {criteria.PageSize} OFFSET {criteria.PageNumber * criteria.PageSize}";
             }
 
-            string sql = $@"SELECT Id, Name, Summary, ParentTypeId, AnyTypeParent, IconPath, ZoomProminenceMin, ZoomProminenceMax, UsesIcon, UsesLabel FROM LocationTypes 
+            string sql = $@"SELECT Id, Name, Summary, ParentTypeId, AnyTypeParent, IconPath, ZoomProminenceMin, ZoomProminenceMax, 
+                    UsesIcon, UsesLabel, IconURL FROM LocationTypes 
                 WHERE
                     Name LIKE CONCAT('%', IFNULL(@Query, ''), '%')
                 ORDER BY
@@ -46,7 +47,8 @@ namespace SardCoreAPI.DataAccess.Map
                     ZoomProminenceMin,
                     ZoomProminenceMax,
                     UsesIcon,
-                    UsesLabel
+                    UsesLabel,
+                    IconURL
                 ) 
                 VALUES (
                     @Name,
@@ -56,7 +58,8 @@ namespace SardCoreAPI.DataAccess.Map
                     @ZoomProminenceMin,
                     @ZoomProminenceMax,
                     @UsesIcon,
-                    @UsesLabel
+                    @UsesLabel,
+                    @IconURL
                 );
             
                 SELECT LAST_INSERT_ID();";
@@ -76,7 +79,8 @@ namespace SardCoreAPI.DataAccess.Map
                     ZoomProminenceMin = @ZoomProminenceMin,
                     ZoomProminenceMax = @ZoomProminenceMax,
                     UsesIcon = @UsesIcon,
-                    UsesLabel = @UsesLabel
+                    UsesLabel = @UsesLabel,
+                    IconURL = IFNULL(@IconURL, IconURL)
                 WHERE Id = @Id";
 
             return await Execute(sql, data);

@@ -48,6 +48,26 @@ namespace SardCoreAPI.Utility.Files
             }
         }
 
+        public async Task SaveAndResizeImage(ImagePostRequest request, int width, int height)
+        {
+            byte[] data = await CompressImage(await request.GetByteArray(), width, height);
+
+            Directory.CreateDirectory(request.Directory);
+            for (int i = 0; i < retryCount; i++)
+            {
+                try
+                {
+                    File.WriteAllBytes(request.FilePath, data);
+                    return;
+                }
+                catch (IOException)
+                {
+                    await Task.Delay(retryDelay);
+                }
+                throw new Exception();
+            }
+        }
+
         public async Task<byte[]> LoadImage(string fileName)
         {
             byte[] data;

@@ -13,7 +13,8 @@ namespace SardCoreAPI.DataAccess.Map
                 SELECT 
                     l.Id, l.Name, LocationTypeId, LayerId, Longitude, Latitude, ParentId, 
                     IFNULL(l.ZoomProminenceMin, lt.ZoomProminenceMin) AS ZoomProminenceMin,
-                    IFNULL(l.ZoomProminenceMax, lt.ZoomProminenceMax) AS ZoomProminenceMax
+                    IFNULL(l.ZoomProminenceMax, lt.ZoomProminenceMax) AS ZoomProminenceMax,
+                    IFNULL(l.IconURL, lt.IconURL) as IconURL, lt.UsesIcon, lt.UsesLabel
                 FROM Locations l
                     LEFT JOIN LocationTypes lt on lt.Id = l.LocationTypeId
                 /**where**/
@@ -57,7 +58,7 @@ namespace SardCoreAPI.DataAccess.Map
         {
             if (Id == null) return null;
 
-            string sql = @"SELECT Id, Name, LocationTypeId, LayerId, Longitude, Latitude, ParentId, ZoomProminenceMin, ZoomProminenceMax
+            string sql = @"SELECT Id, Name, LocationTypeId, LayerId, Longitude, Latitude, ParentId, ZoomProminenceMin, ZoomProminenceMax, IconURL
                 FROM Locations l
                 /**where**/";
 
@@ -91,8 +92,8 @@ namespace SardCoreAPI.DataAccess.Map
 
         public bool PostLocation(Location location)
         {
-            string sql = @"INSERT INTO Locations (Name, LocationTypeId, LayerId, Longitude, Latitude, ParentId, ZoomProminenceMin, ZoomProminenceMax) 
-                VALUES (@Name, @LocationTypeId, @LayerId, @Longitude, @Latitude, @ParentId, @ZoomProminenceMin, @ZoomProminenceMax)";
+            string sql = @"INSERT INTO Locations (Name, LocationTypeId, LayerId, Longitude, Latitude, ParentId, ZoomProminenceMin, ZoomProminenceMax, IconURL) 
+                VALUES (@Name, @LocationTypeId, @LayerId, @Longitude, @Latitude, @ParentId, @ZoomProminenceMin, @ZoomProminenceMax, IconURL)";
 
             try
             {
@@ -123,7 +124,8 @@ namespace SardCoreAPI.DataAccess.Map
                     Latitude = @Latitude,
                     ParentId = @ParentId,
                     ZoomProminenceMin = @ZoomProminenceMin,
-                    ZoomProminenceMax = @ZoomProminenceMax
+                    ZoomProminenceMax = @ZoomProminenceMax,
+                    IconURL = IFNULL(@IconURL, IconURL)
                 WHERE Id = @Id";
 
             try

@@ -7,6 +7,7 @@ namespace SardCoreAPI.Models.Content
         public int Id { get; set; }
         public int? Id2 { get; set; }
         public ImageType? Type { get; set; }
+        public string? URL { get; set; }
 
         public string Directory
         {

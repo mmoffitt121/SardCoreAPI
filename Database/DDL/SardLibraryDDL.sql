@@ -137,6 +137,7 @@ CREATE TABLE IF NOT EXISTS LocationTypes (
     ZoomProminenceMax    INT,
     UsesIcon             BIT,
     UsesLabel            BIT,
+    IconURL              VARCHAR(3000),
 	PRIMARY KEY (Id),
     FOREIGN KEY (ParentTypeId) REFERENCES LocationTypes (Id)
 );
@@ -152,6 +153,7 @@ CREATE TABLE IF NOT EXISTS Locations (
     IconPath          VARCHAR(10000),
     ZoomProminenceMin INT,
     ZoomProminenceMax INT,
+    IconURL           VARCHAR(3000),
 	PRIMARY KEY (Id),
 	FOREIGN KEY (LocationTypeId) REFERENCES LocationTypes (Id),
     FOREIGN KEY (ParentId) REFERENCES Locations (Id),

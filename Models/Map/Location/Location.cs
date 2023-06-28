@@ -13,5 +13,8 @@ namespace SardCoreAPI.Models.Map.Location
         public int? ParentId { get; set; }
         public int? ZoomProminenceMin { get; set; }
         public int? ZoomProminenceMax { get; set; }
+        public bool? UsesIcon { get; set; }
+        public bool? UsesLabel { get; set; }
+        public string? IconURL { get; set; }
     }
 }
