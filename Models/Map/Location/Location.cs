@@ -16,5 +16,7 @@ namespace SardCoreAPI.Models.Map.Location
         public bool? UsesIcon { get; set; }
         public bool? UsesLabel { get; set; }
         public string? IconURL { get; set; }
+        public string? LabelFontSize { get; set; }
+        public string? LabelFontColor { get; set; }
     }
 }

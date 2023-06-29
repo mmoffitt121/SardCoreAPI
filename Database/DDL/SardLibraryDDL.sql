@@ -138,6 +138,8 @@ CREATE TABLE IF NOT EXISTS LocationTypes (
     UsesIcon             BIT,
     UsesLabel            BIT,
     IconURL              VARCHAR(3000),
+    LabelFontSize        INT,
+    LabelFontColor       CHAR(6),
 	PRIMARY KEY (Id),
     FOREIGN KEY (ParentTypeId) REFERENCES LocationTypes (Id)
 );
@@ -154,6 +156,8 @@ CREATE TABLE IF NOT EXISTS Locations (
     ZoomProminenceMin INT,
     ZoomProminenceMax INT,
     IconURL           VARCHAR(3000),
+    LabelFontSize     INT,
+    LabelFontColor    CHAR(6),
 	PRIMARY KEY (Id),
 	FOREIGN KEY (LocationTypeId) REFERENCES LocationTypes (Id),
     FOREIGN KEY (ParentId) REFERENCES Locations (Id),

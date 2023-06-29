@@ -18,7 +18,7 @@ namespace SardCoreAPI.DataAccess.Map
             }
 
             string sql = $@"SELECT Id, Name, Summary, ParentTypeId, AnyTypeParent, IconPath, ZoomProminenceMin, ZoomProminenceMax, 
-                    UsesIcon, UsesLabel, IconURL FROM LocationTypes 
+                    UsesIcon, UsesLabel, IconURL, LabelFontSize, LabelFontColor FROM LocationTypes 
                 WHERE
                     Name LIKE CONCAT('%', IFNULL(@Query, ''), '%')
                 ORDER BY
@@ -48,18 +48,22 @@ namespace SardCoreAPI.DataAccess.Map
                     ZoomProminenceMax,
                     UsesIcon,
                     UsesLabel,
-                    IconURL
+                    IconURL,
+                    LabelFontSize,
+                    LabelFontColor
                 ) 
                 VALUES (
                     @Name,
                     @Summary,
                     @ParentTypeId,
                     @AnyTypeParent,
-                    @ZoomProminenceMin,
-                    @ZoomProminenceMax,
+                    IFNULL(@ZoomProminenceMin, 0),
+                    IFNULL(@ZoomProminenceMax, 9999999),
                     @UsesIcon,
                     @UsesLabel,
-                    @IconURL
+                    @IconURL,
+                    @LabelFontSize,
+                    @LabelFontColor
                 );
             
                 SELECT LAST_INSERT_ID();";
@@ -76,11 +80,13 @@ namespace SardCoreAPI.DataAccess.Map
                     Summary = @Summary,
                     ParentTypeId = @ParentTypeId,
                     AnyTypeParent = @AnyTypeParent,
-                    ZoomProminenceMin = @ZoomProminenceMin,
-                    ZoomProminenceMax = @ZoomProminenceMax,
+                    ZoomProminenceMin = IFNULL(@ZoomProminenceMin, 0),
+                    ZoomProminenceMax = IFNULL(@ZoomProminenceMax, 9999999),
                     UsesIcon = @UsesIcon,
                     UsesLabel = @UsesLabel,
-                    IconURL = IFNULL(@IconURL, IconURL)
+                    IconURL = IFNULL(@IconURL, IconURL),
+                    LabelFontSize = @LabelFontSize,
+                    LabelFontColor = @LabelFontColor
                 WHERE Id = @Id";
 
             return await Execute(sql, data);

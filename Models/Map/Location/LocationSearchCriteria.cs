@@ -5,7 +5,7 @@ namespace SardCoreAPI.Models.Map.Location
 {
     public class LocationSearchCriteria : PagedSearchCriteria
     {
-        public List<lt.LocationType>? LocationTypes { get; set; }
+        public List<int>? LocationTypeIds { get; set; }
         public List<int>? MapLayerIds { get; set; }
         public double? MinLatitude { get; set; }
         public double? MaxLatitude { get; set; }

@@ -14,7 +14,10 @@ namespace SardCoreAPI.DataAccess.Map
                     l.Id, l.Name, LocationTypeId, LayerId, Longitude, Latitude, ParentId, 
                     IFNULL(l.ZoomProminenceMin, lt.ZoomProminenceMin) AS ZoomProminenceMin,
                     IFNULL(l.ZoomProminenceMax, lt.ZoomProminenceMax) AS ZoomProminenceMax,
-                    IFNULL(l.IconURL, lt.IconURL) as IconURL, lt.UsesIcon, lt.UsesLabel
+                    IFNULL(l.IconURL, lt.IconURL) as IconURL, 
+                    lt.UsesIcon, lt.UsesLabel,
+                    IFNULL(l.LabelFontSize, lt.LabelFontSize) as LabelFontSize,
+                    IFNULL(l.LabelFontColor, lt.LabelFontColor) as LabelFontColor
                 FROM Locations l
                     LEFT JOIN LocationTypes lt on lt.Id = l.LocationTypeId
                 /**where**/
@@ -26,7 +29,7 @@ namespace SardCoreAPI.DataAccess.Map
 
             if (!string.IsNullOrEmpty(criteria.Query)) { builder.Where("Name LIKE CONCAT('%', IFNULL(@Query, ''), '%')"); }
             if (criteria.MapLayerIds != null) { builder.Where("LayerId in @MapLayerIds"); }
-            if (criteria.LocationTypes != null && criteria.LocationTypes.Count() > 0) { builder.Where("LocationTypeId in @LocationTypes"); }
+            if (criteria.LocationTypeIds != null && criteria.LocationTypeIds.Count() > 0) { builder.Where("LocationTypeId in @LocationTypeIds"); }
             if (criteria.MinLatitude != null) { builder.Where("Latitude >= @MinLatitude"); }
             if (criteria.MaxLatitude != null) { builder.Where("Latitude <= @MaxLatitude"); }
             if (criteria.MinLongitude != null) { builder.Where("Longitude >= @MinLongitude"); }
@@ -58,7 +61,7 @@ namespace SardCoreAPI.DataAccess.Map
         {
             if (Id == null) return null;
 
-            string sql = @"SELECT Id, Name, LocationTypeId, LayerId, Longitude, Latitude, ParentId, ZoomProminenceMin, ZoomProminenceMax, IconURL
+            string sql = @"SELECT Id, Name, LocationTypeId, LayerId, Longitude, Latitude, ParentId, ZoomProminenceMin, ZoomProminenceMax, IconURL, LabelFontSize, LabelFontColor
                 FROM Locations l
                 /**where**/";
 
@@ -92,8 +95,8 @@ namespace SardCoreAPI.DataAccess.Map
 
         public bool PostLocation(Location location)
         {
-            string sql = @"INSERT INTO Locations (Name, LocationTypeId, LayerId, Longitude, Latitude, ParentId, ZoomProminenceMin, ZoomProminenceMax, IconURL) 
-                VALUES (@Name, @LocationTypeId, @LayerId, @Longitude, @Latitude, @ParentId, @ZoomProminenceMin, @ZoomProminenceMax, IconURL)";
+            string sql = @"INSERT INTO Locations (Name, LocationTypeId, LayerId, Longitude, Latitude, ParentId, ZoomProminenceMin, ZoomProminenceMax, IconURL, LabelFontSize, LabelFontColor) 
+                VALUES (@Name, @LocationTypeId, @LayerId, @Longitude, @Latitude, @ParentId, @ZoomProminenceMin, @ZoomProminenceMax, @IconURL, @LabelFontSize, @LabelFontColor)";
 
             try
             {
@@ -125,7 +128,9 @@ namespace SardCoreAPI.DataAccess.Map
                     ParentId = @ParentId,
                     ZoomProminenceMin = @ZoomProminenceMin,
                     ZoomProminenceMax = @ZoomProminenceMax,
-                    IconURL = IFNULL(@IconURL, IconURL)
+                    IconURL = IFNULL(@IconURL, IconURL),
+                    LabelFontSize = @LabelFontSize,
+                    LabelFontColor = @LabelFontColor
                 WHERE Id = @Id";
 
             try
