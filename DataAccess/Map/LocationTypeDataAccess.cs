@@ -19,8 +19,7 @@ namespace SardCoreAPI.DataAccess.Map
 
             string sql = $@"SELECT Id, Name, Summary, ParentTypeId, AnyTypeParent, IconPath, ZoomProminenceMin, ZoomProminenceMax, 
                     UsesIcon, UsesLabel, IconURL, LabelFontSize, LabelFontColor FROM LocationTypes 
-                WHERE
-                    Name LIKE CONCAT('%', IFNULL(@Query, ''), '%')
+                /**where**/
                 ORDER BY
                     CASE WHEN Name LIKE CONCAT(@Query, '%') THEN 0 ELSE 1 END,
                     Name

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SardCoreAPI.DataAccess.Map;
 using SardCoreAPI.Models.Map.Location;
+using SardCoreAPI.Models.Map.LocationType;
 
 namespace SardCoreAPI.Controllers.Map
 {
@@ -29,14 +30,35 @@ namespace SardCoreAPI.Controllers.Map
         }
 
         [HttpGet(Name = "GetLocation")]
-        public IActionResult GetLocation([FromQuery] int? Id)
+        public async Task<ActionResult> GetLocation([FromQuery] int? Id)
         {
-            Location result = new LocationDataAccess().GetLocation(Id);
+            Location result = await new LocationDataAccess().GetLocation(Id);
             if (result != null)
             {
                 return new OkObjectResult(result);
             }
             return new NotFoundResult();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetLocationHeiarchy(int id, int depth)
+        {
+            List<Location> result = new List<Location>();
+            LocationDataAccess dataAccess = new LocationDataAccess();
+            int? currentId = id;
+            for (int i = 0; i < depth; i++)
+            {
+                Location next = await dataAccess.GetLocation(currentId);
+                if (next == null) { break; }
+                result.Add(next);
+                currentId = next.ParentId;
+                if (currentId == null) { break; }
+            }
+            if (result != null)
+            {
+                return new OkObjectResult(result);
+            }
+            return new BadRequestResult();
         }
 
         [HttpPost(Name = "PostLocation")]

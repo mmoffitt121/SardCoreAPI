@@ -7,6 +7,7 @@ namespace SardCoreAPI.Models.Map.Location
         public int Id { get; set; }
         public string Name { get; set; }
         public int? LocationTypeId { get; set; }
+        public string? LocationTypeName { get; set; }
         public int LayerId { get; set; }
         public double? Longitude { get; set; }
         public double? Latitude { get; set; }

@@ -5,7 +5,7 @@ using SardCoreAPI.Models.Map.LocationType;
 
 namespace SardCoreAPI.DataAccess.Map
 {
-    public class LocationDataAccess
+    public class LocationDataAccess : GenericDataAccess
     { 
         public List<Location> GetLocations(LocationSearchCriteria criteria)
         {
@@ -28,6 +28,7 @@ namespace SardCoreAPI.DataAccess.Map
             var template = builder.AddTemplate(sql);
 
             if (!string.IsNullOrEmpty(criteria.Query)) { builder.Where("Name LIKE CONCAT('%', IFNULL(@Query, ''), '%')"); }
+            if (criteria.Id != null && criteria.Id > 0) { builder.Where("l.Id = @Id"); }
             if (criteria.MapLayerIds != null) { builder.Where("LayerId in @MapLayerIds"); }
             if (criteria.LocationTypeIds != null && criteria.LocationTypeIds.Count() > 0) { builder.Where("LocationTypeId in @LocationTypeIds"); }
             if (criteria.MinLatitude != null) { builder.Where("Latitude >= @MinLatitude"); }
@@ -57,12 +58,13 @@ namespace SardCoreAPI.DataAccess.Map
             
         }
 
-        public Location GetLocation(int? Id)
+        public async Task<Location> GetLocation(int? Id)
         {
             if (Id == null) return null;
 
-            string sql = @"SELECT Id, Name, LocationTypeId, LayerId, Longitude, Latitude, ParentId, ZoomProminenceMin, ZoomProminenceMax, IconURL, LabelFontSize, LabelFontColor
+            string sql = @"SELECT l.Id, l.Name, l.LocationTypeId, l.LayerId, l.Longitude, l.Latitude, l.ParentId, l.ZoomProminenceMin, l.ZoomProminenceMax, l.IconURL, l.LabelFontSize, l.LabelFontColor, lt.Name as LocationTypeName
                 FROM Locations l
+                    LEFT JOIN LocationTypes lt on l.LocationTypeId = lt.Id
                 /**where**/";
 
             SqlBuilder builder = new SqlBuilder();
@@ -75,15 +77,8 @@ namespace SardCoreAPI.DataAccess.Map
                 using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
                 {
                     connection.Open();
-                    try
-                    {
-                        Location location = connection.QueryFirst<Location>(template.RawSql, new { Id });
-                        return location;
-                    }
-                    catch
-                    {
-                        return null;
-                    }
+                    Location location = connection.QueryFirst<Location>(template.RawSql, new { Id });
+                    return location;
                 }
             }
             catch (MySqlException s)
