@@ -88,6 +88,8 @@ namespace SardCoreAPI.Controllers.Map
         {
             if (Id == null) { return new BadRequestResult(); }
 
+            int tileResult = await new MapTileDataAccess().DeleteTiles((int)Id);
+
             int result = await new MapLayerDataAccess().DeleteMapLayer((int)Id);
 
             if (result > 0)
