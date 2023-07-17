@@ -15,6 +15,8 @@ namespace SardCoreAPI.Utility.Error
         {
             switch (ex.Number)
             {
+                case 1062:
+                    return new ConflictObjectResult("An Item with this identifier already exists.");
                 case 1451:
                     return new ConflictObjectResult("This item is in use by another item, and cannot be deleted.");
                 default:

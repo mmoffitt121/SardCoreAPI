@@ -7,11 +7,12 @@ namespace SardCoreAPI.DataAccess
 {
     public class GenericDataAccess
     {
-        public async Task<List<T>> Query<T>(string sql, object data)
+        public async Task<List<T>> Query<T>(string sql, object data, bool globalConnection = false)
         {
+            string connectionString = globalConnection ? Connection.GetGlobalConnectionString() : Connection.GetConnectionString();
             try
             {
-                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                using (MySqlConnection connection = new MySqlConnection(connectionString))
                 {
                     connection.Open();
                     List<T> result = (await connection.QueryAsync<T>(sql, data)).ToList();
@@ -25,9 +26,9 @@ namespace SardCoreAPI.DataAccess
             }
         }
 
-        public async Task<T> QueryFirst<T>(string sql, object data)
+        public async Task<T> QueryFirst<T>(string sql, object data, bool globalConnection = false)
         {
-            List<T> result = await Query<T>(sql, data);
+            List<T> result = await Query<T>(sql, data, globalConnection);
             if (result.Count > 0)
             {
                 return result[0];
@@ -38,11 +39,12 @@ namespace SardCoreAPI.DataAccess
             }
         }
 
-        public async Task<int> Execute(string sql, object data)
+        public async Task<int> Execute(string sql, object data, bool globalConnection = false)
         {
+            string connectionString = globalConnection ? Connection.GetGlobalConnectionString() : Connection.GetConnectionString();
             try
             {
-                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                using (MySqlConnection connection = new MySqlConnection(connectionString))
                 {
                     connection.Open();
                     return await connection.ExecuteAsync(sql, data);
@@ -52,6 +54,11 @@ namespace SardCoreAPI.DataAccess
             {
                 Console.WriteLine(s);
                 throw s;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw e;
             }
         }
     }

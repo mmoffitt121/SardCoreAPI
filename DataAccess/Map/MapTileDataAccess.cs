@@ -1,5 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
-using Dapper;
+﻿using Dapper;
 using ImageMagick;
 using SardCoreAPI.Models.Map.MapTile;
 using MySqlConnector;

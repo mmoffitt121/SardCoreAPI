@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Client;
 using SardCoreAPI.DataAccess.Map;
 using SardCoreAPI.Models.Map.MapTile;
 using SardCoreAPI.Utility.Map;

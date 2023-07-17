@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using Microsoft.Data.SqlClient;
 using MySqlConnector;
 using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.Map.LocationType;

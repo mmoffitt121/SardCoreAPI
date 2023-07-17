@@ -11,5 +11,10 @@
         {
             return "Server=localhost;Port=3306;Uid=root;Pwd=123;Database=" + databaseName + ";";
         }
+
+        public static string GetGlobalConnectionString()
+        {
+            return "Server=localhost;Port=3306;Uid=root;Pwd=123;Database=libraries_of;";
+        }
     }
 }

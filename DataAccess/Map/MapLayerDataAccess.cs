@@ -1,5 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
-using Dapper;
+﻿using Dapper;
 using SardCoreAPI.Models.Map.MapLayer;
 using SardCoreAPI.Models.Common;
 using Microsoft.AspNetCore.Mvc;

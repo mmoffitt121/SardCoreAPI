@@ -12,10 +12,12 @@ using SardCoreAPI.Utility.Error;
 using SardCoreAPI.Models.Map;
 using SardCoreAPI.Models.Map.MapLayer;
 using SardCoreAPI.Models.Content;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SardCoreAPI.Controllers.Map
 {
     [ApiController]
+    [Authorize]
     [Route("Library/[controller]/[action]")]
     public class MapController : ControllerBase
     {
