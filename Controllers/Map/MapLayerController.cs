@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SardCoreAPI.DataAccess.Map;
 using SardCoreAPI.Models.Content;
 using SardCoreAPI.Models.Map.LocationType;
@@ -45,6 +46,7 @@ namespace SardCoreAPI.Controllers.Map
             return new BadRequestResult();
         }
 
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost(Name = "PostMapLayer")]
         public async Task<IActionResult> PostMapLayer(MapLayer layer)
         {
@@ -62,6 +64,7 @@ namespace SardCoreAPI.Controllers.Map
             return new BadRequestResult();
         }
 
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpPut(Name = "PutMapLayer")]
         public async Task<IActionResult> PutMapLayer([FromBody] MapLayer data)
         {
@@ -83,6 +86,7 @@ namespace SardCoreAPI.Controllers.Map
             }
         }
 
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete(Name = "DeleteMapLayer")]
         public async Task<IActionResult> DeleteMapLayer([FromQuery] int? Id)
         {
@@ -106,6 +110,7 @@ namespace SardCoreAPI.Controllers.Map
             }
         }
 
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete(Name = "DeleteMapLayersOfMapId")]
         public async Task<IActionResult> DeleteMapLayersOfMapId([FromQuery] int? Id)
         {
@@ -144,6 +149,7 @@ namespace SardCoreAPI.Controllers.Map
             }
         }
 
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost(Name = "PostMapLayerIcon")]
         public async Task<IActionResult> PostMapLayerIcon([FromForm] ImagePostRequest file)
         {

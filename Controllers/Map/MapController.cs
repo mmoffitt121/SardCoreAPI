@@ -13,13 +13,13 @@ using SardCoreAPI.Models.Map;
 using SardCoreAPI.Models.Map.MapLayer;
 using SardCoreAPI.Models.Content;
 using Microsoft.AspNetCore.Authorization;
+using SardCoreAPI.Utility.Auth;
 
 namespace SardCoreAPI.Controllers.Map
 {
     [ApiController]
-    [Authorize]
     [Route("Library/[controller]/[action]")]
-    public class MapController : ControllerBase
+    public class MapController : GenericController
     {
         private readonly ILogger<MapController> _logger;
 
@@ -34,6 +34,8 @@ namespace SardCoreAPI.Controllers.Map
         public async Task<IActionResult> GetMaps([FromQuery] MapSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
+
+            Console.WriteLine(WorldLocation);
 
             List<m.Map> result = await new MapDataAccess().GetMaps(criteria);
             if (result != null)
@@ -52,6 +54,7 @@ namespace SardCoreAPI.Controllers.Map
             return new OkObjectResult(result);
         }
 
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost(Name = "PostMap")]
         public async Task<IActionResult> PostMap([FromBody] m.Map data)
         {
@@ -67,6 +70,7 @@ namespace SardCoreAPI.Controllers.Map
             return new BadRequestResult();
         }
 
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpPut(Name = "PutMap")]
         public async Task<IActionResult> PutMap([FromBody] m.Map data)
         {
@@ -88,6 +92,7 @@ namespace SardCoreAPI.Controllers.Map
             }
         }
 
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete(Name = "DeleteMap")]
         public async Task<IActionResult> DeleteMap([FromQuery] int? Id)
         {
@@ -138,6 +143,7 @@ namespace SardCoreAPI.Controllers.Map
             
         }
 
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost(Name = "PostMapIcon")]
         public async Task<IActionResult> PostMapIcon([FromForm] ImagePostRequest file)
         {

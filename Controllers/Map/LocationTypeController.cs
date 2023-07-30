@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using SardCoreAPI.DataAccess.Map;
 using SardCoreAPI.Models.Common;
@@ -33,6 +34,7 @@ namespace SardCoreAPI.Controllers.Map
             return new BadRequestResult();
         }
 
+
         [HttpGet]
         public async Task<IActionResult> GetLocationTypeCount([FromQuery] PagedSearchCriteria criteria)
         {
@@ -60,6 +62,7 @@ namespace SardCoreAPI.Controllers.Map
             return new NotFoundResult();
         }
 
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost(Name = "PostLocationType")]
         public async Task<IActionResult> PostLocationType([FromBody] LocationType data)
         {
@@ -75,6 +78,7 @@ namespace SardCoreAPI.Controllers.Map
             return new BadRequestResult();
         }
 
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpPut(Name = "PutLocationType")]
         public async Task<IActionResult> PutLocationType([FromBody] LocationType data)
         {
@@ -96,6 +100,7 @@ namespace SardCoreAPI.Controllers.Map
             }
         }
 
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete]
         public async Task<IActionResult> DeleteLocationType(int? Id)
         {

@@ -1,20 +1,41 @@
-﻿namespace SardCoreAPI
+﻿using System.Configuration;
+
+namespace SardCoreAPI
 {
     public class Connection
     {
+        private static string? _connectionString;
+        private static string? _globalConnectionString;
         public static string GetConnectionString()
         {
-            return "Server=localhost;Port=3306;Uid=root;Pwd=123;Database=LibrariesOfSard;";
+            return _connectionString + "Database=LibrariesOfSard;";
         }
 
         public static string GetConnectionString(string databaseName)
         {
-            return "Server=localhost;Port=3306;Uid=root;Pwd=123;Database=" + databaseName + ";";
+            return _connectionString + "Database=" + databaseName + ";";
         }
 
         public static string GetGlobalConnectionString()
         {
-            return "Server=localhost;Port=3306;Uid=root;Pwd=123;Database=libraries_of;";
+            return _globalConnectionString;
+        }
+
+        public static string GetBaseConnectionString()
+        {
+            return _connectionString;
+        }
+
+        public static void SetGlobalConnectionString(string toSet)
+        {
+            if (_globalConnectionString != null) { return;  }
+            _globalConnectionString = toSet;
+        }
+
+        public static void SetConnectionString(string toSet)
+        {
+            if (_connectionString != null) { return; }
+            _connectionString = toSet;
         }
     }
 }

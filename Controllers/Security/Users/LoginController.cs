@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using SardCoreAPI.Areas.Identity.Data;
 using SardCoreAPI.Controllers.Map;
-using SardCoreAPI.DataAccess.Security.Users;
 using SardCoreAPI.Models.Security.JWT;
 using SardCoreAPI.Models.Security.Users;
 using SardCoreAPI.Utility.JwtHandler;
@@ -15,9 +15,9 @@ namespace SardCoreAPI.Controllers.Security.Users
     {
         private readonly ILogger<MapController> _logger;
         private readonly JwtHandler _jwtHandler;
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<SardCoreAPIUser> _userManager;
 
-        public LoginController(ILogger<MapController> logger, JwtHandler jwtHandler, UserManager<User> userManager)
+        public LoginController(ILogger<MapController> logger, JwtHandler jwtHandler, UserManager<SardCoreAPIUser> userManager)
         {
             _logger = logger;
             _jwtHandler = jwtHandler;
@@ -27,12 +27,17 @@ namespace SardCoreAPI.Controllers.Security.Users
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] AuthRequest authRequest)
         {
-            User user = await _userManager.FindByNameAsync(authRequest.Username);
+            SardCoreAPIUser user = await _userManager.FindByNameAsync(authRequest.Username);
+            if (user == null)
+            {
+                user = await _userManager.FindByEmailAsync(authRequest.Username);
+            }
+
             try
             {
                 if (user == null || !await _userManager.CheckPasswordAsync(user, authRequest.Password))
                 {
-                    return new UnauthorizedResult();
+                    return new UnauthorizedObjectResult("Invalid username or password.");
                 }
             }
             catch (Exception ex)
@@ -41,7 +46,7 @@ namespace SardCoreAPI.Controllers.Security.Users
             }
 
             var signingCredentials = _jwtHandler.GetSigningCredentials();
-            var claims = _jwtHandler.GetClaims(user);
+            var claims = await _jwtHandler.GetClaims(user);
             var tokenOptions = _jwtHandler.GenerateTokenOptions(signingCredentials, claims);
             var token = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
             return new OkObjectResult(new AuthResponse { IsAuthSuccessful = true, Token = token });

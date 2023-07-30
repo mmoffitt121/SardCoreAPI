@@ -4,6 +4,7 @@ using SardCoreAPI.Models.Map.MapTile;
 using SardCoreAPI.Utility.Map;
 using Microsoft.AspNetCore.SignalR;
 using SardCoreAPI.Utility.Progress;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SardCoreAPI.Controllers.Map
 {
@@ -27,6 +28,7 @@ namespace SardCoreAPI.Controllers.Map
             return new FileStreamResult(new MemoryStream(result.Tile), "image/png");
         }
 
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost]
         public async Task<IActionResult> UploadTile([FromForm] TileUploadRequest request)
         {
@@ -66,6 +68,7 @@ namespace SardCoreAPI.Controllers.Map
             return new BadRequestResult();
         }
 
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete]
         public async Task<IActionResult> DeleteTile(int z, int x, int y, int layerId)
         {
@@ -77,6 +80,7 @@ namespace SardCoreAPI.Controllers.Map
             return new OkResult();
         }
 
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete]
         public async Task<IActionResult> DeleteTilesOfLayer(int layerId)
         {
@@ -88,6 +92,7 @@ namespace SardCoreAPI.Controllers.Map
             return new OkResult();
         }
 
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete]
         public async Task<IActionResult> DeleteTilesOfMap(int mapId)
         {

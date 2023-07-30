@@ -4,6 +4,7 @@ using SardCoreAPI.DataAccess.DataPoints;
 using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.DataPoints.DataPointParameters;
 using SardCoreAPI.Models.DataPoints;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SardCoreAPI.Controllers.DataPoints
 {
@@ -92,6 +93,7 @@ namespace SardCoreAPI.Controllers.DataPoints
             return new OkObjectResult(result);
         }
 
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost(Name = "PostDataPoint")]
         public async Task<IActionResult> PostDataPoint([FromBody] DataPoint data)
         {
@@ -131,6 +133,7 @@ namespace SardCoreAPI.Controllers.DataPoints
             return new OkObjectResult(id);
         }
 
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpPut(Name = "PutDataPoint")]
         public async Task<IActionResult> PutDataPoint([FromBody] DataPoint data)
         {
@@ -179,6 +182,7 @@ namespace SardCoreAPI.Controllers.DataPoints
             return null;
         }
 
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete(Name = "DeleteDataPoint")]
         public async Task<IActionResult> DeleteDataPoint([FromQuery] int? Id)
         {

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SardCoreAPI.DataAccess.Content;
 using SardCoreAPI.DataAccess.Map;
 using SardCoreAPI.Models.Content;
@@ -29,6 +30,7 @@ namespace SardCoreAPI.Controllers.Content
             }
         }
 
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost]
         public async Task<IActionResult> PostImage([FromForm] ImagePostRequest request)
         {
@@ -45,6 +47,7 @@ namespace SardCoreAPI.Controllers.Content
             return new BadRequestResult();
         }
 
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete]
         public async Task<IActionResult> DeleteImage([FromForm] ImageRequest request)
         {

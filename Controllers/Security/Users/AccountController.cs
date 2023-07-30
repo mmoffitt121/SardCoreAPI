@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MySqlConnector;
+using SardCoreAPI.Areas.Identity.Data;
 using SardCoreAPI.Controllers.Map;
 using SardCoreAPI.DataAccess.Map;
-using SardCoreAPI.DataAccess.Security.Users;
 using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.Map.LocationType;
 using SardCoreAPI.Models.Security.Users;
@@ -18,10 +18,10 @@ namespace SardCoreAPI.Controllers.Security.Users
     public class AccountController : Controller
     {
         private readonly ILogger<MapController> _logger;
-        private readonly UserManager<User> _userManager;
-        private readonly IUserStore<User> _userStore;
+        private readonly UserManager<SardCoreAPIUser> _userManager;
+        private readonly IUserStore<SardCoreAPIUser> _userStore;
 
-        public AccountController(ILogger<MapController> logger, UserManager<User> userManager, IUserStore<User> userStore)
+        public AccountController(ILogger<MapController> logger, UserManager<SardCoreAPIUser> userManager, IUserStore<SardCoreAPIUser> userStore)
         {
             _logger = logger;
             _userManager = userManager;
@@ -31,8 +31,8 @@ namespace SardCoreAPI.Controllers.Security.Users
         [HttpPost]
         public async Task<IActionResult> PostUser([FromBody]UserPostRequest postRequest)
         {
-            User user = new User() { UserName = postRequest.UserName, Email = postRequest.Email };
-            var validationResult = await new UserValidator().ValidateAsync(_userManager, user);
+            SardCoreAPIUser user = new SardCoreAPIUser() { UserName = postRequest.UserName, Email = postRequest.Email };
+            var validationResult = await new UserValidator<SardCoreAPIUser>().ValidateAsync(_userManager, user);
             if (!validationResult.Succeeded)
             {
                 return BadRequest(validationResult.Errors.Select(e => e.Description));
@@ -40,8 +40,15 @@ namespace SardCoreAPI.Controllers.Security.Users
 
             try
             {
-                var result = await _userStore.CreateAsync(user, new CancellationToken());
-                
+                var result = await _userManager.CreateAsync(user, postRequest.Password);
+                if (!result.Succeeded)
+                {
+                    var errors = result.Errors.Select(e => e.Description);
+
+                    return BadRequest(new UserPostResponse { Errors = errors });
+                }
+
+                await _userManager.AddToRoleAsync(user, "Viewer");
             }
             catch (MySqlException ex)
             {
@@ -58,7 +65,7 @@ namespace SardCoreAPI.Controllers.Security.Users
         [HttpPost]
         public async Task<IActionResult> PostPassword([FromBody]PasswordPostRequest postRequest)
         {
-            User user = await _userManager.FindByNameAsync(postRequest.UserName);
+            SardCoreAPIUser user = await _userManager.FindByNameAsync(postRequest.UserName);
 
             try
             {
@@ -79,31 +86,5 @@ namespace SardCoreAPI.Controllers.Security.Users
 
             return Ok();
         }
-
-        [HttpPut]
-        public async Task<IActionResult> PutPassword(string currentPwd, string newPwd, string userName)
-        {
-            User user = await _userManager.FindByNameAsync(userName);
-
-            try
-            {
-                var passwordResult = await _userManager.ChangePasswordAsync(user, currentPwd, newPwd);
-                if (!passwordResult.Succeeded)
-                {
-                    return BadRequest(passwordResult.Errors.Select(e => e.Description));
-                }
-            }
-            catch (MySqlException ex)
-            {
-                return ex.Handle();
-            }
-            catch (Exception ex)
-            {
-                return new BadRequestObjectResult(ex);
-            }
-
-            return Ok();
-        }
-
     }
 }

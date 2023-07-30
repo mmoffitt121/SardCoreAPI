@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SardCoreAPI.DataAccess.Map;
 using SardCoreAPI.Models.Map.Location;
 using SardCoreAPI.Models.Map.LocationType;
@@ -40,6 +41,7 @@ namespace SardCoreAPI.Controllers.Map
             return new NotFoundResult();
         }
 
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpGet]
         public async Task<IActionResult> GetLocationHeiarchy(int id, int depth)
         {
@@ -61,6 +63,7 @@ namespace SardCoreAPI.Controllers.Map
             return new BadRequestResult();
         }
 
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost(Name = "PostLocation")]
         public IActionResult PostLocation([FromBody] Location location)
         {
@@ -74,6 +77,7 @@ namespace SardCoreAPI.Controllers.Map
             return new BadRequestResult();
         }
 
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpPut(Name = "PutLocation")]
         public async Task<IActionResult> PutLocation([FromBody] Location location)
         {
@@ -92,6 +96,7 @@ namespace SardCoreAPI.Controllers.Map
             }
         }
 
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete(Name = "DeleteLocation")]
         public async Task<IActionResult> DeleteLocation([FromQuery] int? Id)
         {
