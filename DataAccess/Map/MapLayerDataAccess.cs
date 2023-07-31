@@ -6,15 +6,19 @@ using MySqlConnector;
 using SardCoreAPI.Utility.Files;
 using Microsoft.VisualBasic;
 using SardCoreAPI.Models.Map;
+using SardCoreAPI.Models.Hub.Worlds;
 
 namespace SardCoreAPI.DataAccess.Map
 {
     public class MapLayerDataAccess : GenericDataAccess
     {
-        public string ImagePath = "./storage/mapicons/";
+        public string ImagePath(WorldInfo info)
+        {
+            return "./storage/" + info.WorldLocation + "/mapicons/";
+        }
 
         #region Map Layer
-        public async Task<List<MapLayer>> GetMapLayers(MapLayerSearchCriteria criteria)
+        public async Task<List<MapLayer>> GetMapLayers(MapLayerSearchCriteria criteria, WorldInfo info)
         {
             string pageSettings = "";
             if (criteria.PageNumber != null && criteria.PageSize != null)
@@ -37,20 +41,20 @@ namespace SardCoreAPI.DataAccess.Map
             if (criteria.IsBaseLayer != null) { builder.Where("IsBaseLayer = @IsBaseLayer"); }
             if (criteria.IsIconLayer != null) { builder.Where("IsIconLayer = @IsIconLayer"); }
 
-            return await Query<MapLayer>(template.RawSql, criteria);
+            return await Query<MapLayer>(template.RawSql, criteria, info);
         }
 
-        public async Task<int> PostMapLayer(MapLayer layer)
+        public async Task<int> PostMapLayer(MapLayer layer, WorldInfo info)
         {
             string sql = @"INSERT INTO MapLayers (Name, Summary, MapId, IsBaseLayer, IsIconLayer, IconURL) VALUES (@Name, @Summary, @MapId, @IsBaseLayer, @IsIconLayer, @IconURL);
 
                 SELECT LAST_INSERT_ID();
             ";
 
-            return await QueryFirst<int>(sql, layer);
+            return await QueryFirst<int>(sql, layer, info);
         }
 
-        public async Task<int> PutMapLayer(MapLayer layer)
+        public async Task<int> PutMapLayer(MapLayer layer, WorldInfo info)
         {
             string sql = @"";
 
@@ -75,39 +79,39 @@ namespace SardCoreAPI.DataAccess.Map
             ";
 
 
-            return await Execute(sql, layer);
+            return await Execute(sql, layer, info);
         }
 
-        public async Task<int> DeleteMapLayer(int Id)
+        public async Task<int> DeleteMapLayer(int Id, WorldInfo info)
         {
             string sql = @"DELETE FROM MapLayers
                 WHERE
                     Id = @Id;
             ";
 
-            return await Execute(sql, new { Id });
+            return await Execute(sql, new { Id }, info);
         }
 
-        public async Task<int> DeleteMapLayersOfMapId(int MapId)
+        public async Task<int> DeleteMapLayersOfMapId(int MapId, WorldInfo info)
         {
             string sql = @"DELETE FROM MapLayers
                 WHERE
                     MapId = @MapId;
             ";
 
-            return await Execute(sql, new { MapId });
+            return await Execute(sql, new { MapId }, info);
         }
         #endregion
 
         #region Map Layer Icon
-        public async Task PostMapLayerIcon(byte[] data, int id)
+        public async Task PostMapLayerIcon(byte[] data, int id, WorldInfo info)
         {
-            await new FileHandler().SaveImage(ImagePath, "MapLayer-" + id + ".png", data);
+            await new FileHandler().SaveImage(ImagePath(info), "MapLayer-" + id + ".png", data);
         }
 
-        public async Task<byte[]> GetMapLayerIcon(int id)
+        public async Task<byte[]> GetMapLayerIcon(int id, WorldInfo info)
         {
-            return await new FileHandler().LoadImage(ImagePath + "MapLayer-" + id + ".png");
+            return await new FileHandler().LoadImage(ImagePath(info) + "MapLayer-" + id + ".png");
         }
         #endregion
     }

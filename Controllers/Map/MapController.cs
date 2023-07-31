@@ -37,7 +37,7 @@ namespace SardCoreAPI.Controllers.Map
 
             Console.WriteLine(WorldLocation);
 
-            List<m.Map> result = await new MapDataAccess().GetMaps(criteria);
+            List<m.Map> result = await new MapDataAccess().GetMaps(criteria, WorldInfo);
             if (result != null)
             {
                 return new OkObjectResult(result);
@@ -50,7 +50,7 @@ namespace SardCoreAPI.Controllers.Map
         {
             if (criteria == null) { return new BadRequestResult(); }
 
-            int result = (await new MapDataAccess().GetMaps(criteria)).Count();
+            int result = (await new MapDataAccess().GetMaps(criteria, WorldInfo)).Count();
             return new OkObjectResult(result);
         }
 
@@ -60,7 +60,7 @@ namespace SardCoreAPI.Controllers.Map
         {
             if (data == null) { return new BadRequestResult(); }
 
-            int result = await new MapDataAccess().PostMap(data);
+            int result = await new MapDataAccess().PostMap(data, WorldInfo);
 
             if (result != 0)
             {
@@ -76,7 +76,7 @@ namespace SardCoreAPI.Controllers.Map
         {
             if (data == null) { return new BadRequestResult(); }
 
-            int result = await new MapDataAccess().PutMap(data);
+            int result = await new MapDataAccess().PutMap(data, WorldInfo);
 
             if (result > 0)
             {
@@ -98,7 +98,7 @@ namespace SardCoreAPI.Controllers.Map
         {
             if (Id == null) { return new BadRequestResult(); }
 
-            int result = await new MapDataAccess().DeleteMap((int)Id);
+            int result = await new MapDataAccess().DeleteMap((int)Id, WorldInfo);
 
             if (result > 0)
             {
@@ -121,7 +121,7 @@ namespace SardCoreAPI.Controllers.Map
         {
             try
             {
-                byte[] result = await new MapDataAccess().GetMapIcon(id);
+                byte[] result = await new MapDataAccess().GetMapIcon(id, WorldInfo);
                 return new FileStreamResult(new MemoryStream(result), "image/png");
             }
             catch (FileNotFoundException ex)
@@ -157,7 +157,7 @@ namespace SardCoreAPI.Controllers.Map
 
             try
             {
-                await new MapDataAccess().UploadMapIcon(compressed, file.Id);
+                await new MapDataAccess().UploadMapIcon(compressed, file.Id, WorldInfo);
                 return new OkResult();
             }
             catch (IOException ex)

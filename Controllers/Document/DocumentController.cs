@@ -7,7 +7,7 @@ namespace SardCoreAPI.Controllers.Document
 {
     [ApiController]
     [Route("Library/[controller]/[action]")]
-    public class DocumentController
+    public class DocumentController : GenericController
     {
         private readonly ILogger<MapController> _logger;
 

@@ -11,8 +11,12 @@ namespace SardCoreAPI
             return _connectionString + "Database=LibrariesOfSard;";
         }
 
-        public static string GetConnectionString(string databaseName)
+        public static string GetConnectionString(string? databaseName)
         {
+            if (databaseName == null)
+            {
+                throw new ArgumentNullException("World Location");
+            }
             return _connectionString + "Database=" + databaseName + ";";
         }
 

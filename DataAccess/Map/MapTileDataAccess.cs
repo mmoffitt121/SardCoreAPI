@@ -5,14 +5,18 @@ using MySqlConnector;
 using SardCoreAPI.Utility.Files;
 using System.Data;
 using Microsoft.AspNetCore.Routing;
+using SardCoreAPI.Models.Hub.Worlds;
 
 namespace SardCoreAPI.DataAccess.Map
 {
     public class MapTileDataAccess : GenericDataAccess
     {
-        public string ImagePath = "./storage/maptiles/";
+        public string ImagePath(WorldInfo info)
+        {
+            return "./storage/" + info.WorldLocation + "/maptiles/";
+        }
 
-        public async Task<MapTile> GetTile(int Z, int X, int Y, int LayerId)
+        public async Task<MapTile> GetTile(int Z, int X, int Y, int LayerId, WorldInfo info)
         {
             string sql = @"SELECT Z, X, Y, LayerId FROM MapTiles 
                 WHERE
@@ -24,27 +28,23 @@ namespace SardCoreAPI.DataAccess.Map
 
             try
             {
-                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
+                List<MapTile> mapTiles = await Query<MapTile>(sql, new MapTile(Z, X, Y, LayerId, new byte[0]), info);
+                if (mapTiles.Count > 0)
                 {
-                    connection.Open();
-                    List<MapTile> mapTiles = connection.Query<MapTile>(sql, new MapTile(Z, X, Y, LayerId, new byte[0])).ToList();
-                    if (mapTiles.Count > 0)
+                    MapTile tile = mapTiles[0];
+                    try
                     {
-                        MapTile tile = mapTiles[0];
-                        try
-                        {
-                            tile.Tile = await new FileHandler().LoadImage(ImagePath + mapTiles[0].FileName);
-                        }
-                        catch
-                        {
-                            return new MapTile(Z, X, Y, LayerId, new byte[0]);
-                        }
-                        return tile;
+                        tile.Tile = await new FileHandler().LoadImage(ImagePath(info) + mapTiles[0].FileName);
                     }
-                    else
+                    catch
                     {
                         return new MapTile(Z, X, Y, LayerId, new byte[0]);
                     }
+                    return tile;
+                }
+                else
+                {
+                    return new MapTile(Z, X, Y, LayerId, new byte[0]);
                 }
             }
             catch (MySqlException s)
@@ -54,7 +54,7 @@ namespace SardCoreAPI.DataAccess.Map
             }
         }
 
-        public async Task<MapTile[]> GetTiles(int RootZ, int RootX, int RootY, int MaxZ, int LayerId)
+        public async Task<MapTile[]> GetTiles(int RootZ, int RootX, int RootY, int MaxZ, int LayerId, WorldInfo info)
         {
             string sql = @"
             SELECT Z, X, Y, LayerId, POWER(2, Z - @RootZ) FROM MapTiles
@@ -68,10 +68,10 @@ namespace SardCoreAPI.DataAccess.Map
                     LayerId = @LayerId;
             ";
 
-            return (await Query<MapTile>(sql, new { RootZ, RootX, RootY, MaxZ, LayerId })).ToArray();
+            return (await Query<MapTile>(sql, new { RootZ, RootX, RootY, MaxZ, LayerId }, info)).ToArray();
         }
 
-        public async Task<int> PostTiles(MapTile[] tiles)
+        public async Task<int> PostTiles(MapTile[] tiles, WorldInfo info)
         {
             string sql = @"
                 INSERT INTO MapTiles
@@ -86,27 +86,15 @@ namespace SardCoreAPI.DataAccess.Map
 
             foreach (MapTile tile in tiles)
             {
-                tasks.Add(fh.SaveImage(ImagePath, tile.FileName, tile.Tile));
+                tasks.Add(fh.SaveImage(ImagePath(info), tile.FileName, tile.Tile));
             }
 
             await Task.WhenAll(tasks);
 
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
-                {
-                    connection.Open();
-                    return connection.Execute(sql, tiles);
-                }
-            }
-            catch (MySqlException s)
-            {
-                Console.WriteLine(s);
-                throw s;
-            }
+            return await Execute(sql, tiles, info);
         }
 
-        public async Task<int> DeleteTile(int Z, int X, int Y, int LayerId)
+        public async Task<int> DeleteTile(int Z, int X, int Y, int LayerId, WorldInfo info)
         {
             string sql = @"DELETE FROM MapTiles
                 WHERE
@@ -116,26 +104,26 @@ namespace SardCoreAPI.DataAccess.Map
                     LayerId = @LayerId
             ";
 
-            return await Execute(sql, new { Z, X, Y, LayerId });
+            return await Execute(sql, new { Z, X, Y, LayerId }, info);
         }
 
-        public async Task<int> DeleteTiles(int LayerId)
+        public async Task<int> DeleteTiles(int LayerId, WorldInfo info)
         {
             string sql = @"DELETE FROM MapTiles
                 WHERE LayerId = @LayerId
             ";
 
-            return await Execute(sql, new { LayerId });
+            return await Execute(sql, new { LayerId }, info);
         }
 
-        public async Task<int> DeleteTilesOfMap(int MapId)
+        public async Task<int> DeleteTilesOfMap(int MapId, WorldInfo info)
         {
             string sql = @"DELETE mt FROM MapTiles mt
                 LEFT JOIN MapLayers ml ON ml.Id = mt.LayerId
                 WHERE ml.MapId = @MapId
             ";
 
-            return await Execute(sql, new { MapId });
+            return await Execute(sql, new { MapId }, info);
         }
     }
 }

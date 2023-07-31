@@ -12,7 +12,7 @@ namespace SardCoreAPI.Controllers.DataPoints
 {
     [ApiController]
     [Route("Library/[controller]/[action]")]
-    public class DataPointTypeController
+    public class DataPointTypeController : GenericController
     {
         private readonly ILogger<DataPointTypeController> _logger;
 
@@ -26,7 +26,7 @@ namespace SardCoreAPI.Controllers.DataPoints
         {
             if (criteria == null) { return new BadRequestResult(); }
 
-            List<DataPointType> result = await new DataPointTypeDataAccess().GetDataPointTypes(criteria);
+            List<DataPointType> result = await new DataPointTypeDataAccess().GetDataPointTypes(criteria, WorldInfo);
             if (result != null)
             {
                 return new OkObjectResult(result);
@@ -40,12 +40,12 @@ namespace SardCoreAPI.Controllers.DataPoints
             if (Id == null) { return new BadRequestResult(); }
 
             // Get Data Point Type
-            DataPointType? result = (await new DataPointTypeDataAccess().GetDataPointTypes(new PagedSearchCriteria() { Id = Id })).FirstOrDefault();
+            DataPointType? result = (await new DataPointTypeDataAccess().GetDataPointTypes(new PagedSearchCriteria() { Id = Id }, WorldInfo)).FirstOrDefault();
 
             if (result == null) { return new NotFoundResult(); }
 
             // Attach Parameters
-            List<DataPointTypeParameter> parameters = (await new DataPointTypeParameterDataAccess().GetDataPointTypeParameters(result.Id)).ToList();
+            List<DataPointTypeParameter> parameters = (await new DataPointTypeParameterDataAccess().GetDataPointTypeParameters(result.Id, WorldInfo)).ToList();
             result.TypeParameters = parameters;
 
             return new OkObjectResult(result);
@@ -57,7 +57,7 @@ namespace SardCoreAPI.Controllers.DataPoints
         {
             if (data == null) { return new BadRequestResult(); }
 
-            int result = await new DataPointTypeDataAccess().PostDataPointType(data);
+            int result = await new DataPointTypeDataAccess().PostDataPointType(data, WorldInfo);
 
             if (result != 0)
             {
@@ -71,9 +71,9 @@ namespace SardCoreAPI.Controllers.DataPoints
         [HttpPut(Name = "PutDataPointType")]
         public async Task<IActionResult> PutDataPointType([FromBody] DataPointType data)
         {
-            int result = await new DataPointTypeDataAccess().PutDataPointType(data);
+            int result = await new DataPointTypeDataAccess().PutDataPointType(data, WorldInfo);
 
-            List<DataPointTypeParameter> currentParameters = (await new DataPointTypeParameterDataAccess().GetDataPointTypeParameters(data.Id)).ToList();
+            List<DataPointTypeParameter> currentParameters = (await new DataPointTypeParameterDataAccess().GetDataPointTypeParameters(data.Id, WorldInfo)).ToList();
             List<DataPointTypeParameter> newParameters = data.TypeParameters ?? new List<DataPointTypeParameter>();
 
             DataPointTypeParameterComparer comparer = new DataPointTypeParameterComparer();
@@ -88,15 +88,15 @@ namespace SardCoreAPI.Controllers.DataPoints
 
             foreach (DataPointTypeParameter parameter in toCreate)
             {
-                tasks.Add(parameterDataAccess.PostDataPointTypeParameter(parameter));
+                tasks.Add(parameterDataAccess.PostDataPointTypeParameter(parameter, WorldInfo));
             }
             foreach (DataPointTypeParameter parameter in toEdit)
             {
-                tasks.Add(parameterDataAccess.PutDataPointTypeParameter(parameter));
+                tasks.Add(parameterDataAccess.PutDataPointTypeParameter(parameter, WorldInfo));
             }
             foreach (DataPointTypeParameter parameter in toDelete)
             {
-                tasks.Add(parameterDataAccess.DeleteDataPointTypeParameter(parameter));
+                tasks.Add(parameterDataAccess.DeleteDataPointTypeParameter(parameter, WorldInfo));
             }
 
             await Task.WhenAll(tasks);
@@ -121,9 +121,9 @@ namespace SardCoreAPI.Controllers.DataPoints
         {
             if (Id == null) { return new BadRequestResult(); }
 
-            await new DataPointTypeParameterDataAccess().DeleteDataPointTypeParametersOfDataType((int)Id);
+            await new DataPointTypeParameterDataAccess().DeleteDataPointTypeParametersOfDataType((int)Id, WorldInfo);
 
-            int result = await new DataPointTypeDataAccess().DeleteDataPointType((int)Id);
+            int result = await new DataPointTypeDataAccess().DeleteDataPointType((int)Id, WorldInfo);
 
             if (result > 0)
             {

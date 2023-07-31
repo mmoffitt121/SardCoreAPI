@@ -1,12 +1,13 @@
 ﻿using Dapper;
 using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.DataPoints;
+using SardCoreAPI.Models.Hub.Worlds;
 
 namespace SardCoreAPI.DataAccess.DataPoints
 {
     public class DataPointDataAccess : GenericDataAccess
     {
-        public async Task<List<DataPoint>> GetDataPoints(DataPointSearchCriteria criteria)
+        public async Task<List<DataPoint>> GetDataPoints(DataPointSearchCriteria criteria, WorldInfo info)
         {
             string pageSettings = "";
             if (criteria.PageNumber != null && criteria.PageSize != null)
@@ -28,7 +29,7 @@ namespace SardCoreAPI.DataAccess.DataPoints
             if (criteria.TypeId != null) { builder.Where("TypeId = @TypeId"); }
             if (criteria.Id != null) { builder.Where("Id = @Id"); }
 
-            return await Query<DataPoint>(template.RawSql, criteria);
+            return await Query<DataPoint>(template.RawSql, criteria, info);
         }
 
         /// <summary>
@@ -36,31 +37,31 @@ namespace SardCoreAPI.DataAccess.DataPoints
         /// </summary>
         /// <param name="data"></param>
         /// <returns> Returns a task of type int, where int is the id of the created object </returns>
-        public async Task<int?> PostDataPoint(DataPoint data)
+        public async Task<int?> PostDataPoint(DataPoint data, WorldInfo info)
         {
             string sql = @"INSERT INTO DataPoints (Name, TypeId) 
                 VALUES (@Name, @TypeId);
                 
                 SELECT LAST_INSERT_ID();";
 
-            return (await Query<int?>(sql, data)).First();
+            return (await Query<int?>(sql, data, info)).First();
         }
 
-        public async Task<int> PutDataPoint(DataPoint data)
+        public async Task<int> PutDataPoint(DataPoint data, WorldInfo info)
         {
             string sql = @"UPDATE DataPoints SET 
 	                Name = @Name,
                     Summary = @Summary
                 WHERE Id = @Id";
 
-            return await Execute(sql, data);
+            return await Execute(sql, data, info);
         }
 
-        public async Task<int> DeleteDataPoint(int Id)
+        public async Task<int> DeleteDataPoint(int Id, WorldInfo info)
         {
             string sql = @"DELETE FROM DataPoints WHERE Id = @Id;";
 
-            return await Execute(sql, Id);
+            return await Execute(sql, Id, info);
         }
     }
 }

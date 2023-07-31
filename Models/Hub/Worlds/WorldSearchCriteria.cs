@@ -11,11 +11,12 @@ namespace SardCoreAPI.Models.Hub.Worlds
         public DateTime? EndDate { get; set; }
         public OrderOptions? OrderBy { get; set; }
         public bool? OrderDesc { get; set; }
+        public string? Location { get; set; }
 
         public enum OrderOptions
         {
-            CreatedDate,
-            Name
+            CreatedDate = 0,
+            Name = 1
         }
 
         [JsonIgnore]

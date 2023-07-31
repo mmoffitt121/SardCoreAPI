@@ -10,7 +10,7 @@ namespace SardCoreAPI.Controllers.Map
 {
     [ApiController]
     [Route("Map/[controller]/[action]")]
-    public class TileProviderController
+    public class TileProviderController : GenericController
     {
         private readonly ILogger<MapController> _logger;
         private readonly IHubContext<ProgressManager> _progressHubContext;
@@ -22,9 +22,9 @@ namespace SardCoreAPI.Controllers.Map
         }
 
         [HttpGet(Name = "GetTile")]
-        public async Task<IActionResult> GetTile(int z, int x, int y, int layerId)
+        public async Task<IActionResult> GetTile(int z, int x, int y, int layerId, string worldLocation)
         {
-            MapTile result = await new MapTileDataAccess().GetTile(z, x, y, layerId);
+            MapTile result = await new MapTileDataAccess().GetTile(z, x, y, layerId, new Models.Hub.Worlds.WorldInfo(worldLocation));
             return new FileStreamResult(new MemoryStream(result.Tile), "image/png");
         }
 
@@ -51,7 +51,7 @@ namespace SardCoreAPI.Controllers.Map
             // Remove tiles that already exist if option is set.
             if (request.ReplaceMode != null && request.ReplaceMode.Equals("fill"))
             {
-                MapTile[] existing = await new MapTileDataAccess().GetTiles(request.Z, request.X, request.Y, mapTiles.Last().Z, request.LayerId);
+                MapTile[] existing = await new MapTileDataAccess().GetTiles(request.Z, request.X, request.Y, mapTiles.Last().Z, request.LayerId, WorldInfo);
                 mapTiles = mapTiles.Where(m => !existing.Contains(m)).ToArray();
                 if (mapTiles.Length == 0)
                 {
@@ -61,7 +61,7 @@ namespace SardCoreAPI.Controllers.Map
 
             await _progressHubContext.Clients.All.SendAsync("ProgressUpdate", 98, "Saving Tiles...");
 
-            if (await new MapTileDataAccess().PostTiles(mapTiles) != 0)
+            if (await new MapTileDataAccess().PostTiles(mapTiles, WorldInfo) != 0)
             {
                 return new OkResult();
             }
@@ -72,7 +72,7 @@ namespace SardCoreAPI.Controllers.Map
         [HttpDelete]
         public async Task<IActionResult> DeleteTile(int z, int x, int y, int layerId)
         {
-            int result = await new MapTileDataAccess().DeleteTile(z, x, y, layerId);
+            int result = await new MapTileDataAccess().DeleteTile(z, x, y, layerId, WorldInfo);
             if (result == 0)
             {
                 return new NotFoundResult();
@@ -84,7 +84,7 @@ namespace SardCoreAPI.Controllers.Map
         [HttpDelete]
         public async Task<IActionResult> DeleteTilesOfLayer(int layerId)
         {
-            int result = await new MapTileDataAccess().DeleteTiles(layerId);
+            int result = await new MapTileDataAccess().DeleteTiles(layerId, WorldInfo);
             if (result == 0)
             {
                 return new NotFoundResult();
@@ -96,7 +96,7 @@ namespace SardCoreAPI.Controllers.Map
         [HttpDelete]
         public async Task<IActionResult> DeleteTilesOfMap(int mapId)
         {
-            int result = await new MapTileDataAccess().DeleteTilesOfMap(mapId);
+            int result = await new MapTileDataAccess().DeleteTilesOfMap(mapId, WorldInfo);
             if (result == 0)
             {
                 return new NotFoundResult();

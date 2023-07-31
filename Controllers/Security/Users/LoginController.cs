@@ -11,7 +11,7 @@ namespace SardCoreAPI.Controllers.Security.Users
 {
     [ApiController]
     [Route("Library/[controller]/[action]")]
-    public class LoginController
+    public class LoginController : GenericController
     {
         private readonly ILogger<MapController> _logger;
         private readonly JwtHandler _jwtHandler;
@@ -50,6 +50,17 @@ namespace SardCoreAPI.Controllers.Security.Users
             var tokenOptions = _jwtHandler.GenerateTokenOptions(signingCredentials, claims);
             var token = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
             return new OkObjectResult(new AuthResponse { IsAuthSuccessful = true, Token = token });
+        }
+
+        [HttpGet("GetUser")]
+        public async Task<IActionResult> GetUser(string username)
+        {
+            SardCoreAPIUser user = await _userManager.FindByNameAsync(username);
+            if (user != null)
+            {
+                return Ok(new ViewableUser() { UserName = user.UserName, Id = user.Id });
+            }
+            return BadRequest();
         }
     }
 }

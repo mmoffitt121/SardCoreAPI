@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using MySqlConnector;
 using SardCoreAPI.Models.Common;
+using SardCoreAPI.Models.Hub.Worlds;
 using SardCoreAPI.Models.Map.LocationType;
 using SardCoreAPI.Models.Map.MapTile;
 
@@ -8,7 +9,7 @@ namespace SardCoreAPI.DataAccess.Map
 {
     public class LocationTypeDataAccess : GenericDataAccess
     {
-        public async Task<List<LocationType>> GetLocationTypes(PagedSearchCriteria criteria)
+        public async Task<List<LocationType>> GetLocationTypes(PagedSearchCriteria criteria, WorldInfo info)
         {
             string pageSettings = "";
             if (criteria.PageNumber != null && criteria.PageSize != null)
@@ -31,10 +32,10 @@ namespace SardCoreAPI.DataAccess.Map
             if (!string.IsNullOrEmpty(criteria.Query)) { builder.Where("Name LIKE CONCAT('%', IFNULL(@Query, ''), '%')"); }
             if (criteria.Id != null) { builder.Where("Id = @Id"); }
 
-            return await Query<LocationType>(template.RawSql, criteria);
+            return await Query<LocationType>(template.RawSql, criteria, info);
         }
 
-        public async Task<int> PostLocationType(LocationType data)
+        public async Task<int> PostLocationType(LocationType data, WorldInfo info)
         {
             string sql = $@"
                 INSERT INTO LocationTypes (
@@ -66,10 +67,10 @@ namespace SardCoreAPI.DataAccess.Map
             
                 SELECT LAST_INSERT_ID();";
 
-            return (await Query<int>(sql, data)).FirstOrDefault();
+            return (await Query<int>(sql, data, info)).FirstOrDefault();
         }
 
-        public async Task<int> PutLocationType(LocationType data)
+        public async Task<int> PutLocationType(LocationType data, WorldInfo info)
         {
             string sql = @"
                 UPDATE LocationTypes
@@ -87,14 +88,14 @@ namespace SardCoreAPI.DataAccess.Map
                     LabelFontColor = @LabelFontColor
                 WHERE Id = @Id";
 
-            return await Execute(sql, data);
+            return await Execute(sql, data, info);
         }
 
-        public async Task<int> DeleteLocationType(int Id)
+        public async Task<int> DeleteLocationType(int Id, WorldInfo info)
         {
             string sql = @"DELETE FROM LocationTypes WHERE Id = @Id";
 
-            return await Execute(sql, new { Id });
+            return await Execute(sql, new { Id }, info);
         }
     }
 }

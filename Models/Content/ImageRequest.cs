@@ -1,4 +1,6 @@
-﻿using SardCoreAPI.Utility.Files;
+﻿using SardCoreAPI.Models.Hub.Worlds;
+using SardCoreAPI.Utility.Files;
+using System.Text.Json.Serialization;
 
 namespace SardCoreAPI.Models.Content
 {
@@ -8,6 +10,8 @@ namespace SardCoreAPI.Models.Content
         public int? Id2 { get; set; }
         public ImageType? Type { get; set; }
         public string? URL { get; set; }
+        [JsonIgnore]
+        public WorldInfo? WorldInfo { get; set; }
 
         public string Directory
         {
@@ -16,15 +20,15 @@ namespace SardCoreAPI.Models.Content
                 switch (Type)
                 {
                     case ImageType.MapIcon:
-                        return "./storage/mapicons/";
+                        return $"./storage/{WorldInfo?.WorldLocation}/mapicons/";
                     case ImageType.LocationIcon:
-                        return "./storage/location/";
+                        return $"./storage/{WorldInfo?.WorldLocation}/location/";
                     case ImageType.LocationTypeIcon:
-                        return "./storage/location/types/";
+                        return $"./storage/{WorldInfo?.WorldLocation}/location/types/";
                     case ImageType.DataPointImage:
-                        return "./storage/data/";
+                        return $"./storage/{WorldInfo?.WorldLocation}/data/";
                     default:
-                        return "./storage/misc/";
+                        return $"./storage/{WorldInfo?.WorldLocation}/misc/";
                 }
             }
         }

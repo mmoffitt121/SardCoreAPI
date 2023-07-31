@@ -3,6 +3,7 @@ using SardCoreAPI.Models.DataPoints.DataPointParameters;
 using SardCoreAPI.Models.DataPoints;
 using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Extensions.Primitives;
+using SardCoreAPI.Models.Hub.Worlds;
 
 namespace SardCoreAPI.DataAccess.DataPoints
 {
@@ -56,7 +57,7 @@ namespace SardCoreAPI.DataAccess.DataPoints
         }
         #endregion
 
-        public async Task<T> GetParameter<T>(int dataPointId, int dataPointTypeParameterId, string typeValue)
+        public async Task<T> GetParameter<T>(int dataPointId, int dataPointTypeParameterId, string typeValue, WorldInfo info)
         {
             string valueAlias = GetValueAlias(typeValue);
             string table = GetTable(typeValue);
@@ -70,10 +71,10 @@ namespace SardCoreAPI.DataAccess.DataPoints
 
             builder.Where("DataPointId = @DataPointId AND DataPointTypeParameterId = @DataPointTypeParameterId");
 
-            return (await Query<T>(template.RawSql, new { DataPointId = dataPointId, DataPointTypeParameterId = dataPointTypeParameterId })).FirstOrDefault();
+            return (await Query<T>(template.RawSql, new { DataPointId = dataPointId, DataPointTypeParameterId = dataPointTypeParameterId }, info)).FirstOrDefault();
         }
 
-        public async Task<int> PostParameter<T>(T parameter, string typeValue)
+        public async Task<int> PostParameter<T>(T parameter, string typeValue, WorldInfo info)
         {
             if (parameter == null) { throw new ArgumentNullException(); }
             string valueAlias = GetValueAlias(typeValue);
@@ -82,10 +83,10 @@ namespace SardCoreAPI.DataAccess.DataPoints
             string sql = $@"INSERT INTO {table} (DataPointId, DataPointTypeParameterId, Value )
                 VALUES (@DataPointId, @DataPointTypeParameterId, @{valueAlias})";
 
-            return await Execute(sql, parameter);
+            return await Execute(sql, parameter, info);
         }
 
-        public async Task<int> PutParameter<T>(T parameter, string typeValue)
+        public async Task<int> PutParameter<T>(T parameter, string typeValue, WorldInfo info)
         {
             if (parameter == null) { throw new ArgumentNullException(); }
             string valueAlias = GetValueAlias(typeValue);
@@ -96,10 +97,10 @@ namespace SardCoreAPI.DataAccess.DataPoints
                 WHERE DataPointId = @DataPointId
                     AND DataPointTypeParameterId = @DataPointTypeParameterId;";
 
-            return await Execute(sql, parameter);
+            return await Execute(sql, parameter, info);
         }
 
-        public async Task<int> DeleteParameter<T>(T parameter, string typeValue)
+        public async Task<int> DeleteParameter<T>(T parameter, string typeValue, WorldInfo info)
         {
             if (parameter == null) { throw new ArgumentNullException(); }
             string valueAlias = GetValueAlias(typeValue);
@@ -109,7 +110,7 @@ namespace SardCoreAPI.DataAccess.DataPoints
                 WHERE DataPointId = @DataPointId
                     AND DataPointTypeParameterId = @DataPointTypeParameterId;";
 
-            return await Execute(sql, parameter);
+            return await Execute(sql, parameter, info);
         }
     }
 }

@@ -10,13 +10,14 @@ namespace SardCoreAPI.Controllers.Content
 {
     [ApiController]
     [Route("Library/[controller]/[action]")]
-    public class ImageController
+    public class ImageController : GenericController
     {
         [HttpGet]
         public async Task<IActionResult> GetImage([FromQuery] ImageRequest request)
         {
             try
             {
+                request.WorldInfo = WorldInfo;
                 byte[] result = await new ImageDataAccess().GetImage(request);
                 return new FileStreamResult(new MemoryStream(result), "image/png");
             }
@@ -39,6 +40,8 @@ namespace SardCoreAPI.Controllers.Content
                 return new BadRequestResult();
             }
 
+            request.WorldInfo = WorldInfo;
+
             if (await new ImageDataAccess().PostImage(request) != 0)
             {
                 await new ImageDataAccess().PutImageUrl(request);
@@ -51,6 +54,7 @@ namespace SardCoreAPI.Controllers.Content
         [HttpDelete]
         public async Task<IActionResult> DeleteImage([FromForm] ImageRequest request)
         {
+            request.WorldInfo = WorldInfo;
             int result = await new ImageDataAccess().DeleteImage(request);
             if (result == 0)
             {

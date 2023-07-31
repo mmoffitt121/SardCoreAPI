@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.DataPoints;
+using SardCoreAPI.Models.Hub.Worlds;
 using SardCoreAPI.Models.Map;
 using SardCoreAPI.Models.Map.MapLayer;
 using SardCoreAPI.Utility.Files;
@@ -10,10 +11,13 @@ namespace SardCoreAPI.DataAccess.Map
 {
     public class MapDataAccess : GenericDataAccess
     {
-        public string ImagePath = "./storage/mapicons/";
+        public string ImagePath(WorldInfo info)
+        {
+            return "./storage/" + info.WorldLocation + "/mapicons/";
+        }
 
         #region Map
-        public async Task<List<mp.Map>> GetMaps(MapSearchCriteria criteria)
+        public async Task<List<mp.Map>> GetMaps(MapSearchCriteria criteria, WorldInfo info)
         {
             string pageSettings = "";
             if (criteria.PageNumber != null && criteria.PageSize != null)
@@ -45,10 +49,10 @@ namespace SardCoreAPI.DataAccess.Map
             if (criteria.Id != null) { builder.Where("Id = @Id"); }
             if (criteria.IsDefault != null) { builder.Where("IsDefault = @IsDefault"); }
 
-            return await Query<mp.Map>(template.RawSql, criteria);
+            return await Query<mp.Map>(template.RawSql, criteria, info);
         }
 
-        public async Task<int> PostMap(mp.Map data)
+        public async Task<int> PostMap(mp.Map data, WorldInfo info)
         {
             string updateDefaults = "";
 
@@ -84,10 +88,10 @@ namespace SardCoreAPI.DataAccess.Map
             
                 SELECT LAST_INSERT_ID();";
 
-            return (await Query<int>(sql, data)).FirstOrDefault();
+            return (await Query<int>(sql, data, info)).FirstOrDefault();
         }
 
-        public async Task<int> PutMap(mp.Map data)
+        public async Task<int> PutMap(mp.Map data, WorldInfo info)
         {
             string updateDefaults = "";
 
@@ -109,26 +113,26 @@ namespace SardCoreAPI.DataAccess.Map
                     IsDefault = @IsDefault
                 WHERE Id = @Id";
 
-            return await Execute(sql, data);
+            return await Execute(sql, data, info);
         }
 
-        public async Task<int> DeleteMap(int Id)
+        public async Task<int> DeleteMap(int Id, WorldInfo info)
         {
             string sql = @"DELETE FROM Map WHERE Id = @Id;";
 
-            return await Execute(sql, new { Id });
+            return await Execute(sql, new { Id }, info);
         }
         #endregion
 
         #region Map Icon
-        public async Task UploadMapIcon(byte[] data, int id)
+        public async Task UploadMapIcon(byte[] data, int id, WorldInfo info)
         {
-            await new FileHandler().SaveImage(ImagePath, "Map-" + id + ".png", data);
+            await new FileHandler().SaveImage(ImagePath(info), "Map-" + id + ".png", data);
         }
 
-        public async Task<byte[]> GetMapIcon(int id)
+        public async Task<byte[]> GetMapIcon(int id, WorldInfo info)
         {
-            return await new FileHandler().LoadImage(ImagePath + "Map-" + id + ".png");
+            return await new FileHandler().LoadImage(ImagePath(info) + "Map-" + id + ".png");
         }
         #endregion
     }

@@ -29,8 +29,9 @@ namespace SardCoreAPI.DataAccess.Hub.Worlds
             if (criteria.StartDate != null) { builder.Where("CreatedDate >= @StartDate"); }
             if (criteria.EndDate != null) { builder.Where("CreatedDate <= @EndDate"); }
             if (criteria.Id != null) { builder.Where("Id = @Id"); }
+            if (criteria.Location != null) { builder.Where("Location LIKE @Location"); }
 
-            return await Query<World>(template.RawSql, criteria, true);
+            return await Query<World>(template.RawSql, criteria, "", true);
         }
 
         public async Task<int> PostWorld(World data)
@@ -57,7 +58,7 @@ namespace SardCoreAPI.DataAccess.Hub.Worlds
             
                 SELECT LAST_INSERT_ID();";
 
-            return (await Query<int>(sql, data, true)).FirstOrDefault();
+            return (await Query<int>(sql, data, "", true)).FirstOrDefault();
         }
 
         public async Task<int> PutWorld(World data)
@@ -73,7 +74,7 @@ namespace SardCoreAPI.DataAccess.Hub.Worlds
                     Summary = @Summary
                 WHERE Id = @Id";
 
-            return await Execute(sql, data, true);
+            return await Execute(sql, data, "", true);
         }
     }
 }

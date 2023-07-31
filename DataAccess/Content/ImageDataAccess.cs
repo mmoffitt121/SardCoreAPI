@@ -1,4 +1,5 @@
 ﻿using SardCoreAPI.Models.Content;
+using SardCoreAPI.Models.Hub.Worlds;
 using SardCoreAPI.Utility.Files;
 
 namespace SardCoreAPI.DataAccess.Content
@@ -51,7 +52,7 @@ namespace SardCoreAPI.DataAccess.Content
                     break;
             }
 
-            return await Execute(sql, request);
+            return await Execute(sql, request, request.WorldInfo);
         }
     }
 }

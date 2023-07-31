@@ -13,7 +13,7 @@ namespace SardCoreAPI.Controllers.Map
 {
     [ApiController]
     [Route("Library/[controller]/[action]")]
-    public class LocationTypeController
+    public class LocationTypeController : GenericController
     {
         private readonly ILogger<MapController> _logger;
 
@@ -25,7 +25,7 @@ namespace SardCoreAPI.Controllers.Map
         [HttpGet(Name = "GetLocationTypes")]
         public async Task<IActionResult> GetLocationTypes([FromQuery] PagedSearchCriteria criteria)
         {
-            List<LocationType> locationTypes = await new LocationTypeDataAccess().GetLocationTypes(criteria);
+            List<LocationType> locationTypes = await new LocationTypeDataAccess().GetLocationTypes(criteria, WorldInfo);
 
             if (locationTypes != null)
             {
@@ -38,7 +38,7 @@ namespace SardCoreAPI.Controllers.Map
         [HttpGet]
         public async Task<IActionResult> GetLocationTypeCount([FromQuery] PagedSearchCriteria criteria)
         {
-            List<LocationType> locationTypes = await new LocationTypeDataAccess().GetLocationTypes(criteria);
+            List<LocationType> locationTypes = await new LocationTypeDataAccess().GetLocationTypes(criteria, WorldInfo);
 
             if (locationTypes != null)
             {
@@ -53,7 +53,7 @@ namespace SardCoreAPI.Controllers.Map
         {
             if (id == null) { return new BadRequestResult(); }
 
-            LocationType? locationType = (await new LocationTypeDataAccess().GetLocationTypes(new PagedSearchCriteria() { Id = id.Value })).FirstOrDefault();
+            LocationType? locationType = (await new LocationTypeDataAccess().GetLocationTypes(new PagedSearchCriteria() { Id = id.Value }, WorldInfo)).FirstOrDefault();
 
             if (locationType != null)
             {
@@ -68,7 +68,7 @@ namespace SardCoreAPI.Controllers.Map
         {
             if (data == null) { return new BadRequestResult(); }
 
-            int result = await new LocationTypeDataAccess().PostLocationType(data);
+            int result = await new LocationTypeDataAccess().PostLocationType(data, WorldInfo);
 
             if (result != 0)
             {
@@ -84,7 +84,7 @@ namespace SardCoreAPI.Controllers.Map
         {
             if (data == null) { return new BadRequestResult(); }
 
-            int result = await new LocationTypeDataAccess().PutLocationType(data);
+            int result = await new LocationTypeDataAccess().PutLocationType(data, WorldInfo);
 
             if (result > 0)
             {
@@ -106,7 +106,7 @@ namespace SardCoreAPI.Controllers.Map
         {
             if (Id == null) { return new BadRequestResult(); }
 
-            int result = await new LocationTypeDataAccess().DeleteLocationType((int)Id);
+            int result = await new LocationTypeDataAccess().DeleteLocationType((int)Id, WorldInfo);
 
             if (result > 0)
             {

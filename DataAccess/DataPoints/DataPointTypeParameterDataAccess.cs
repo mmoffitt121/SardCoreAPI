@@ -2,6 +2,7 @@
 using MySqlConnector;
 using SardCoreAPI.Models.DataPoints;
 using SardCoreAPI.Models.DataPoints.DataPointParameters;
+using SardCoreAPI.Models.Hub.Worlds;
 using SardCoreAPI.Models.Map.Location;
 using System.Linq;
 
@@ -9,7 +10,7 @@ namespace SardCoreAPI.DataAccess.DataPoints
 {
     public class DataPointTypeParameterDataAccess : GenericDataAccess
     {
-        public async Task<List<DataPointTypeParameter>> GetDataPointTypeParameters(int Id)
+        public async Task<List<DataPointTypeParameter>> GetDataPointTypeParameters(int Id, WorldInfo info)
         {
             string sql = @"SELECT Id, Name, Summary, DataPointTypeId, TypeValue, Sequence 
                     FROM DataPointTypeParameter
@@ -21,10 +22,10 @@ namespace SardCoreAPI.DataAccess.DataPoints
 
             builder.Where("DataPointTypeId = @Id");
 
-            return await Query<DataPointTypeParameter>(template.RawSql, new { Id });
+            return await Query<DataPointTypeParameter>(template.RawSql, new { Id }, info);
         }
 
-        public async Task<int> PostDataPointTypeParameter(DataPointTypeParameter data)
+        public async Task<int> PostDataPointTypeParameter(DataPointTypeParameter data, WorldInfo info)
         {
             string sql = @"INSERT INTO DataPointTypeParameter (Name, Summary, DataPointTypeId, TypeValue, Sequence)
                     VALUES (@Name, @Summary, @DataPointTypeId, @TypeValue, @Sequence)";
@@ -34,10 +35,10 @@ namespace SardCoreAPI.DataAccess.DataPoints
 
             builder.Where("DataPointTypeId = @Id");
 
-            return await Execute(template.RawSql, data);
+            return await Execute(template.RawSql, data, info);
         }
 
-        public async Task<int> PutDataPointTypeParameter(DataPointTypeParameter data)
+        public async Task<int> PutDataPointTypeParameter(DataPointTypeParameter data, WorldInfo info)
         {
             string sql = @"UPDATE DataPointTypeParameter
                 SET
@@ -48,23 +49,23 @@ namespace SardCoreAPI.DataAccess.DataPoints
                     Sequence = @Sequence
                 WHERE Id = @Id";
 
-            return await Execute(sql, data);
+            return await Execute(sql, data, info);
         }
 
-        public async Task<int> DeleteDataPointTypeParameter(DataPointTypeParameter data)
+        public async Task<int> DeleteDataPointTypeParameter(DataPointTypeParameter data, WorldInfo info)
         {
             string sql = @"DELETE FROM DataPointTypeParameter
                 WHERE Id = @Id";
 
-            return await Execute(sql, data);
+            return await Execute(sql, data, info);
         }
 
-        public async Task<int> DeleteDataPointTypeParametersOfDataType(int id)
+        public async Task<int> DeleteDataPointTypeParametersOfDataType(int id, WorldInfo info)
         {
             string sql = @"DELETE FROM DataPointTypeParameter
                 WHERE DataPointTypeId = @Id";
 
-            return await Execute(sql, new { id });
+            return await Execute(sql, new { id }, info);
         }
     }
 }

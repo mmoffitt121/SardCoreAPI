@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
+using SardCoreAPI.Models.Hub.Worlds;
 
 namespace SardCoreAPI.Controllers
 {
@@ -17,5 +18,13 @@ namespace SardCoreAPI.Controllers
                 throw new KeyNotFoundException("WorldLocation");
             }
          }
+
+        public WorldInfo WorldInfo
+        {
+            get
+            {
+                return new WorldInfo(WorldLocation);
+            }
+        }
     }
 }

@@ -8,7 +8,7 @@ namespace SardCoreAPI.Controllers.Map
 {
     [ApiController]
     [Route("Library/[controller]/[action]")]
-    public class LocationController
+    public class LocationController : GenericController
     {
         private readonly ILogger<MapController> _logger;
 
@@ -22,7 +22,7 @@ namespace SardCoreAPI.Controllers.Map
         {
             if (criteria == null) { return new BadRequestResult(); }
 
-            List<Location> result = new LocationDataAccess().GetLocations(criteria);
+            List<Location> result = new LocationDataAccess().GetLocations(criteria, WorldInfo);
             if (result != null)
             {
                 return new OkObjectResult(result);
@@ -33,7 +33,7 @@ namespace SardCoreAPI.Controllers.Map
         [HttpGet(Name = "GetLocation")]
         public async Task<ActionResult> GetLocation([FromQuery] int? Id)
         {
-            Location result = await new LocationDataAccess().GetLocation(Id);
+            Location result = await new LocationDataAccess().GetLocation(Id, WorldInfo);
             if (result != null)
             {
                 return new OkObjectResult(result);
@@ -50,7 +50,7 @@ namespace SardCoreAPI.Controllers.Map
             int? currentId = id;
             for (int i = 0; i < depth; i++)
             {
-                Location next = await dataAccess.GetLocation(currentId);
+                Location next = await dataAccess.GetLocation(currentId, WorldInfo);
                 if (next == null) { break; }
                 result.Add(next);
                 currentId = next.ParentId;
@@ -69,7 +69,7 @@ namespace SardCoreAPI.Controllers.Map
         {
             if (location == null) { return new BadRequestResult(); }
 
-            if (new LocationDataAccess().PostLocation(location))
+            if (new LocationDataAccess().PostLocation(location, WorldInfo))
             {
                 return new OkResult();
             }
@@ -81,7 +81,7 @@ namespace SardCoreAPI.Controllers.Map
         [HttpPut(Name = "PutLocation")]
         public async Task<IActionResult> PutLocation([FromBody] Location location)
         {
-            int result = await new LocationDataAccess().PutLocation(location);
+            int result = await new LocationDataAccess().PutLocation(location, WorldInfo);
             if (result > 0)
             {
                 return new OkResult();
@@ -102,7 +102,7 @@ namespace SardCoreAPI.Controllers.Map
         {
             if (Id == null) { return new BadRequestResult(); }
 
-            int result = await new LocationDataAccess().DeleteLocation((int)Id);
+            int result = await new LocationDataAccess().DeleteLocation((int)Id, WorldInfo);
 
             if (result > 0)
             {

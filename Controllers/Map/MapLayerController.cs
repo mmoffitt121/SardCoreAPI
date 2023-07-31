@@ -12,7 +12,7 @@ namespace SardCoreAPI.Controllers.Map
 {
     [ApiController]
     [Route("Map/[controller]/[action]")]
-    public class MapLayerController
+    public class MapLayerController : GenericController
     {
         private readonly ILogger<MapController> _logger;
 
@@ -25,7 +25,7 @@ namespace SardCoreAPI.Controllers.Map
         [HttpGet(Name = "GetMapLayers")]
         public async Task<IActionResult> GetMapLayers([FromQuery] MapLayerSearchCriteria criteria)
         {
-            List<MapLayer>? mapLayers = await new MapLayerDataAccess().GetMapLayers(criteria);
+            List<MapLayer>? mapLayers = await new MapLayerDataAccess().GetMapLayers(criteria, WorldInfo);
 
             if (mapLayers != null)
             {
@@ -37,7 +37,7 @@ namespace SardCoreAPI.Controllers.Map
         [HttpGet(Name = "GetMapLayersCount")]
         public async Task<IActionResult> GetMapLayersCount([FromQuery] MapLayerSearchCriteria criteria)
         {
-            List<MapLayer>? mapLayers = await new MapLayerDataAccess().GetMapLayers(criteria);
+            List<MapLayer>? mapLayers = await new MapLayerDataAccess().GetMapLayers(criteria, WorldInfo);
 
             if (mapLayers != null)
             {
@@ -55,7 +55,7 @@ namespace SardCoreAPI.Controllers.Map
                 return new BadRequestResult();
             }
 
-            int id = await new MapLayerDataAccess().PostMapLayer(layer);
+            int id = await new MapLayerDataAccess().PostMapLayer(layer, WorldInfo);
 
             if (id > 0)
             {
@@ -70,7 +70,7 @@ namespace SardCoreAPI.Controllers.Map
         {
             if (data == null) { return new BadRequestResult(); }
 
-            int result = await new MapLayerDataAccess().PutMapLayer(data);
+            int result = await new MapLayerDataAccess().PutMapLayer(data, WorldInfo);
 
             if (result > 0)
             {
@@ -92,9 +92,9 @@ namespace SardCoreAPI.Controllers.Map
         {
             if (Id == null) { return new BadRequestResult(); }
 
-            int tileResult = await new MapTileDataAccess().DeleteTiles((int)Id);
+            int tileResult = await new MapTileDataAccess().DeleteTiles((int)Id, WorldInfo);
 
-            int result = await new MapLayerDataAccess().DeleteMapLayer((int)Id);
+            int result = await new MapLayerDataAccess().DeleteMapLayer((int)Id, WorldInfo);
 
             if (result > 0)
             {
@@ -116,7 +116,7 @@ namespace SardCoreAPI.Controllers.Map
         {
             if (Id == null) { return new BadRequestResult(); }
 
-            int result = await new MapLayerDataAccess().DeleteMapLayersOfMapId((int)Id);
+            int result = await new MapLayerDataAccess().DeleteMapLayersOfMapId((int)Id, WorldInfo);
 
             return new OkResult();
         }
@@ -128,7 +128,7 @@ namespace SardCoreAPI.Controllers.Map
         {
             try
             {
-                byte[] result = await new MapLayerDataAccess().GetMapLayerIcon(id);
+                byte[] result = await new MapLayerDataAccess().GetMapLayerIcon(id, WorldInfo);
                 return new FileStreamResult(new MemoryStream(result), "image/png");
             }
             catch (FileNotFoundException ex)
@@ -163,7 +163,7 @@ namespace SardCoreAPI.Controllers.Map
 
             try
             {
-                await new MapLayerDataAccess().PostMapLayerIcon(compressed, file.Id);
+                await new MapLayerDataAccess().PostMapLayerIcon(compressed, file.Id, WorldInfo);
                 return new OkResult();
             }
             catch (IOException ex)

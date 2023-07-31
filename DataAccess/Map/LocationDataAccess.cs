@@ -2,12 +2,13 @@
 using Dapper;
 using SardCoreAPI.Models.Map.Location;
 using SardCoreAPI.Models.Map.LocationType;
+using SardCoreAPI.Models.Hub.Worlds;
 
 namespace SardCoreAPI.DataAccess.Map
 {
     public class LocationDataAccess : GenericDataAccess
     { 
-        public List<Location> GetLocations(LocationSearchCriteria criteria)
+        public List<Location> GetLocations(LocationSearchCriteria criteria, WorldInfo info)
         {
             string sql = @"
                 SELECT 
@@ -58,7 +59,7 @@ namespace SardCoreAPI.DataAccess.Map
             
         }
 
-        public async Task<Location> GetLocation(int? Id)
+        public async Task<Location> GetLocation(int? Id, WorldInfo info)
         {
             if (Id == null) return null;
 
@@ -88,7 +89,7 @@ namespace SardCoreAPI.DataAccess.Map
             }
         }
 
-        public bool PostLocation(Location location)
+        public bool PostLocation(Location location, WorldInfo info)
         {
             string sql = @"INSERT INTO Locations (Name, LocationTypeId, LayerId, Longitude, Latitude, ParentId, ZoomProminenceMin, ZoomProminenceMax, IconURL, LabelFontSize, LabelFontColor) 
                 VALUES (@Name, @LocationTypeId, @LayerId, @Longitude, @Latitude, @ParentId, @ZoomProminenceMin, @ZoomProminenceMax, @IconURL, @LabelFontSize, @LabelFontColor)";
@@ -112,7 +113,7 @@ namespace SardCoreAPI.DataAccess.Map
             }
         }
 
-        public async Task<int> PutLocation(Location location)
+        public async Task<int> PutLocation(Location location, WorldInfo info)
         {
             string sql = @"UPDATE Locations SET 
 	                Name = @Name,
@@ -143,7 +144,7 @@ namespace SardCoreAPI.DataAccess.Map
             }
         }
 
-        public async Task<int> DeleteLocation(int Id)
+        public async Task<int> DeleteLocation(int Id, WorldInfo info)
         {
             string sql = @"DELETE FROM Locations WHERE Id = @Id;";
             try

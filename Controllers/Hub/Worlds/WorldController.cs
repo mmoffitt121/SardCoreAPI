@@ -8,6 +8,8 @@ using SardCoreAPI.Models.DataPoints;
 using System.Xml.Linq;
 using SardCoreAPI.Models.Hub.Worlds;
 using SardCoreAPI.DataAccess.Hub.Worlds;
+using MySqlConnector;
+using SardCoreAPI.Utility.Error;
 
 namespace SardCoreAPI.Controllers.Hub.Worlds
 {
@@ -35,27 +37,51 @@ namespace SardCoreAPI.Controllers.Hub.Worlds
             return new BadRequestResult();
         }
 
-        //[Authorize(Roles = "Administrator,Editor")]
+        [HttpGet]
+        public async Task<IActionResult> GetWorldCount([FromQuery] WorldSearchCriteria criteria)
+        {
+            if (criteria == null) { return new BadRequestResult(); }
+
+            List<World> result = await new WorldDataAccess().GetWorlds(criteria);
+            if (result != null)
+            {
+                return new OkObjectResult(result.Count);
+            }
+            return new BadRequestResult();
+        }
+
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost]
         public async Task<IActionResult> PostWorld([FromBody] World data)
         {
             if (data == null) { return new BadRequestResult(); }
+            data.Normalize();
+            if (data.Validate() != null) { return BadRequest(data.Validate()); }
 
-            
-
-            int result = await new WorldDataAccess().PostWorld(data);
-
-            if (result != 0)
+            try
             {
-                int genResult = await new WorldGenerator().GenerateWorld(data);
-                if (genResult != 0)
+                int result = await new WorldDataAccess().PostWorld(data);
+
+                if (result != 0)
                 {
-                    return new OkObjectResult(result);
+                    World genResult = await new WorldGenerator().GenerateWorld(data);
+                    if (genResult != null)
+                    {
+                        return new OkObjectResult(result);
+                    }
+                    return new BadRequestResult();
                 }
+
                 return new BadRequestResult();
             }
-
-            return new BadRequestResult();
+            catch (MySqlException ex)
+            {
+                return ex.Handle();
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult(ex);
+            }
         }
 
         [Authorize(Roles = "Administrator,Editor")]

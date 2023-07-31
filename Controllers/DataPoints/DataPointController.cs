@@ -10,7 +10,7 @@ namespace SardCoreAPI.Controllers.DataPoints
 {
     [ApiController]
     [Route("Library/[controller]/[action]")]
-    public class DataPointController : Controller
+    public class DataPointController : GenericController
     {
         private readonly ILogger<MapController> _logger;
 
@@ -24,7 +24,7 @@ namespace SardCoreAPI.Controllers.DataPoints
         {
             if (criteria == null) { return new BadRequestResult(); }
 
-            List<DataPoint> result = await new DataPointDataAccess().GetDataPoints(criteria);
+            List<DataPoint> result = await new DataPointDataAccess().GetDataPoints(criteria, WorldInfo);
             if (result != null)
             {
                 return new OkObjectResult(result);
@@ -38,17 +38,17 @@ namespace SardCoreAPI.Controllers.DataPoints
             if (Id == null) { return new BadRequestResult(); }
 
             // Get Data Point
-            DataPoint? result = (await new DataPointDataAccess().GetDataPoints(new DataPointSearchCriteria() { Id = Id })).FirstOrDefault();
+            DataPoint? result = (await new DataPointDataAccess().GetDataPoints(new DataPointSearchCriteria() { Id = Id }, WorldInfo)).FirstOrDefault();
 
             if (result == null) { return new NotFoundResult(); }
 
             // Attach Type
-            DataPointType? type = (await new DataPointTypeDataAccess().GetDataPointTypes(new PagedSearchCriteria() { Id = result.TypeId })).FirstOrDefault();
+            DataPointType? type = (await new DataPointTypeDataAccess().GetDataPointTypes(new PagedSearchCriteria() { Id = result.TypeId }, WorldInfo)).FirstOrDefault();
 
             if (type == null) { return new OkObjectResult(result); }
 
             // Attach Type Parameters
-            List<DataPointTypeParameter> parameters = (await new DataPointTypeParameterDataAccess().GetDataPointTypeParameters(type.Id)).ToList();
+            List<DataPointTypeParameter> parameters = (await new DataPointTypeParameterDataAccess().GetDataPointTypeParameters(type.Id, WorldInfo)).ToList();
             type.TypeParameters = parameters;
 
             if (type.TypeParameters == null) { return new OkObjectResult(result); }
@@ -64,28 +64,28 @@ namespace SardCoreAPI.Controllers.DataPoints
                 switch (tp.TypeValue)
                 {
                     case "int":
-                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterInt>(result.Id, (int)tp.Id, tp.TypeValue));
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterInt>(result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
                         break;
                     case "dub":
-                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterDouble>(result.Id, (int)tp.Id, tp.TypeValue));
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterDouble>(result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
                         break;
                     case "str":
-                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterString>(result.Id, (int)tp.Id, tp.TypeValue));
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterString>(result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
                         break;
                     case "sum":
-                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterSummary>(result.Id, (int)tp.Id, tp.TypeValue));
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterSummary>(result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
                         break;
                     case "doc":
-                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterDocument>(result.Id, (int)tp.Id, tp.TypeValue));
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterDocument>(result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
                         break;
                     case "dat":
-                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterDataPoint>(result.Id, (int)tp.Id, tp.TypeValue));
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterDataPoint>(result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
                         break;
                     case "bit":
-                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterBoolean>(result.Id, (int)tp.Id, tp.TypeValue));
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterBoolean>(result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
                         break;
                     default:
-                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameter>(result.Id, (int)tp.Id, tp.TypeValue));
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameter>(result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
                         break;
                 }
             }
@@ -100,14 +100,14 @@ namespace SardCoreAPI.Controllers.DataPoints
             if (data == null) { return new BadRequestResult(); }
 
             // Get data point type
-            DataPointType? type = (await new DataPointTypeDataAccess().GetDataPointTypes(new PagedSearchCriteria() { Id = data.TypeId })).FirstOrDefault();
+            DataPointType? type = (await new DataPointTypeDataAccess().GetDataPointTypes(new PagedSearchCriteria() { Id = data.TypeId }, WorldInfo)).FirstOrDefault();
             if (type == null) { return new BadRequestResult(); }
             // Attach type Parameters
-            List<DataPointTypeParameter> typeParameters = (await new DataPointTypeParameterDataAccess().GetDataPointTypeParameters(type.Id)).ToList();
+            List<DataPointTypeParameter> typeParameters = (await new DataPointTypeParameterDataAccess().GetDataPointTypeParameters(type.Id, WorldInfo)).ToList();
             type.TypeParameters = typeParameters;
 
             // Post initial data point
-            int? id = await new DataPointDataAccess().PostDataPoint(data);
+            int? id = await new DataPointDataAccess().PostDataPoint(data, WorldInfo);
             if (id == null)
             {
                 return new BadRequestResult();
@@ -125,7 +125,7 @@ namespace SardCoreAPI.Controllers.DataPoints
                 if (typeValue != null)
                 {
                     param.DataPointId = (int)id;
-                    tasks.Add(parameterDataAccess.PostParameter(param, typeValue));
+                    tasks.Add(parameterDataAccess.PostParameter(param, typeValue, WorldInfo));
                 }
             }
             await Task.WhenAll(tasks);
@@ -188,7 +188,7 @@ namespace SardCoreAPI.Controllers.DataPoints
         {
             if (Id == null) { return new BadRequestResult(); }
 
-            int result = await new DataPointDataAccess().DeleteDataPoint((int)Id);
+            int result = await new DataPointDataAccess().DeleteDataPoint((int)Id, WorldInfo);
 
             if (result > 0)
             {
