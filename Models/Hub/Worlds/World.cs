@@ -26,10 +26,33 @@ namespace SardCoreAPI.Models.Hub.Worlds
 
             if (!Regex.IsMatch(Location, "^[a-zA-Z0-9_]*$")) { errors.Add("Location is not alphanumeric, including only letters, numbers, and spaces/underscores."); }
 
-            if (Location.Equals("libraries_of")) { errors.Add("Invalid Location Name"); }
-            if (Location.Equals("sys")) { errors.Add("Invalid Location Name"); }
-            if (Location.Equals("sakila")) { errors.Add("Invalid Location Name"); }
-            if (Location.Equals("world")) { errors.Add("Invalid Location Name"); }
+            switch (Location)
+            {
+                case "libraries_of":
+                case "sys":
+                case "sakila":
+                case "world":
+                case "login":
+                case "register":
+                case "user-settings":
+                case "world-manager":
+                case "home":
+                case "worlds":
+                case "administration":
+                case "community":
+                case "forum":
+                case "admin":
+                case "showcase":
+                case "map":
+                case "new-map":
+                case "map-tiles":
+                case "timeline":
+                case "document":
+                    errors.Add("Invalid Location Name");
+                    break;
+                default:
+                    break;
+            }
 
             return errors.Count() > 0 ? string.Join(' ', errors) : null;
         }

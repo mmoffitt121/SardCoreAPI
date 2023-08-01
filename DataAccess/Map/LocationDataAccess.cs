@@ -3,12 +3,13 @@ using Dapper;
 using SardCoreAPI.Models.Map.Location;
 using SardCoreAPI.Models.Map.LocationType;
 using SardCoreAPI.Models.Hub.Worlds;
+using static Dapper.SqlBuilder;
 
 namespace SardCoreAPI.DataAccess.Map
 {
     public class LocationDataAccess : GenericDataAccess
     { 
-        public List<Location> GetLocations(LocationSearchCriteria criteria, WorldInfo info)
+        public async Task<List<Location>> GetLocations(LocationSearchCriteria criteria, WorldInfo info)
         {
             string sql = @"
                 SELECT 
@@ -42,21 +43,7 @@ namespace SardCoreAPI.DataAccess.Map
 
             builder.OrderBy("CASE WHEN l.Name LIKE CONCAT(@Query, '%') THEN 0 ELSE 1 END, l.Name");
 
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
-                {
-                    connection.Open();
-                    List<Location> locationTypes = connection.Query<Location>(template.RawSql, criteria).ToList();
-                    return locationTypes;
-                }
-            }
-            catch (MySqlException s)
-            {
-                Console.WriteLine(s);
-                return null;
-            }
-            
+            return await Query<Location>(template.RawSql, criteria, info);
         }
 
         public async Task<Location> GetLocation(int? Id, WorldInfo info)
@@ -73,44 +60,16 @@ namespace SardCoreAPI.DataAccess.Map
 
             builder.Where("l.Id = @Id");
 
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
-                {
-                    connection.Open();
-                    Location location = connection.QueryFirst<Location>(template.RawSql, new { Id });
-                    return location;
-                }
-            }
-            catch (MySqlException s)
-            {
-                Console.WriteLine(s);
-                return null;
-            }
+            return await QueryFirst<Location>(template.RawSql, new { Id }, info);
         }
 
-        public bool PostLocation(Location location, WorldInfo info)
+        public async Task<bool> PostLocation(Location location, WorldInfo info)
         {
             string sql = @"INSERT INTO Locations (Name, LocationTypeId, LayerId, Longitude, Latitude, ParentId, ZoomProminenceMin, ZoomProminenceMax, IconURL, LabelFontSize, LabelFontColor) 
-                VALUES (@Name, @LocationTypeId, @LayerId, @Longitude, @Latitude, @ParentId, @ZoomProminenceMin, @ZoomProminenceMax, @IconURL, @LabelFontSize, @LabelFontColor)";
+                VALUES (@Name, @LocationTypeId, @LayerId, @Longitude, @Latitude, @ParentId, @ZoomProminenceMin, @ZoomProminenceMax, @IconURL, @LabelFontSize, @LabelFontColor)"
+            ;
 
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
-                {
-                    connection.Open();
-                    if (connection.Execute(sql, location) > 0)
-                    {
-                        return true;
-                    }
-                    return false;
-                }
-            }
-            catch (MySqlException s)
-            {
-                Console.WriteLine(s);
-                return false;
-            }
+            return await Execute(sql, location, info) > 0;
         }
 
         public async Task<int> PutLocation(Location location, WorldInfo info)
@@ -129,37 +88,13 @@ namespace SardCoreAPI.DataAccess.Map
                     LabelFontColor = @LabelFontColor
                 WHERE Id = @Id";
 
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
-                {
-                    connection.Open();
-                    return await connection.ExecuteAsync(sql, location);
-                }
-            }
-            catch (MySqlException s)
-            {
-                Console.WriteLine(s);
-                return -1;
-            }
+            return await Execute(sql, location, info);
         }
 
         public async Task<int> DeleteLocation(int Id, WorldInfo info)
         {
             string sql = @"DELETE FROM Locations WHERE Id = @Id;";
-            try
-            {
-                using (MySqlConnection connection = new MySqlConnection(Connection.GetConnectionString()))
-                {
-                    connection.Open();
-                    return await connection.ExecuteAsync(sql, new { Id });
-                }
-            }
-            catch (MySqlException s)
-            {
-                Console.WriteLine(s);
-                return -1;
-            }
+            return await Execute(sql, new { Id }, info);
         }
     }
 }

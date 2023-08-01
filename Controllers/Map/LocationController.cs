@@ -18,11 +18,11 @@ namespace SardCoreAPI.Controllers.Map
         }
 
         [HttpGet(Name = "GetLocations")]
-        public IActionResult GetLocations([FromQuery] LocationSearchCriteria criteria)
+        public async Task<IActionResult> GetLocations([FromQuery] LocationSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
 
-            List<Location> result = new LocationDataAccess().GetLocations(criteria, WorldInfo);
+            List<Location> result = await new LocationDataAccess().GetLocations(criteria, WorldInfo);
             if (result != null)
             {
                 return new OkObjectResult(result);
@@ -65,11 +65,11 @@ namespace SardCoreAPI.Controllers.Map
 
         [Authorize(Roles = "Administrator,Editor")]
         [HttpPost(Name = "PostLocation")]
-        public IActionResult PostLocation([FromBody] Location location)
+        public async Task<IActionResult> PostLocation([FromBody] Location location)
         {
             if (location == null) { return new BadRequestResult(); }
 
-            if (new LocationDataAccess().PostLocation(location, WorldInfo))
+            if (await new LocationDataAccess().PostLocation(location, WorldInfo))
             {
                 return new OkResult();
             }

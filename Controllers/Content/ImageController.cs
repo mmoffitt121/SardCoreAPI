@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SardCoreAPI.DataAccess.Content;
 using SardCoreAPI.DataAccess.Map;
 using SardCoreAPI.Models.Content;
+using SardCoreAPI.Models.Hub.Worlds;
 using SardCoreAPI.Models.Map.MapTile;
 using SardCoreAPI.Utility.Map;
 
@@ -17,7 +18,7 @@ namespace SardCoreAPI.Controllers.Content
         {
             try
             {
-                request.WorldInfo = WorldInfo;
+                request.WorldInfo = GetWorldInfo(request);
                 byte[] result = await new ImageDataAccess().GetImage(request);
                 return new FileStreamResult(new MemoryStream(result), "image/png");
             }
@@ -40,7 +41,7 @@ namespace SardCoreAPI.Controllers.Content
                 return new BadRequestResult();
             }
 
-            request.WorldInfo = WorldInfo;
+            request.WorldInfo = GetWorldInfo(request);
 
             if (await new ImageDataAccess().PostImage(request) != 0)
             {
@@ -54,13 +55,22 @@ namespace SardCoreAPI.Controllers.Content
         [HttpDelete]
         public async Task<IActionResult> DeleteImage([FromForm] ImageRequest request)
         {
-            request.WorldInfo = WorldInfo;
+            request.WorldInfo = GetWorldInfo(request);
             int result = await new ImageDataAccess().DeleteImage(request);
             if (result == 0)
             {
                 return new NotFoundResult();
             }
             return new OkResult();
+        }
+
+        private WorldInfo GetWorldInfo(ImageRequest request)
+        {
+            if (!string.IsNullOrEmpty(request.WorldPath))
+            {
+                return new WorldInfo(request.WorldPath);
+            }
+            return WorldInfo;
         }
     }
 }
