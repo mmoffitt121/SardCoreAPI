@@ -35,8 +35,6 @@ namespace SardCoreAPI.Controllers.Map
         {
             if (criteria == null) { return new BadRequestResult(); }
 
-            Console.WriteLine(WorldLocation);
-
             List<m.Map> result = await new MapDataAccess().GetMaps(criteria, WorldInfo);
             if (result != null)
             {

@@ -164,3 +164,27 @@ CREATE TABLE IF NOT EXISTS Locations (
     FOREIGN KEY (LayerId) REFERENCES MapLayers (Id)
 );
 
+CREATE TABLE IF NOT EXISTS Themes (
+	Id								INT NOT NULL AUTO_INCREMENT,
+	Name							VARCHAR(255),
+    IsDefault                       BIT,
+	PrimaryColor					VARCHAR(30),
+	PrimaryColorSelected			VARCHAR(30),
+	InvertedTextColor				VARCHAR(30),
+	InvertedTextColorDisabled		VARCHAR(30),
+	TextColor						VARCHAR(30),
+	TextColorDisabled				VARCHAR(30),
+	SecondaryTextColor				VARCHAR(30),
+	TertiaryTextColor				VARCHAR(30),
+	PrimaryAccentColor				VARCHAR(30),
+	PrimaryAccentColorDisabled		VARCHAR(30),
+	BackgroundColor					VARCHAR(30),
+	SecondaryBackgroundColor		VARCHAR(30),
+	FieldOverlayColor				VARCHAR(30),
+	FieldOverlayColorDark			VARCHAR(30),
+	DestructiveActionColor			VARCHAR(30),
+	PrimaryFont						VARCHAR(30),
+	FontWeightbold					VARCHAR(30),
+	DataPointValueFontSize			VARCHAR(30),
+    PRIMARY KEY (Id)
+);
