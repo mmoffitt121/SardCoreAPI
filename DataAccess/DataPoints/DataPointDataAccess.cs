@@ -50,8 +50,7 @@ namespace SardCoreAPI.DataAccess.DataPoints
         public async Task<int> PutDataPoint(DataPoint data, WorldInfo info)
         {
             string sql = @"UPDATE DataPoints SET 
-	                Name = @Name,
-                    Summary = @Summary
+	                Name = @Name
                 WHERE Id = @Id";
 
             return await Execute(sql, data, info);
@@ -61,7 +60,7 @@ namespace SardCoreAPI.DataAccess.DataPoints
         {
             string sql = @"DELETE FROM DataPoints WHERE Id = @Id;";
 
-            return await Execute(sql, Id, info);
+            return await Execute(sql, new { Id }, info);
         }
     }
 }

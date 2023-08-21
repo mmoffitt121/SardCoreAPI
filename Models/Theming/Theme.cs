@@ -15,6 +15,9 @@
         public string? TertiaryTextColor { get; set; }
         public string? PrimaryAccentColor { get; set; }
         public string? PrimaryAccentColorDisabled { get; set; }
+        public string? SecondaryAccentColor { get; set; }
+        public string? SecondaryAccentColorDisabled { get; set; }
+        public string? SecondaryAccentColorSelected { get; set; }
         public string? BackgroundColor { get; set; }
         public string? SecondaryBackgroundColor { get; set; }
         public string? FieldOverlayColor { get; set; }

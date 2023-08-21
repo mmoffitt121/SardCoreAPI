@@ -3,17 +3,20 @@ using Dapper;
 using SardCoreAPI.Models.DataPoints.DataPointParameters;
 using static Dapper.SqlBuilder;
 using SardCoreAPI.Models.Hub.Worlds;
+using SardCoreAPI.Models.Security.Users;
+using System.Linq.Expressions;
+using SardCoreAPI.Models.Common;
 
 namespace SardCoreAPI.DataAccess
 {
     public class GenericDataAccess
     {
-        public async Task<List<T>> Query<T>(string sql, object data, WorldInfo? info, bool globalConnection = false)
+        public async Task<List<T>> Query<T>(string sql, object? data, WorldInfo? info, bool globalConnection = false)
         {
             return await Query<T>(sql, data, info?.WorldLocation, globalConnection);
         }
 
-        public async Task<List<T>> Query<T>(string sql, object data, string? location, bool globalConnection = false)
+        public async Task<List<T>> Query<T>(string sql, object? data, string? location, bool globalConnection = false)
         {
             string connectionString = globalConnection ? Connection.GetGlobalConnectionString() : Connection.GetConnectionString(location);
             try
@@ -23,6 +26,49 @@ namespace SardCoreAPI.DataAccess
                     connection.Open();
                     List<T> result = (await connection.QueryAsync<T>(sql, data)).ToList();
                     return result;
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                throw s;
+            }
+        }
+
+        public async Task<string> QueryStr(string sql, object? data, string? location, bool globalConnection = false)
+        {
+            string connectionString = globalConnection ? Connection.GetGlobalConnectionString() : Connection.GetConnectionString(location);
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+                    List<GenericTuple> result = (await connection.QueryAsync<GenericTuple>(sql, data)).ToList();
+                    return result.First()?.Value;
+                }
+            }
+            catch (MySqlException s)
+            {
+                Console.WriteLine(s);
+                throw s;
+            }
+        }
+
+        public async Task<List<string>> QueryStrList(string sql, object? data, string? location, bool globalConnection = false)
+        {
+            string connectionString = globalConnection ? Connection.GetGlobalConnectionString() : Connection.GetConnectionString(location);
+            try
+            {
+                using (MySqlConnection connection = new MySqlConnection(connectionString))
+                {
+                    connection.Open();
+                    List<GenericTuple> result = (await connection.QueryAsync<GenericTuple>(sql, data)).ToList();
+                    List<string> values = new List<string>();
+                    result.ForEach(t =>
+                    {
+                        values.Add(t.Value);
+                    });
+                    return values;
                 }
             }
             catch (MySqlException s)

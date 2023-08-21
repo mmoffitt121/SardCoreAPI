@@ -5,6 +5,7 @@ using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.DataPoints.DataPointParameters;
 using SardCoreAPI.Models.DataPoints;
 using Microsoft.AspNetCore.Authorization;
+using System.Diagnostics;
 
 namespace SardCoreAPI.Controllers.DataPoints
 {
@@ -58,34 +59,34 @@ namespace SardCoreAPI.Controllers.DataPoints
             DataPointParameterDataAccess dataAccess = new DataPointParameterDataAccess();
             foreach (DataPointTypeParameter tp in type.TypeParameters)
             {
-                if (tp.Id == null) { continue; }
+                if (tp.Id == null || result.Id == null) { continue; }
                 DataPointParameter p;
 
                 switch (tp.TypeValue)
                 {
                     case "int":
-                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterInt>(result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterInt>((int)result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
                         break;
                     case "dub":
-                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterDouble>(result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterDouble>((int)result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
                         break;
                     case "str":
-                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterString>(result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterString>((int)result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
                         break;
                     case "sum":
-                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterSummary>(result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterSummary>((int)result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
                         break;
                     case "doc":
-                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterDocument>(result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterDocument>((int)result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
                         break;
                     case "dat":
-                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterDataPoint>(result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterDataPoint>((int)result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
                         break;
                     case "bit":
-                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterBoolean>(result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterBoolean>((int)result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
                         break;
                     default:
-                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameter>(result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameter>((int)result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
                         break;
                 }
             }
@@ -93,9 +94,9 @@ namespace SardCoreAPI.Controllers.DataPoints
             return new OkObjectResult(result);
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
-        [HttpPost(Name = "PostDataPoint")]
-        public async Task<IActionResult> PostDataPoint([FromBody] DataPoint data)
+        //[Authorize(Roles = "Administrator,Editor")]
+        [HttpPut(Name = "PutDataPoint")]
+        public async Task<IActionResult> PutDataPoint([FromBody] DataPoint data)
         {
             if (data == null) { return new BadRequestResult(); }
 
@@ -106,8 +107,19 @@ namespace SardCoreAPI.Controllers.DataPoints
             List<DataPointTypeParameter> typeParameters = (await new DataPointTypeParameterDataAccess().GetDataPointTypeParameters(type.Id, WorldInfo)).ToList();
             type.TypeParameters = typeParameters;
 
+            int? id = null;
+
             // Post initial data point
-            int? id = await new DataPointDataAccess().PostDataPoint(data, WorldInfo);
+            if (data.Id == null)
+            {
+                id = await new DataPointDataAccess().PostDataPoint(data, WorldInfo);
+            }
+            else
+            {
+                id = data.Id;
+                await new DataPointDataAccess().PutDataPoint(data, WorldInfo);
+            }
+
             if (id == null)
             {
                 return new BadRequestResult();
@@ -116,16 +128,21 @@ namespace SardCoreAPI.Controllers.DataPoints
             // Initialize parameter data access
             DataPointParameterDataAccess parameterDataAccess = new DataPointParameterDataAccess();
 
-            // Post all parameters
+            // Put all parameters
             if (data.Parameters == null) { return new OkResult(); }
             List<Task> tasks = new List<Task>();
             foreach (DataPointParameter param in data.Parameters)
             {
+                param.DataPointId = id;
                 string? typeValue = type.TypeParameters.Where(p => p.Id == param.DataPointTypeParameterId).FirstOrDefault()?.TypeValue;
                 if (typeValue != null)
                 {
                     param.DataPointId = (int)id;
-                    tasks.Add(parameterDataAccess.PostParameter(param, typeValue, WorldInfo));
+                    tasks.Add(parameterDataAccess.PutParameter(param, typeValue, WorldInfo));
+                }
+                else
+                {
+                    // Handle invalid type err here
                 }
             }
             await Task.WhenAll(tasks);
@@ -134,73 +151,34 @@ namespace SardCoreAPI.Controllers.DataPoints
         }
 
         [Authorize(Roles = "Administrator,Editor")]
-        [HttpPut(Name = "PutDataPoint")]
-        public async Task<IActionResult> PutDataPoint([FromBody] DataPoint data)
-        {
-            /*int result = await new DataPointTypeDataAccess().PutDataPointType(data);
-
-            List<DataPointTypeParameter> currentParameters = (await new DataPointTypeParameterDataAccess().GetDataPointTypeParameters(data.Id)).ToList();
-            List<DataPointTypeParameter> newParameters = data.TypeParameters ?? new List<DataPointTypeParameter>();
-
-            DataPointTypeParameterComparer comparer = new DataPointTypeParameterComparer();
-
-            List<DataPointTypeParameter> toEdit = newParameters.Intersect(currentParameters, comparer).ToList();
-            List<DataPointTypeParameter> toCreate = newParameters.Except(toEdit, comparer).ToList();
-            List<DataPointTypeParameter> toDelete = currentParameters.Except(toEdit, comparer).ToList();
-
-            DataPointTypeParameterDataAccess parameterDataAccess = new DataPointTypeParameterDataAccess();
-
-            List<Task> tasks = new List<Task>();
-
-            foreach (DataPointTypeParameter parameter in toCreate)
-            {
-                tasks.Add(parameterDataAccess.PostDataPointTypeParameter(parameter));
-            }
-            foreach (DataPointTypeParameter parameter in toEdit)
-            {
-                tasks.Add(parameterDataAccess.PutDataPointTypeParameter(parameter));
-            }
-            foreach (DataPointTypeParameter parameter in toDelete)
-            {
-                tasks.Add(parameterDataAccess.DeleteDataPointTypeParameter(parameter));
-            }
-
-            await Task.WhenAll(tasks);
-
-            if (result > 0)
-            {
-                return new OkResult();
-            }
-            else if (result == 0)
-            {
-                return new NotFoundResult();
-            }
-            else
-            {
-                return new BadRequestResult();
-            }*/
-            return null;
-        }
-
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete(Name = "DeleteDataPoint")]
         public async Task<IActionResult> DeleteDataPoint([FromQuery] int? Id)
         {
             if (Id == null) { return new BadRequestResult(); }
 
-            int result = await new DataPointDataAccess().DeleteDataPoint((int)Id, WorldInfo);
+            try
+            {
+                await new DataPointParameterDataAccess().DeleteParameters(Id, WorldInfo);
 
-            if (result > 0)
-            {
-                return new OkResult();
+                int result = await new DataPointDataAccess().DeleteDataPoint((int)Id, WorldInfo);
+
+                if (result > 0)
+                {
+                    return new OkResult();
+                }
+                else if (result == 0)
+                {
+                    return new NotFoundResult();
+                }
+                else
+                {
+                    return new BadRequestResult();
+                }
             }
-            else if (result == 0)
+            catch (Exception ex)
             {
-                return new NotFoundResult();
-            }
-            else
-            {
-                return new BadRequestResult();
+                _logger.LogError(ex.Message, ex.StackTrace);
+                return BadRequest("Unable to delete data point.");
             }
         }
     }

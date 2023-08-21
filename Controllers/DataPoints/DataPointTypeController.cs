@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MySqlConnector;
 using SardCoreAPI.Controllers.Map;
 using SardCoreAPI.DataAccess.DataPoints;
 using SardCoreAPI.DataAccess.Map;
@@ -7,6 +8,7 @@ using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.DataPoints;
 using SardCoreAPI.Models.DataPoints.DataPointParameters;
 using SardCoreAPI.Models.Map.Location;
+using SardCoreAPI.Utility.Error;
 
 namespace SardCoreAPI.Controllers.DataPoints
 {
@@ -121,21 +123,32 @@ namespace SardCoreAPI.Controllers.DataPoints
         {
             if (Id == null) { return new BadRequestResult(); }
 
-            await new DataPointTypeParameterDataAccess().DeleteDataPointTypeParametersOfDataType((int)Id, WorldInfo);
+            try
+            {
+                await new DataPointTypeParameterDataAccess().DeleteDataPointTypeParametersOfDataType((int)Id, WorldInfo);
 
-            int result = await new DataPointTypeDataAccess().DeleteDataPointType((int)Id, WorldInfo);
+                int result = await new DataPointTypeDataAccess().DeleteDataPointType((int)Id, WorldInfo);
 
-            if (result > 0)
-            {
-                return new OkResult();
+                if (result > 0)
+                {
+                    return new OkResult();
+                }
+                else if (result == 0)
+                {
+                    return new NotFoundResult();
+                }
+                else
+                {
+                    return new BadRequestResult();
+                }
             }
-            else if (result == 0)
+            catch (MySqlException ex)
             {
-                return new NotFoundResult();
+                return ex.Handle();
             }
-            else
+            catch (Exception ex)
             {
-                return new BadRequestResult();
+                return ex.Handle();
             }
         }
     }

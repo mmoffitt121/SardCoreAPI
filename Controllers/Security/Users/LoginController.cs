@@ -58,7 +58,8 @@ namespace SardCoreAPI.Controllers.Security.Users
             SardCoreAPIUser user = await _userManager.FindByNameAsync(username);
             if (user != null)
             {
-                return Ok(new ViewableUser() { UserName = user.UserName, Id = user.Id });
+                IList<string> roles = await _userManager.GetRolesAsync(user);
+                return Ok(new ViewableUser() { UserName = user.UserName, Id = user.Id, Roles = roles });
             }
             return BadRequest();
         }

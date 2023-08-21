@@ -43,7 +43,6 @@ namespace SardCoreAPI.DataAccess.Theming
             string sql = $@"
                 {updateDefaults}
                 INSERT INTO Themes (
-                    Id,
 	                Name,
 	                PrimaryColor,
 	                PrimaryColorSelected,
@@ -55,6 +54,9 @@ namespace SardCoreAPI.DataAccess.Theming
 	                TertiaryTextColor,
 	                PrimaryAccentColor,
 	                PrimaryAccentColorDisabled,
+                    SecondaryAccentColor,
+                    SecondaryAccentColorDisabled,
+                    SecondaryAccentColorSelected,
 	                BackgroundColor,
 	                SecondaryBackgroundColor,
 	                FieldOverlayColor,
@@ -65,7 +67,6 @@ namespace SardCoreAPI.DataAccess.Theming
 	                DataPointValueFontSize
                 ) 
                 VALUES (
-                    @Id,
 	                @Name,
 	                @PrimaryColor,
 	                @PrimaryColorSelected,
@@ -77,6 +78,9 @@ namespace SardCoreAPI.DataAccess.Theming
 	                @TertiaryTextColor,
 	                @PrimaryAccentColor,
 	                @PrimaryAccentColorDisabled,
+                    @SecondaryAccentColor,
+                    @SecondaryAccentColorDisabled,
+                    @SecondaryAccentColorSelected,
 	                @BackgroundColor,
 	                @SecondaryBackgroundColor,
 	                @FieldOverlayColor,
@@ -115,6 +119,9 @@ namespace SardCoreAPI.DataAccess.Theming
 	                TertiaryTextColor = @TertiaryTextColor,
 	                PrimaryAccentColor = @PrimaryAccentColor,
 	                PrimaryAccentColorDisabled = @PrimaryAccentColorDisabled,
+                    SecondaryAccentColor = @SecondaryAccentColor,
+                    SecondaryAccentColorDisabled = @SecondaryAccentColorDisabled,
+                    SecondaryAccentColorSelected = @SecondaryAccentColorSelected,
 	                BackgroundColor = @BackgroundColor,
 	                SecondaryBackgroundColor = @SecondaryBackgroundColor,
 	                FieldOverlayColor = @FieldOverlayColor,

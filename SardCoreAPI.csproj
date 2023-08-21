@@ -50,6 +50,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Controllers\Administration\Deployment\" />
     <Folder Include="Utility\ActionResult\ActionResults\" />
     <Folder Include="WorldMap\" />
   </ItemGroup>

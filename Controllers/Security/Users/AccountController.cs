@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Dapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MySqlConnector;
 using SardCoreAPI.Areas.Identity.Data;
@@ -84,6 +87,39 @@ namespace SardCoreAPI.Controllers.Security.Users
                 return new BadRequestObjectResult(ex);
             }
 
+            return Ok();
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [HttpGet]
+        public async Task<IActionResult> GetUsers()
+        {
+            List<SardCoreAPIUser> users = await _userManager.Users.ToListAsync();
+
+            List<ViewableUser> vUsers = new List<ViewableUser>();
+
+            foreach (var user in users)
+            {
+                IList<string> roles = await _userManager.GetRolesAsync(user);
+                vUsers.Add(new ViewableUser() { Id = user.Id, UserName = user.UserName, Roles = roles });
+            }
+            
+            return Ok(vUsers);
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteUser(string username)
+        {
+            SardCoreAPIUser user = await _userManager.FindByNameAsync(username);
+            try
+            {
+                await _userManager.DeleteAsync(user);
+            }
+            catch
+            {
+                return BadRequest("This user cannot be deleted.");
+            }
+            
             return Ok();
         }
     }

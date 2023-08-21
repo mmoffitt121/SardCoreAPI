@@ -7,7 +7,7 @@ namespace SardCoreAPI.Models.DataPoints.DataPointParameters
     [JsonConverter(typeof(ParameterJsonConverter))]
     public class DataPointParameter
     {
-        public int DataPointId { get; set; }
+        public int? DataPointId { get; set; }
         public int DataPointTypeParameterId { get; set; }
 
         private class ParameterJsonConverter : DataPointJsonConverter<DataPointParameter>
