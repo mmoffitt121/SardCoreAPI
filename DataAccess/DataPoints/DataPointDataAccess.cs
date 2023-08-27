@@ -26,10 +26,28 @@ namespace SardCoreAPI.DataAccess.DataPoints
             var template = builder.AddTemplate(sql);
 
             if (!string.IsNullOrEmpty(criteria.Query)) { builder.Where("Name LIKE CONCAT('%', IFNULL(@Query, ''), '%')"); }
-            if (criteria.TypeId != null) { builder.Where("TypeId = @TypeId"); }
+            if (criteria.TypeId != null && criteria.TypeId != -1) { builder.Where("TypeId = @TypeId"); }
             if (criteria.Id != null) { builder.Where("Id = @Id"); }
 
             return await Query<DataPoint>(template.RawSql, criteria, info);
+        }
+
+        public async Task<int> GetDataPointsCount(DataPointSearchCriteria criteria, WorldInfo info)
+        {
+            string sql = $@"SELECT COUNT(*)
+                FROM DataPoints
+                /**where**/
+                ORDER BY Name
+            ";
+
+            SqlBuilder builder = new SqlBuilder();
+            var template = builder.AddTemplate(sql);
+
+            if (!string.IsNullOrEmpty(criteria.Query)) { builder.Where("Name LIKE CONCAT('%', IFNULL(@Query, ''), '%')"); }
+            if (criteria.TypeId != null && criteria.TypeId != -1) { builder.Where("TypeId = @TypeId"); }
+            if (criteria.Id != null) { builder.Where("Id = @Id"); }
+
+            return await QueryFirst<int>(template.RawSql, criteria, info);
         }
 
         /// <summary>

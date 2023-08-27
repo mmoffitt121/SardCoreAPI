@@ -30,7 +30,7 @@ namespace SardCoreAPI.Models.DataPoints.DataPointParameters
                 {
                     return new DataPointParameterDouble();
                 }
-                if (jObject.Value<string>("intValue") != null)
+                if (jObject.Value<string>("intValueString") != null)
                 {
                     return new DataPointParameterInt();
                 }

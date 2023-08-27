@@ -6,14 +6,16 @@
  );
  
  CREATE TABLE IF NOT EXISTS DataPointTypeParameter (
-	Id               INT               NOT NULL AUTO_INCREMENT,
-    Name             VARCHAR (1000),
-    Summary          VARCHAR (3000),
-    DataPointTypeId  INT               NOT NULL,
-    TypeValue        CHAR (3)          NOT NULL,
-    Sequence         INT               NOT NULL,
+	Id                       INT               NOT NULL AUTO_INCREMENT,
+    Name                     VARCHAR (1000),
+    Summary                  VARCHAR (3000),
+    DataPointTypeId          INT               NOT NULL,
+    TypeValue                CHAR (3)          NOT NULL,
+    Sequence                 INT               NOT NULL,
+    DataPointTypeReferenceId INT,
     PRIMARY KEY (Id),
-    FOREIGN KEY (DataPointTypeId) REFERENCES DataPointTypes (Id)
+    FOREIGN KEY (DataPointTypeId) REFERENCES DataPointTypes (Id),
+    FOREIGN KEY (DataPointTypeReferenceId) REFERENCES DataPointTypes (Id)
  );
  
   /*
@@ -37,44 +39,44 @@
  );
  
  CREATE TABLE IF NOT EXISTS DataPointParameterInt (
-	DataPointId               INT NOT NULL,
-    DataPointTypeParameterId  INT NOT NULL,
-    Value                     INT NOT NULL,
+	DataPointId               INT    NOT NULL,
+    DataPointTypeParameterId  INT    NOT NULL,
+    Value                     BIGINT,
     PRIMARY KEY (DataPointId, DataPointTypeParameterId)
  );
  
   CREATE TABLE IF NOT EXISTS DataPointParameterDouble (
 	DataPointId               INT    NOT NULL,
     DataPointTypeParameterId  INT    NOT NULL,
-    Value                     DOUBLE NOT NULL,
+    Value                     DOUBLE,
     PRIMARY KEY (DataPointId, DataPointTypeParameterId)
  );
  
   CREATE TABLE IF NOT EXISTS DataPointParameterString (
 	DataPointId               INT            NOT NULL,
     DataPointTypeParameterId  INT            NOT NULL,
-    Value                     VARCHAR (1000) NOT NULL,
+    Value                     VARCHAR (1000),
     PRIMARY KEY (DataPointId, DataPointTypeParameterId)
  );
  
   CREATE TABLE IF NOT EXISTS DataPointParameterSummary (
 	DataPointId               INT  NOT NULL,
     DataPointTypeParameterId  INT  NOT NULL,
-    Value                     TEXT NOT NULL,
+    Value                     TEXT,
     PRIMARY KEY (DataPointId, DataPointTypeParameterId)
  );
  
  CREATE TABLE IF NOT EXISTS DataPointParameterDocument (
 	DataPointId               INT        NOT NULL,
     DataPointTypeParameterId  INT        NOT NULL,
-    Value                     LONGTEXT   NOT NULL,
+    Value                     LONGTEXT,
     PRIMARY KEY (DataPointId, DataPointTypeParameterId)
  );
  
   CREATE TABLE IF NOT EXISTS DataPointParameterDataPoint (
 	DataPointId               INT NOT NULL,
     DataPointTypeParameterId  INT NOT NULL,
-    Value                     INT NOT NULL,
+    Value                     INT,
     PRIMARY KEY (DataPointId, DataPointTypeParameterId),
     FOREIGN KEY (Value) REFERENCES DataPoints (Id)
  );
@@ -82,7 +84,7 @@
  CREATE TABLE IF NOT EXISTS DataPointParameterBoolean (
 	DataPointId               INT NOT NULL,
     DataPointTypeParameterId  INT NOT NULL,
-    Value                     BIT NOT NULL,
+    Value                     BIT,
     PRIMARY KEY (DataPointId, DataPointTypeParameterId)
  );
 
@@ -162,6 +164,14 @@ CREATE TABLE IF NOT EXISTS Locations (
 	FOREIGN KEY (LocationTypeId) REFERENCES LocationTypes (Id),
     FOREIGN KEY (ParentId) REFERENCES Locations (Id),
     FOREIGN KEY (LayerId) REFERENCES MapLayers (Id)
+);
+
+CREATE TABLE IF NOT EXISTS DataPointLocations (
+	LocationId      INT   NOT NULL,
+    DataPointId     INT   NOT NULL,
+    PRIMARY KEY (LocationId, DataPointId),
+    FOREIGN KEY (LocationId) REFERENCES Locations (Id),
+    FOREIGN KEY (DataPointId) REFERENCES DataPoints (Id)
 );
 
 CREATE TABLE IF NOT EXISTS Themes (

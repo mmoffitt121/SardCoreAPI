@@ -12,7 +12,7 @@ namespace SardCoreAPI.DataAccess.DataPoints
     {
         public async Task<List<DataPointTypeParameter>> GetDataPointTypeParameters(int Id, WorldInfo info)
         {
-            string sql = @"SELECT Id, Name, Summary, DataPointTypeId, TypeValue, Sequence 
+            string sql = @"SELECT Id, Name, Summary, DataPointTypeId, TypeValue, Sequence, DataPointTypeReferenceId
                     FROM DataPointTypeParameter
                     /**where**/
                     ORDER BY Sequence";
@@ -27,8 +27,10 @@ namespace SardCoreAPI.DataAccess.DataPoints
 
         public async Task<int> PostDataPointTypeParameter(DataPointTypeParameter data, WorldInfo info)
         {
-            string sql = @"INSERT INTO DataPointTypeParameter (Name, Summary, DataPointTypeId, TypeValue, Sequence)
-                    VALUES (@Name, @Summary, @DataPointTypeId, @TypeValue, @Sequence)";
+            if (data.DataPointTypeReferenceId == -1) data.DataPointTypeReferenceId = null;
+
+            string sql = @"INSERT INTO DataPointTypeParameter (Name, Summary, DataPointTypeId, TypeValue, Sequence, DataPointTypeReferenceId)
+                    VALUES (@Name, @Summary, @DataPointTypeId, @TypeValue, @Sequence, @DataPointTypeReferenceId)";
 
             SqlBuilder builder = new SqlBuilder();
             var template = builder.AddTemplate(sql);
@@ -40,13 +42,16 @@ namespace SardCoreAPI.DataAccess.DataPoints
 
         public async Task<int> PutDataPointTypeParameter(DataPointTypeParameter data, WorldInfo info)
         {
+            if (data.DataPointTypeReferenceId == -1) data.DataPointTypeReferenceId = null;
+
             string sql = @"UPDATE DataPointTypeParameter
                 SET
                     Name = @Name,
                     Summary = @Summary,
                     DataPointTypeId = @DataPointTypeId,
                     Typevalue = @TypeValue,
-                    Sequence = @Sequence
+                    Sequence = @Sequence,
+                    DataPointTypeReferenceId = @DataPointTypeReferenceId
                 WHERE Id = @Id";
 
             return await Execute(sql, data, info);

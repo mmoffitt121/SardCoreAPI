@@ -23,7 +23,7 @@ namespace SardCoreAPI.Controllers.DataPoints
             _logger = logger;
         }
 
-        [HttpGet(Name = "GetDataPointTypes")]
+        [HttpGet]
         public async Task<IActionResult> GetDataPointTypes([FromQuery] PagedSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
@@ -36,7 +36,17 @@ namespace SardCoreAPI.Controllers.DataPoints
             return new BadRequestResult();
         }
 
-        [HttpGet(Name = "GetDataPointType")]
+        [HttpGet]
+        public async Task<IActionResult> GetDataPointTypesCount([FromQuery] PagedSearchCriteria criteria)
+        {
+            if (criteria == null) { return new BadRequestResult(); }
+
+            int result = await new DataPointTypeDataAccess().GetDataPointTypesCount(criteria, WorldInfo);
+            return new OkObjectResult(result);
+
+        }
+
+        [HttpGet]
         public async Task<IActionResult> GetDataPointType([FromQuery] int? Id)
         {
             if (Id == null) { return new BadRequestResult(); }
@@ -54,7 +64,7 @@ namespace SardCoreAPI.Controllers.DataPoints
         }
 
         [Authorize(Roles = "Administrator,Editor")]
-        [HttpPost(Name = "PostDataPointType")]
+        [HttpPost]
         public async Task<IActionResult> PostDataPointType([FromBody] DataPointType data)
         {
             if (data == null) { return new BadRequestResult(); }
@@ -70,7 +80,7 @@ namespace SardCoreAPI.Controllers.DataPoints
         }
 
         [Authorize(Roles = "Administrator,Editor")]
-        [HttpPut(Name = "PutDataPointType")]
+        [HttpPut]
         public async Task<IActionResult> PutDataPointType([FromBody] DataPointType data)
         {
             int result = await new DataPointTypeDataAccess().PutDataPointType(data, WorldInfo);
@@ -118,7 +128,7 @@ namespace SardCoreAPI.Controllers.DataPoints
         }
 
         [Authorize(Roles = "Administrator,Editor")]
-        [HttpDelete(Name = "DeleteDataPointType")]
+        [HttpDelete]
         public async Task<IActionResult> DeleteDataPointType([FromQuery] int? Id)
         {
             if (Id == null) { return new BadRequestResult(); }

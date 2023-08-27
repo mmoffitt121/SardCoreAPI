@@ -33,6 +33,19 @@ namespace SardCoreAPI.Controllers.DataPoints
             return new BadRequestResult();
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetDataPointsCount([FromQuery] DataPointSearchCriteria criteria)
+        {
+            if (criteria == null) { return new BadRequestResult(); }
+
+            int result = await new DataPointDataAccess().GetDataPointsCount(criteria, WorldInfo);
+            if (result != null)
+            {
+                return new OkObjectResult(result);
+            }
+            return new BadRequestResult();
+        }
+
         [HttpGet(Name = "GetDataPoint")]
         public async Task<IActionResult> GetDataPoint([FromQuery] int? Id)
         {
@@ -135,7 +148,7 @@ namespace SardCoreAPI.Controllers.DataPoints
             {
                 param.DataPointId = id;
                 string? typeValue = type.TypeParameters.Where(p => p.Id == param.DataPointTypeParameterId).FirstOrDefault()?.TypeValue;
-                if (typeValue != null)
+                if (typeValue != null && param.GetType() != typeof(DataPointParameter))
                 {
                     param.DataPointId = (int)id;
                     tasks.Add(parameterDataAccess.PutParameter(param, typeValue, WorldInfo));

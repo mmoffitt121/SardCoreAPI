@@ -8,5 +8,6 @@
         public int DataPointTypeId { get; set; }
         public string TypeValue { get; set; }
         public int Sequence { get; set; }
+        public int? DataPointTypeReferenceId { get; set; }
     }
 }

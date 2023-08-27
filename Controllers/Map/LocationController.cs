@@ -41,7 +41,6 @@ namespace SardCoreAPI.Controllers.Map
             return new NotFoundResult();
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpGet]
         public async Task<IActionResult> GetLocationHeiarchy(int id, int depth)
         {

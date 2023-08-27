@@ -37,7 +37,25 @@ namespace SardCoreAPI.DataAccess.DataPoints
             return await Query<DataPointType>(template.RawSql, criteria, info);
         }
 
-        
+        public async Task<int> GetDataPointTypesCount(PagedSearchCriteria criteria, WorldInfo info)
+        {
+            string sql = $@"SELECT Count(*)
+                FROM DataPointTypes
+                /**where**/
+            ";
+
+            SqlBuilder builder = new SqlBuilder();
+            var template = builder.AddTemplate(sql);
+
+            if (!string.IsNullOrEmpty(criteria.Query)) { builder.Where("Name LIKE CONCAT('%', IFNULL(@Query, ''), '%')"); }
+            if (criteria.Id != null) { builder.Where("Id = @Id"); }
+
+            builder.OrderBy("Name");
+
+            return await QueryFirst<int>(template.RawSql, criteria, info);
+        }
+
+
         public async Task<int> PostDataPointType(DataPointType data, WorldInfo info)
         {
             string sql = @"INSERT INTO DataPointTypes (Name, Summary) 
