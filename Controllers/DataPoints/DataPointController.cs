@@ -107,7 +107,7 @@ namespace SardCoreAPI.Controllers.DataPoints
             return new OkObjectResult(result);
         }
 
-        //[Authorize(Roles = "Administrator,Editor")]
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpPut(Name = "PutDataPoint")]
         public async Task<IActionResult> PutDataPoint([FromBody] DataPoint data)
         {

@@ -166,6 +166,16 @@ CREATE TABLE IF NOT EXISTS Locations (
     FOREIGN KEY (LayerId) REFERENCES MapLayers (Id)
 );
 
+CREATE TABLE IF NOT EXISTS Regions (
+    Id                INT            NOT NULL AUTO_INCREMENT,
+    LocationId        INT            NOT NULL,
+    Name              VARCHAR(1000)  NOT NULL,
+    Shape             LONGTEXT       NOT NULL,
+    ShowByDefault     BIT            NOT NULL,
+    PRIMARY KEY (Id),
+    FOREIGN KEY (LocationId) REFERENCES Locations (Id)
+);
+
 CREATE TABLE IF NOT EXISTS DataPointLocations (
 	LocationId      INT   NOT NULL,
     DataPointId     INT   NOT NULL,
