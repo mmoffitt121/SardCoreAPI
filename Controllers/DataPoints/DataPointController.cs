@@ -6,6 +6,7 @@ using SardCoreAPI.Models.DataPoints.DataPointParameters;
 using SardCoreAPI.Models.DataPoints;
 using Microsoft.AspNetCore.Authorization;
 using System.Diagnostics;
+using SardCoreAPI.Models.Hub.Worlds;
 
 namespace SardCoreAPI.Controllers.DataPoints
 {
@@ -44,6 +45,20 @@ namespace SardCoreAPI.Controllers.DataPoints
                 return new OkObjectResult(result);
             }
             return new BadRequestResult();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetDataPointsReferencingDataPoint(int? id)
+        {
+            if (id == null) { return new BadRequestResult(); }
+
+            List<DataPoint> result = await new DataPointDataAccess().GetDataPointsReferencingDataPoint((int)id, WorldInfo);
+            if (result != null)
+            {
+                return new OkObjectResult(result);
+            }
+            return new BadRequestResult();
+
         }
 
         [HttpGet(Name = "GetDataPoint")]

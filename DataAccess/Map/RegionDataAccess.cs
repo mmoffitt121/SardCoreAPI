@@ -34,8 +34,8 @@ namespace SardCoreAPI.DataAccess.Map
 
         public async Task<int> PostRegion(Region region, WorldInfo info)
         {
-            string sql = @"INSERT INTO Regions (LocationId, Name, Shape, ShowByDefault) 
-                    VALUES (@LocationId, @Name, @Shape, @ShowByDefault);
+            string sql = @"INSERT INTO Regions (LocationId, Name, Shape, ShowByDefault, Color) 
+                    VALUES (@LocationId, @Name, @Shape, @ShowByDefault, @Color);
 
                 SELECT LAST_INSERT_ID();
             ";
@@ -49,7 +49,8 @@ namespace SardCoreAPI.DataAccess.Map
                     LocationId = @LocationId,
                     Name = @Name,
                     Shape = @Shape,
-                    ShowByDefault = @ShowByDefault
+                    ShowByDefault = @ShowByDefault,
+                    Color = @Color
                 WHERE Id = @Id;
             ";
 

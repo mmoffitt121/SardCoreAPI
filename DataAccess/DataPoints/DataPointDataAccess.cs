@@ -50,6 +50,22 @@ namespace SardCoreAPI.DataAccess.DataPoints
             return await QueryFirst<int>(template.RawSql, criteria, info);
         }
 
+        public async Task<List<DataPoint>> GetDataPointsReferencingDataPoint(int id, WorldInfo info)
+        {
+            string sql = $@"SELECT *
+                FROM DataPointParameterDataPoint dppdp
+                    LEFT JOIN DataPoints dp ON dp.Id = dppdp.DataPointId
+                WHERE Value = @Id
+                ORDER BY Name
+            ";
+
+            SqlBuilder builder = new SqlBuilder();
+            var template = builder.AddTemplate(sql);
+
+            return await Query<DataPoint>(template.RawSql, new { id }, info);
+
+        }
+
         /// <summary>
         /// 
         /// </summary>

@@ -172,6 +172,7 @@ CREATE TABLE IF NOT EXISTS Regions (
     Name              VARCHAR(1000)  NOT NULL,
     Shape             LONGTEXT       NOT NULL,
     ShowByDefault     BIT            NOT NULL,
+    Color             VARCHAR(100)   NOT NULL,
     PRIMARY KEY (Id),
     FOREIGN KEY (LocationId) REFERENCES Locations (Id)
 );

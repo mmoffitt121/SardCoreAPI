@@ -7,5 +7,6 @@
         public string Name { get; set; }
         public string Shape { get; set; }
         public bool ShowByDefault { get; set; }
+        public string Color { get; set; }
     }
 }
