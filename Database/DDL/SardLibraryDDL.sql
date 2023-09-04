@@ -212,3 +212,10 @@ CREATE TABLE IF NOT EXISTS Themes (
 	DataPointValueFontSize			VARCHAR(30),
     PRIMARY KEY (Id)
 );
+
+CREATE TABLE IF NOT EXISTS Featured (
+	Id                INT NOT NULL,
+    DataPointId       INT,
+    PRIMARY KEY (Id),
+    FOREIGN KEY (DataPointId) REFERENCES DataPoints (Id)
+);

@@ -10,7 +10,6 @@ namespace SardCoreAPI.Controllers
         public string WorldLocation { 
             get
             {
-                return "testt";
                 StringValues loc;
                 if (Request.Headers.TryGetValue("WorldLocation", out loc))
                 {

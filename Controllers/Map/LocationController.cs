@@ -30,6 +30,18 @@ namespace SardCoreAPI.Controllers.Map
             return new BadRequestResult();
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetLocationsCount([FromQuery] LocationSearchCriteria criteria)
+        {
+            if (criteria == null) { return new BadRequestResult(); }
+
+            criteria.PageNumber = null;
+            criteria.PageSize = null;
+
+            int result = (await new LocationDataAccess().GetLocations(criteria, WorldInfo)).Count();
+            return new OkObjectResult(result);
+        }
+
         [HttpGet(Name = "GetLocation")]
         public async Task<ActionResult> GetLocation([FromQuery] int? Id)
         {

@@ -11,7 +11,13 @@ namespace SardCoreAPI.DataAccess.Map
     { 
         public async Task<List<Location>> GetLocations(LocationSearchCriteria criteria, WorldInfo info)
         {
-            string sql = @"
+            string pageSettings = "";
+            if (criteria.PageNumber != null && criteria.PageSize != null)
+            {
+                pageSettings = $"LIMIT {criteria.PageSize} OFFSET {(criteria.PageNumber) * criteria.PageSize}";
+            }
+
+            string sql = $@"
                 SELECT 
                     l.Id, l.Name, LocationTypeId, LayerId, Longitude, Latitude, ParentId, 
                     IFNULL(l.ZoomProminenceMin, lt.ZoomProminenceMin) AS ZoomProminenceMin,
@@ -24,12 +30,13 @@ namespace SardCoreAPI.DataAccess.Map
                     LEFT JOIN LocationTypes lt on lt.Id = l.LocationTypeId
                 /**where**/
                 /**orderby**/
+                {pageSettings}
             ";
 
             SqlBuilder builder = new SqlBuilder();
             var template = builder.AddTemplate(sql);
 
-            if (!string.IsNullOrEmpty(criteria.Query)) { builder.Where("Name LIKE CONCAT('%', IFNULL(@Query, ''), '%')"); }
+            if (!string.IsNullOrEmpty(criteria.Query)) { builder.Where("l.Name LIKE CONCAT('%', IFNULL(@Query, ''), '%')"); }
             if (criteria.Id != null && criteria.Id > 0) { builder.Where("l.Id = @Id"); }
             if (criteria.MapLayerIds != null) { builder.Where("LayerId in @MapLayerIds"); }
             if (criteria.LocationTypeIds != null && criteria.LocationTypeIds.Count() > 0) { builder.Where("LocationTypeId in @LocationTypeIds"); }
