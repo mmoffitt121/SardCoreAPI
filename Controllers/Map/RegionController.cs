@@ -29,7 +29,7 @@ namespace SardCoreAPI.Controllers.Map
             return new BadRequestResult();
         }
 
-        //[Authorize(Roles = "Administrator,Editor")]
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost]
         public async Task<IActionResult> PostRegion([FromBody] Region data)
         {
