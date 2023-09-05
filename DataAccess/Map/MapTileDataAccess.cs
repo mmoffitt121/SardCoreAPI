@@ -86,7 +86,7 @@ namespace SardCoreAPI.DataAccess.Map
 
             foreach (MapTile tile in tiles)
             {
-                tasks.Add(fh.SaveImage(ImagePath(info), tile.FileName, tile.Tile));
+                tasks.Add(fh.SaveImage(ImagePath(info) + "/" + tile.FileLocation, "/" + tile.TruncatedFileName, tile.Tile));
             }
 
             await Task.WhenAll(tasks);

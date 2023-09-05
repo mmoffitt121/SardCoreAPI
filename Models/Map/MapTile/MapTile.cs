@@ -27,8 +27,25 @@
         {
             get
             {
-                return LayerId + "." + Z + "." + X + "." + Y + ".png";
+                 return FileLocation + "/" + X + "." + Y + ".png";
             }
+        }
+
+        public string TruncatedFileName
+        {
+            get
+            {
+                return X + "." + Y + ".png";
+            }
+        }
+
+        public string FileLocation
+        {
+            get
+            {
+                return LayerId + "/" + Z;
+            }
+            
         }
 
         public MapTile(int Z, int X, int Y, int layerId, byte[] Tile)
