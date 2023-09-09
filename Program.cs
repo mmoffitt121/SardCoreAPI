@@ -15,6 +15,7 @@ using SardCoreAPI.Models.Security.Users;
 using Microsoft.AspNetCore.Identity;
 using SardCoreAPI.Data;
 using SardCoreAPI.Areas.Identity.Data;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("SardCoreAPIContextConnection") ?? throw new InvalidOperationException("Connection string 'SardCoreAPIContextConnection' not found.");
@@ -96,6 +97,11 @@ app.UseCors(builder =>
            .AllowAnyHeader()
            .AllowAnyMethod()
            .AllowCredentials());
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 app.Use(async (context, next) =>
 {

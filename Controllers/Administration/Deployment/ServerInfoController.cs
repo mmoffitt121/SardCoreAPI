@@ -8,7 +8,6 @@ namespace SardCoreAPI.Controllers.Administration.Deployment
     [Route("Library/[controller]/[action]")]
     public class ServerInfoController : GenericController
     {
-        [Authorize(Roles = "Administrator")]
         [HttpGet]
         public async Task<IActionResult> GetServerVersion()
         {
