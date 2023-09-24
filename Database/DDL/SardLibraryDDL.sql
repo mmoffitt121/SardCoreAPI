@@ -219,3 +219,4 @@ CREATE TABLE IF NOT EXISTS Featured (
     PRIMARY KEY (Id),
     FOREIGN KEY (DataPointId) REFERENCES DataPoints (Id)
 );
+
