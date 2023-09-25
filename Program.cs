@@ -112,9 +112,9 @@ app.Use(async (context, next) =>
     await next.Invoke();
 });
 
-app.MapGet("/", () => "Hello ForwardedHeadersOptions!");
+app.MapGet("/", () => "Hello Test!");
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseRouting();
 
