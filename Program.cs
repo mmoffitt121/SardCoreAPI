@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Identity;
 using SardCoreAPI.Data;
 using SardCoreAPI.Areas.Identity.Data;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("SardCoreAPIContextConnection") ?? throw new InvalidOperationException("Connection string 'SardCoreAPIContextConnection' not found.");
@@ -125,7 +126,6 @@ app.UseEndpoints(endpoints =>
 {
     endpoints.MapHub<ProgressManager>("/Progress");
 });
-
 app.MapControllers();
 
 app.Run();

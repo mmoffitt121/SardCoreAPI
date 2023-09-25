@@ -17,5 +17,14 @@ namespace SardCoreAPI.DataAccess.Administration.Database
                     GROUP BY table_schema;";
             return await Query<DatabaseInfo>(sql, null, "", true);
         }
+
+        public async Task UpdateDatabase()
+        {
+            string createDBSQL = "CREATE DATABASE IF NOT EXISTS libraries_of; ";
+            await ExecuteBase(createDBSQL, new { });
+            string tableSQL = File.ReadAllText("./Database/DDL/SardCoreDDL.sql");
+            await Execute(tableSQL, data, data.Location, false);
+            return data;
+        }
     }
 }
