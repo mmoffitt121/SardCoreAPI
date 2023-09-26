@@ -114,10 +114,6 @@ app.Use(async (context, next) =>
     await next.Invoke();
 });
 
-app.MapGet("/", () => "Hello Test!");
-
-//app.UseHttpsRedirection();
-
 app.UseRouting();
 
 app.UseAuthentication();

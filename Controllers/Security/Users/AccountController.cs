@@ -122,5 +122,22 @@ namespace SardCoreAPI.Controllers.Security.Users
             
             return Ok();
         }
+
+        [HttpPost]
+        [Authorize(Roles = "Editor,Administrator")]
+        public async Task<IActionResult> ChangePassword(PasswordChangeRequest req)
+        {
+            SardCoreAPIUser user = await _userManager.FindByNameAsync(req.UserName);
+            try
+            {
+                await _userManager.ChangePasswordAsync(user, req.OldPassword, req.NewPassword);
+            }
+            catch
+            {
+                return BadRequest("You cannot change your password at the current time.");
+            }
+
+            return Ok();
+        }
     }
 }
