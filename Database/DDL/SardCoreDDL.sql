@@ -80,8 +80,6 @@ CREATE TABLE IF NOT EXISTS `AspNetUserTokens` (
 ) CHARACTER SET=utf8mb4;
 
 DROP PROCEDURE IF EXISTS ADDINDICES;
-
-
 CREATE PROCEDURE ADDINDICES ()
 BEGIN
 	IF ((SELECT 1        
@@ -106,6 +104,17 @@ CALL ADDINDICES();
 REPLACE INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
 VALUES ('20230729163126_init', '7.0.8');
 
+CREATE TABLE IF NOT EXISTS Worlds (
+	Id               INT                  NOT NULL AUTO_INCREMENT,
+	OwnerId          VARCHAR (255)        NOT NULL,
+	Location         VARCHAR (100)        NOT NULL UNIQUE,
+	Name             VARCHAR (255)        NOT NULL UNIQUE,
+	Summary          VARCHAR (3000),
+	CreatedDate      DATETIME,
+	PRIMARY KEY (Id),
+	FOREIGN KEY (OwnerId) REFERENCES aspnetusers (Id)
+);
+
 COMMIT;
 
 START TRANSACTION;
@@ -120,14 +129,5 @@ VALUES ('20230730004408_init-with-roles', '7.0.8');
 
 COMMIT;
 
-CREATE TABLE IF NOT EXISTS Worlds (
-	Id               INT                  NOT NULL AUTO_INCREMENT,
-	OwnerId          VARCHAR (255)        NOT NULL,
-	Location         VARCHAR (100)        NOT NULL UNIQUE,
-	Name             VARCHAR (255)        NOT NULL UNIQUE,
-	Summary          VARCHAR (3000),
-	CreatedDate      DATETIME,
-	PRIMARY KEY (Id),
-	FOREIGN KEY (OwnerId) REFERENCES aspnetusers (Id)
-);
+
 
