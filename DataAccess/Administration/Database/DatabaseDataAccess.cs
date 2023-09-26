@@ -1,4 +1,7 @@
-﻿using SardCoreAPI.Models.Administration.Database;
+﻿using Microsoft.AspNetCore.Identity;
+using SardCoreAPI.Areas.Identity.Data;
+using SardCoreAPI.Controllers.Security.Users;
+using SardCoreAPI.Models.Administration.Database;
 
 namespace SardCoreAPI.DataAccess.Administration.Database
 {
@@ -23,8 +26,7 @@ namespace SardCoreAPI.DataAccess.Administration.Database
             string createDBSQL = "CREATE DATABASE IF NOT EXISTS libraries_of; ";
             await ExecuteBase(createDBSQL, new { });
             string tableSQL = File.ReadAllText("./Database/DDL/SardCoreDDL.sql");
-            await Execute(tableSQL, data, data.Location, false);
-            return data;
+            await Execute(tableSQL, null, "", true);
         }
     }
 }

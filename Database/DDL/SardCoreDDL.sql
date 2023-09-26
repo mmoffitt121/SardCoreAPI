@@ -81,7 +81,6 @@ CREATE TABLE IF NOT EXISTS `AspNetUserTokens` (
 
 DROP PROCEDURE IF EXISTS ADDINDICES;
 
-DELIMITER //
 
 CREATE PROCEDURE ADDINDICES ()
 BEGIN
@@ -98,9 +97,8 @@ BEGIN
 		CREATE INDEX `EmailIndex` ON `AspNetUsers` (`NormalizedEmail`);
 		CREATE UNIQUE INDEX `UserNameIndex` ON `AspNetUsers` (`NormalizedUserName`);
 	END IF;
-END //
+END;
 
-/*DELIMITER ;*/
 
 CALL ADDINDICES();
 

@@ -17,6 +17,7 @@ using SardCoreAPI.Data;
 using SardCoreAPI.Areas.Identity.Data;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Hosting;
+using SardCoreAPI.DataAccess.Administration.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("SardCoreAPIContextConnection") ?? throw new InvalidOperationException("Connection string 'SardCoreAPIContextConnection' not found.");
@@ -127,5 +128,7 @@ app.UseEndpoints(endpoints =>
     endpoints.MapHub<ProgressManager>("/Progress");
 });
 app.MapControllers();
+
+await new DatabaseDataAccess().UpdateDatabase();
 
 app.Run();
