@@ -56,6 +56,10 @@ builder.Services.AddCors(options =>
     {
         options.AddPolicy("AllowOrigin",
             builder => builder.WithOrigins("http://localhost:4200"));
+        options.AddPolicy("AllowOrigin",
+            builder => builder.WithOrigins("http://localhost:8080"));
+        options.AddPolicy("AllowOrigin",
+            builder => builder.WithOrigins("https://libratlas.net"));
     });
 builder.Services.AddCors(options => { options.AddDefaultPolicy(policy => { policy.WithOrigins("https://imgur.com/", "*"); }); } );
 
