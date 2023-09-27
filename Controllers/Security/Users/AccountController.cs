@@ -130,7 +130,11 @@ namespace SardCoreAPI.Controllers.Security.Users
             SardCoreAPIUser user = await _userManager.FindByNameAsync(req.UserName);
             try
             {
-                await _userManager.ChangePasswordAsync(user, req.OldPassword, req.NewPassword);
+                var passwordResult = await _userManager.ChangePasswordAsync(user, req.OldPassword, req.NewPassword);
+                if (!passwordResult.Succeeded)
+                {
+                    return BadRequest(passwordResult.Errors.Select(e => e.Description));
+                }
             }
             catch
             {
