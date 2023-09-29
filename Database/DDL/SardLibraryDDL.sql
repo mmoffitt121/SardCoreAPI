@@ -220,3 +220,30 @@ CREATE TABLE IF NOT EXISTS Featured (
     FOREIGN KEY (DataPointId) REFERENCES DataPoints (Id)
 );
 
+SET @preparedStatement = (SELECT IF(
+  (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE
+      (table_name = 'Locations')
+      AND (table_schema = @Location)
+      AND (column_name = 'IconSize')
+  ) > 0,
+  "SELECT 1",
+  "ALTER TABLE Locations ADD IconSize INT;"
+));
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+
+SET @preparedStatement = (SELECT IF(
+  (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE
+      (table_name = 'LocationTypes')
+      AND (table_schema = @Location)
+      AND (column_name = 'IconSize')
+  ) > 0,
+  "SELECT 1",
+  "ALTER TABLE LocationTypes ADD IconSize INT;"
+));
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;

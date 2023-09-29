@@ -16,6 +16,8 @@ using Microsoft.AspNetCore.Identity;
 using SardCoreAPI.Data;
 using SardCoreAPI.Areas.Identity.Data;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.Hosting;
+using SardCoreAPI.DataAccess.Administration.Database;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("SardCoreAPIContextConnection") ?? throw new InvalidOperationException("Connection string 'SardCoreAPIContextConnection' not found.");
@@ -54,6 +56,10 @@ builder.Services.AddCors(options =>
     {
         options.AddPolicy("AllowOrigin",
             builder => builder.WithOrigins("http://localhost:4200"));
+        options.AddPolicy("AllowOrigin",
+            builder => builder.WithOrigins("http://localhost:8080"));
+        options.AddPolicy("AllowOrigin",
+            builder => builder.WithOrigins("https://libratlas.net"));
     });
 builder.Services.AddCors(options => { options.AddDefaultPolicy(policy => { policy.WithOrigins("https://imgur.com/", "*"); }); } );
 
@@ -112,10 +118,6 @@ app.Use(async (context, next) =>
     await next.Invoke();
 });
 
-app.MapGet("/", () => "Hello ForwardedHeadersOptions!");
-
-app.UseHttpsRedirection();
-
 app.UseRouting();
 
 app.UseAuthentication();
@@ -125,7 +127,9 @@ app.UseEndpoints(endpoints =>
 {
     endpoints.MapHub<ProgressManager>("/Progress");
 });
-
 app.MapControllers();
+
+await new DatabaseDataAccess().UpdateDatabase();
+await new DatabaseDataAccess().UpdateWorldDatabases();
 
 app.Run();

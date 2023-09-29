@@ -25,7 +25,9 @@ namespace SardCoreAPI.DataAccess.Map
                     IFNULL(l.IconURL, lt.IconURL) as IconURL, 
                     lt.UsesIcon, lt.UsesLabel,
                     IFNULL(l.LabelFontSize, lt.LabelFontSize) as LabelFontSize,
-                    IFNULL(l.LabelFontColor, lt.LabelFontColor) as LabelFontColor
+                    IFNULL(l.LabelFontColor, lt.LabelFontColor) as LabelFontColor,
+                    IFNULL(l.IconSize, lt.IconSize) as IconSize,
+                    lt.Name as LocationTypeName
                 FROM Locations l
                     LEFT JOIN LocationTypes lt on lt.Id = l.LocationTypeId
                 /**where**/
@@ -57,7 +59,7 @@ namespace SardCoreAPI.DataAccess.Map
         {
             if (Id == null) return null;
 
-            string sql = @"SELECT l.Id, l.Name, l.LocationTypeId, l.LayerId, l.Longitude, l.Latitude, l.ParentId, l.ZoomProminenceMin, l.ZoomProminenceMax, l.IconURL, l.LabelFontSize, l.LabelFontColor, lt.Name as LocationTypeName
+            string sql = @"SELECT l.Id, l.Name, l.LocationTypeId, l.LayerId, l.Longitude, l.Latitude, l.ParentId, l.ZoomProminenceMin, l.ZoomProminenceMax, l.IconURL, l.LabelFontSize, l.LabelFontColor, l.IconSize, lt.Name as LocationTypeName
                 FROM Locations l
                     LEFT JOIN LocationTypes lt on l.LocationTypeId = lt.Id
                 /**where**/";
@@ -72,8 +74,8 @@ namespace SardCoreAPI.DataAccess.Map
 
         public async Task<bool> PostLocation(Location location, WorldInfo info)
         {
-            string sql = @"INSERT INTO Locations (Name, LocationTypeId, LayerId, Longitude, Latitude, ParentId, ZoomProminenceMin, ZoomProminenceMax, IconURL, LabelFontSize, LabelFontColor) 
-                VALUES (@Name, @LocationTypeId, @LayerId, @Longitude, @Latitude, @ParentId, @ZoomProminenceMin, @ZoomProminenceMax, @IconURL, @LabelFontSize, @LabelFontColor)"
+            string sql = @"INSERT INTO Locations (Name, LocationTypeId, LayerId, Longitude, Latitude, ParentId, ZoomProminenceMin, ZoomProminenceMax, IconURL, LabelFontSize, LabelFontColor, IconSize) 
+                VALUES (@Name, @LocationTypeId, @LayerId, @Longitude, @Latitude, @ParentId, @ZoomProminenceMin, @ZoomProminenceMax, @IconURL, @LabelFontSize, @LabelFontColor, @IconSize)"
             ;
 
             return await Execute(sql, location, info) > 0;
@@ -92,7 +94,8 @@ namespace SardCoreAPI.DataAccess.Map
                     ZoomProminenceMax = @ZoomProminenceMax,
                     IconURL = IFNULL(@IconURL, IconURL),
                     LabelFontSize = @LabelFontSize,
-                    LabelFontColor = @LabelFontColor
+                    LabelFontColor = @LabelFontColor,
+                    IconSize = @IconSize
                 WHERE Id = @Id";
 
             return await Execute(sql, location, info);
