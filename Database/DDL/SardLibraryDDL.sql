@@ -224,12 +224,12 @@ SET @preparedStatement = (SELECT IF(
   (
     SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
     WHERE
-      (table_name = 'locations')
+      (table_name = 'Locations')
       AND (table_schema = @Location)
       AND (column_name = 'IconSize')
   ) > 0,
   "SELECT 1",
-  "ALTER TABLE locations ADD IconSize INT;"
+  "ALTER TABLE Locations ADD IconSize INT;"
 ));
 PREPARE alterIfNotExists FROM @preparedStatement;
 EXECUTE alterIfNotExists;
