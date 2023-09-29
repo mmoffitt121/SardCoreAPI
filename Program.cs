@@ -130,5 +130,6 @@ app.UseEndpoints(endpoints =>
 app.MapControllers();
 
 await new DatabaseDataAccess().UpdateDatabase();
+await new DatabaseDataAccess().UpdateWorldDatabases();
 
 app.Run();

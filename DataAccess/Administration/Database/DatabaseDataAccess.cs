@@ -2,6 +2,7 @@
 using SardCoreAPI.Areas.Identity.Data;
 using SardCoreAPI.Controllers.Security.Users;
 using SardCoreAPI.Models.Administration.Database;
+using SardCoreAPI.Models.Hub.Worlds;
 
 namespace SardCoreAPI.DataAccess.Administration.Database
 {
@@ -27,6 +28,18 @@ namespace SardCoreAPI.DataAccess.Administration.Database
             await ExecuteBase(createDBSQL, new { });
             string tableSQL = File.ReadAllText("./Database/DDL/SardCoreDDL.sql");
             await Execute(tableSQL, null, "", true);
+        }
+
+        public async Task UpdateWorldDatabases()
+        {
+            string worldSql = "SELECT * FROM Worlds";
+            List<World> worlds = await Query<World>(worldSql, null, "", true);
+
+            string tableSQL = File.ReadAllText("./Database/DDL/SardLibraryDDL.sql");
+            foreach (World world in worlds)
+            {
+                await Execute(tableSQL, world, world.Location, false);
+            }
         }
     }
 }

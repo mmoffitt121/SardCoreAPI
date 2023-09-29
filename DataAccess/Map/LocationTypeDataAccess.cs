@@ -17,8 +17,8 @@ namespace SardCoreAPI.DataAccess.Map
                 pageSettings = $"LIMIT {criteria.PageSize} OFFSET {criteria.PageNumber * criteria.PageSize}";
             }
 
-            string sql = $@"SELECT Id, Name, Summary, ParentTypeId, AnyTypeParent, IconPath, ZoomProminenceMin, ZoomProminenceMax, 
-                    UsesIcon, UsesLabel, IconURL, LabelFontSize, LabelFontColor FROM LocationTypes 
+            string sql = $@"SELECT Id, Name, Summary, ParentTypeId, AnyTypeParent, IconPath, ZoomProminenceMin, ZoomProminenceMax,
+                    UsesIcon, UsesLabel, IconURL, LabelFontSize, LabelFontColor, IconSize FROM LocationTypes 
                 /**where**/
                 ORDER BY
                     CASE WHEN Name LIKE CONCAT(@Query, '%') THEN 0 ELSE 1 END,
@@ -49,7 +49,8 @@ namespace SardCoreAPI.DataAccess.Map
                     UsesLabel,
                     IconURL,
                     LabelFontSize,
-                    LabelFontColor
+                    LabelFontColor,
+                    IconSize
                 ) 
                 VALUES (
                     @Name,
@@ -62,7 +63,8 @@ namespace SardCoreAPI.DataAccess.Map
                     @UsesLabel,
                     @IconURL,
                     @LabelFontSize,
-                    @LabelFontColor
+                    @LabelFontColor,
+                    @IconSize
                 );
             
                 SELECT LAST_INSERT_ID();";
@@ -85,7 +87,8 @@ namespace SardCoreAPI.DataAccess.Map
                     UsesLabel = @UsesLabel,
                     IconURL = IFNULL(@IconURL, IconURL),
                     LabelFontSize = @LabelFontSize,
-                    LabelFontColor = @LabelFontColor
+                    LabelFontColor = @LabelFontColor,
+                    IconSize = @IconSize
                 WHERE Id = @Id";
 
             return await Execute(sql, data, info);
