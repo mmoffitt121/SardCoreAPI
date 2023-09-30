@@ -247,3 +247,22 @@ SET @preparedStatement = (SELECT IF(
 ));
 PREPARE alterIfNotExists FROM @preparedStatement;
 EXECUTE alterIfNotExists;
+
+CREATE TABLE IF NOT EXISTS Measurables (
+	Id                         INT            NOT NULL AUTO_INCREMENT,
+    Name                       VARCHAR(1000)  NOT NULL,
+    Summary                    VARCHAR(3000),
+    UnitType                   INT            NOT NULL,
+    PRIMARY KEY (Id)
+);
+
+CREATE TABLE IF NOT EXISTS Units (
+	Id                         INT            NOT NULL AUTO_INCREMENT,
+    Name                       VARCHAR(1000)  NOT NULL,
+    Summary                    VARCHAR(3000),
+    ParentId                   INT,
+	AmountPerParent            DOUBLE,
+    MeasurableId               INT            NOT NULL,
+    PRIMARY KEY (Id),
+    FOREIGN KEY (MeasurableId) REFERENCES Measurables (Id)
+);
