@@ -11,7 +11,7 @@ namespace SardCoreAPI.Controllers.Units
     public class UnitController : GenericController
     {
         [HttpGet]
-        public async Task<IActionResult> GetTables([FromQuery] PagedSearchCriteria criteria)
+        public async Task<IActionResult> GetTables([FromQuery] UnitSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
 
@@ -24,7 +24,7 @@ namespace SardCoreAPI.Controllers.Units
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] PagedSearchCriteria criteria)
+        public async Task<IActionResult> Get([FromQuery] UnitSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
 
@@ -51,6 +51,15 @@ namespace SardCoreAPI.Controllers.Units
 
             return new BadRequestResult();
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Convert([FromBody] UnitConversionRequest request)
+        {
+            if (request == null) { return new BadRequestResult(); }
+
+            return Ok(await new UnitDataAccess().Convert(request, WorldInfo));
+        }
+
 
         [Authorize(Roles = "Administrator,Editor")]
         [HttpPut]

@@ -2,12 +2,13 @@
 using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.Hub.Worlds;
 using SardCoreAPI.Models.Units;
+using SardCoreAPI.Utility.Units;
 
 namespace SardCoreAPI.DataAccess.Units
 {
     public class UnitDataAccess : GenericDataAccess
     {
-        public async Task<List<UnitTable>> GetUnitTables(PagedSearchCriteria criteria, WorldInfo info)
+        public async Task<List<UnitTable>> GetUnitTables(UnitSearchCriteria criteria, WorldInfo info)
         {
             string pageSettings = "";
             if (criteria.PageNumber != null && criteria.PageSize != null)
@@ -16,9 +17,7 @@ namespace SardCoreAPI.DataAccess.Units
             }
 
             string sql = $@"
-                SELECT u.Id, u.Name, u.Summary, u.ParentId, u.AmountPerParent, u.MeasurableId
-                FROM Units u
-                    LEFT JOIN Measurables m ON u.MeasurableId = m.Id
+                SELECT * FROM Units
                 /**where**/
                 /**orderby**/
                 {pageSettings}
@@ -29,8 +28,9 @@ namespace SardCoreAPI.DataAccess.Units
 
             if (!string.IsNullOrEmpty(criteria.Query)) { builder.Where("Name LIKE CONCAT('%', IFNULL(@Query, ''), '%')"); }
             if (criteria.Id != null && criteria.Id > 0) { builder.Where("Id = @Id"); }
+            if (criteria.MeasurableId != null && criteria.MeasurableId > 0) { builder.Where("MeasurableId = @MeasurableId"); }
 
-            builder.OrderBy("CASE WHEN u.Name LIKE CONCAT(@Query, '%') THEN 0 ELSE 1 END, u.Name");
+            builder.OrderBy("CASE WHEN Name LIKE CONCAT(@Query, '%') THEN 0 ELSE 1 END, Name");
 
             List<Unit> units = await Query<Unit>(template.RawSql, criteria, info);
 
@@ -59,12 +59,13 @@ namespace SardCoreAPI.DataAccess.Units
                 UnitTable unitTable = new UnitTable();
                 unitTable.Units = t.Value.ToArray();
                 unitTable.Measurable = measurables.Find(m => m.Id == t.Key);
+                tables.Add(unitTable);
             });
 
             return tables;
         }
 
-        public async Task<List<Unit>> GetUnits(PagedSearchCriteria criteria, WorldInfo info)
+        public async Task<List<Unit>> GetUnits(UnitSearchCriteria criteria, WorldInfo info)
         {
             string pageSettings = "";
             if (criteria.PageNumber != null && criteria.PageSize != null)
@@ -73,7 +74,7 @@ namespace SardCoreAPI.DataAccess.Units
             }
 
             string sql = $@"
-                SELECT Id, Name, Summary, ParentId, AmountPerParent, MeasurableId
+                SELECT Id, Name, Summary, ParentId, AmountPerParent, MeasurableId, Symbol
                 FROM Units
                 /**where**/
                 /**orderby**/
@@ -85,6 +86,7 @@ namespace SardCoreAPI.DataAccess.Units
 
             if (!string.IsNullOrEmpty(criteria.Query)) { builder.Where("Name LIKE CONCAT('%', IFNULL(@Query, ''), '%')"); }
             if (criteria.Id != null && criteria.Id > 0) { builder.Where("Id = @Id"); }
+            if (criteria.MeasurableId != null && criteria.MeasurableId > 0) { builder.Where("MeasurableId = @MeasurableId"); }
 
             builder.OrderBy("CASE WHEN Name LIKE CONCAT(@Query, '%') THEN 0 ELSE 1 END, Name");
 
@@ -93,11 +95,20 @@ namespace SardCoreAPI.DataAccess.Units
 
         public async Task<bool> PostUnit(Unit data, WorldInfo info)
         {
-            string sql = @"INSERT INTO Units (Name, Summary, ParentId, AmountPerParent, MeasurableId) 
-                VALUES (@Name, @Summary, @ParentId, @AmountPerParent, @MeasurableId)
+            string sql = @"INSERT INTO Units (Name, Summary, ParentId, AmountPerParent, MeasurableId, Symbol) 
+                VALUES (@Name, @Summary, @ParentId, @AmountPerParent, @MeasurableId, @Symbol)
             ";
 
             return await Execute(sql, data, info) > 0;
+        }
+
+        public async Task<UnitConversionResult?> Convert(UnitConversionRequest request, WorldInfo info)
+        {
+            List<Unit> units = await GetUnits(new UnitSearchCriteria() { MeasurableId = request.UnitFrom.MeasurableId }, info);
+
+            UnitConversionResult result = UnitConverter.Convert(request, units);
+
+            return new UnitConversionResult();
         }
 
         public async Task<int> PutUnit(Unit data, WorldInfo info)
@@ -107,7 +118,8 @@ namespace SardCoreAPI.DataAccess.Units
                     Summary = @Summary,
                     ParentId = @ParentId,
                     AmountPerParent = @AmountPerParent,
-                    MeasurableId = @MeasurableId
+                    MeasurableId = @MeasurableId,
+                    Symbol = @Symbol
                 WHERE Id = @Id";
 
             return await Execute(sql, data, info);

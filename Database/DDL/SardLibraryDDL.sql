@@ -263,6 +263,7 @@ CREATE TABLE IF NOT EXISTS Units (
     ParentId                   INT,
 	AmountPerParent            DOUBLE,
     MeasurableId               INT            NOT NULL,
+    Symbol                     VARCHAR(100)   NOT NULL,
     PRIMARY KEY (Id),
     FOREIGN KEY (MeasurableId) REFERENCES Measurables (Id)
 );

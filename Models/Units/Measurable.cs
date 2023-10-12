@@ -9,7 +9,8 @@
         public enum Base
         {
             Generic = 0,
-            Time = 1
+            Time = 1,
+            Distance = 2
         }
     }
 }

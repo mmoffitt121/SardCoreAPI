@@ -9,5 +9,6 @@
         public double? AmountPerParent { get; set; }
         public int MeasurableId { get; set; }
         public Measurable? Measurable { get; set; }
+        public string Symbol { get; set; }
     }
 }
