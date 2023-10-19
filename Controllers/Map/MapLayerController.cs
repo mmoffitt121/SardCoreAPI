@@ -27,6 +27,11 @@ namespace SardCoreAPI.Controllers.Map
         {
             List<MapLayer>? mapLayers = await new MapLayerDataAccess().GetMapLayers(criteria, WorldInfo);
 
+            foreach (MapLayer mapLayer in mapLayers)
+            {
+                mapLayer.PersistentZoomLevels = (await new PersistentZoomLevelDataAccess().Get(mapLayer.Id, WorldInfo)).ToArray();
+            }
+
             if (mapLayers != null)
             {
                 return new OkObjectResult(mapLayers);
@@ -59,6 +64,10 @@ namespace SardCoreAPI.Controllers.Map
 
             if (id > 0)
             {
+                foreach (var level in layer.PersistentZoomLevels)
+                {
+                    await new PersistentZoomLevelDataAccess().Post(level, WorldInfo);
+                }
                 return new OkObjectResult(id);
             }
             return new BadRequestResult();
@@ -74,6 +83,15 @@ namespace SardCoreAPI.Controllers.Map
 
             if (result > 0)
             {
+                await new PersistentZoomLevelDataAccess().Delete(data.Id, WorldInfo);
+                if (data.PersistentZoomLevels != null)
+                {
+                    foreach (var level in data.PersistentZoomLevels)
+                    {
+                        await new PersistentZoomLevelDataAccess().Post(level, WorldInfo);
+                    }
+                }
+                
                 return new OkResult();
             }
             else if (result == 0)
@@ -93,6 +111,8 @@ namespace SardCoreAPI.Controllers.Map
             if (Id == null) { return new BadRequestResult(); }
 
             int tileResult = await new MapTileDataAccess().DeleteTiles((int)Id, WorldInfo);
+
+            await new PersistentZoomLevelDataAccess().Delete((int)Id, WorldInfo);
 
             int result = await new MapLayerDataAccess().DeleteMapLayer((int)Id, WorldInfo);
 

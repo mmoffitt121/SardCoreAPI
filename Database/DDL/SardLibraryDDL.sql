@@ -247,3 +247,10 @@ SET @preparedStatement = (SELECT IF(
 ));
 PREPARE alterIfNotExists FROM @preparedStatement;
 EXECUTE alterIfNotExists;
+
+CREATE TABLE IF NOT EXISTS PersistentZoomLevels (
+	Zoom        INT            NOT NULL,
+	MapLayerId  INT            NOT NULL,
+	PRIMARY KEY (Zoom, MapLayerId),
+    FOREIGN KEY (MapLayerId) REFERENCES MapLayers (Id)
+);

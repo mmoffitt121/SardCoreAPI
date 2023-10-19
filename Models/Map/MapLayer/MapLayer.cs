@@ -9,5 +9,6 @@
         public bool? IsBaseLayer { get; set; }
         public bool? IsIconLayer { get; set; }
         public string? IconURL { get; set; }
+        public PersistentZoomLevel[]? PersistentZoomLevels { get; set; }
     }
 }

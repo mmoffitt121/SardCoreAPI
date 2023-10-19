@@ -21,8 +21,8 @@ namespace SardCoreAPI.Controllers.DataPoints
             _logger = logger;
         }
 
-        [HttpGet(Name = "GetDataPoints")]
-        public async Task<IActionResult> GetDataPoints([FromQuery] DataPointSearchCriteria criteria)
+        [HttpPost(Name = "GetDataPoints")]
+        public async Task<IActionResult> GetDataPoints([FromBody] DataPointSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
 
@@ -34,12 +34,12 @@ namespace SardCoreAPI.Controllers.DataPoints
             return new BadRequestResult();
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetDataPointsCount([FromQuery] DataPointSearchCriteria criteria)
+        [HttpPost(Name = "GetDataPointsCount")]
+        public async Task<IActionResult> GetDataPointsCount([FromBody] DataPointSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
 
-            int result = await new DataPointDataAccess().GetDataPointsCount(criteria, WorldInfo);
+            int? result = await new DataPointDataAccess().GetDataPointsCount(criteria, WorldInfo);
             if (result != null)
             {
                 return new OkObjectResult(result);

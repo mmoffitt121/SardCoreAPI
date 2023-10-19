@@ -15,12 +15,29 @@ namespace SardCoreAPI.DataAccess.DataPoints
                 pageSettings = $"LIMIT {criteria.PageSize} OFFSET {(criteria.PageNumber - 1) * criteria.PageSize}";
             }
 
-            string sql = $@"SELECT Id, Name, TypeId
-                FROM DataPoints
-                /**where**/
-                ORDER BY Name
-                {pageSettings}
-            ";
+            string sql;
+            if (criteria.Parameters != null && criteria.Parameters.Count() > 0)
+            {
+                sql = $@"SELECT * FROM DataPoints dp
+                            LEFT JOIN DataPointParameterBoolean bdp ON bdp.DataPointId = dp.Id
+                            LEFT JOIN DataPointParameterDataPoint dpdp ON dpdp.DataPointId = dp.Id
+                            LEFT JOIN DataPointParameterDocument ddp ON ddp.DataPointId = dp.Id
+                            LEFT JOIN DataPointParameterDouble dbdp ON dbdp.DataPointId = dp.Id
+                            LEFT JOIN DataPointParameterInt idp ON idp.DataPointId = dp.Id
+                            LEFT JOIN DataPointParameterString sdp ON sdp.DataPointId = dp.Id
+                            LEFT JOIN DataPointParameterSummary sudp ON sudp.DataPointId = dp.Id
+                        /**where**/ 
+                        ORDER BY Name";
+            }
+            else
+            {
+                sql = $@"SELECT *
+                    FROM DataPoints
+                    /**where**/
+                    ORDER BY Name
+                    {pageSettings}
+                ";
+            }
 
             SqlBuilder builder = new SqlBuilder();
             var template = builder.AddTemplate(sql);
