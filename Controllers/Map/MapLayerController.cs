@@ -27,6 +27,11 @@ namespace SardCoreAPI.Controllers.Map
         {
             List<MapLayer>? mapLayers = await new MapLayerDataAccess().GetMapLayers(criteria, WorldInfo);
 
+            foreach (MapLayer mapLayer in mapLayers)
+            {
+                mapLayer.PersistentZoomLevels = (await new PersistentZoomLevelDataAccess().Get(mapLayer.Id, WorldInfo)).ToArray();
+            }
+
             if (mapLayers != null)
             {
                 return new OkObjectResult(mapLayers);
@@ -59,6 +64,10 @@ namespace SardCoreAPI.Controllers.Map
 
             if (id > 0)
             {
+                foreach (var level in layer.PersistentZoomLevels)
+                {
+                    await new PersistentZoomLevelDataAccess().Post(level, WorldInfo);
+                }
                 return new OkObjectResult(id);
             }
             return new BadRequestResult();
@@ -68,22 +77,39 @@ namespace SardCoreAPI.Controllers.Map
         [HttpPut(Name = "PutMapLayer")]
         public async Task<IActionResult> PutMapLayer([FromBody] MapLayer data)
         {
-            if (data == null) { return new BadRequestResult(); }
+            try
+            {
+                if (data == null) { return new BadRequestResult(); }
 
-            int result = await new MapLayerDataAccess().PutMapLayer(data, WorldInfo);
+                int result = await new MapLayerDataAccess().PutMapLayer(data, WorldInfo);
 
-            if (result > 0)
-            {
-                return new OkResult();
+                if (result > 0)
+                {
+                    await new PersistentZoomLevelDataAccess().Delete(data.Id, WorldInfo);
+                    if (data.PersistentZoomLevels != null)
+                    {
+                        foreach (var level in data.PersistentZoomLevels)
+                        {
+                            await new PersistentZoomLevelDataAccess().Post(level, WorldInfo);
+                        }
+                    }
+
+                    return new OkResult();
+                }
+                else if (result == 0)
+                {
+                    return new NotFoundResult();
+                }
+                else
+                {
+                    return new BadRequestResult();
+                }
             }
-            else if (result == 0)
+            catch (Exception ex)
             {
-                return new NotFoundResult();
+                return ex.Handle();
             }
-            else
-            {
-                return new BadRequestResult();
-            }
+            
         }
 
         [Authorize(Roles = "Administrator,Editor")]
@@ -93,6 +119,8 @@ namespace SardCoreAPI.Controllers.Map
             if (Id == null) { return new BadRequestResult(); }
 
             int tileResult = await new MapTileDataAccess().DeleteTiles((int)Id, WorldInfo);
+
+            await new PersistentZoomLevelDataAccess().Delete((int)Id, WorldInfo);
 
             int result = await new MapLayerDataAccess().DeleteMapLayer((int)Id, WorldInfo);
 
