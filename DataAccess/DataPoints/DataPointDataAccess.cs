@@ -32,7 +32,7 @@ namespace SardCoreAPI.DataAccess.DataPoints
             else
             {
                 sql = $@"SELECT *
-                    FROM DataPoints
+                    FROM DataPoints dp
                     /**where**/
                     ORDER BY Name
                     {pageSettings}
@@ -42,9 +42,22 @@ namespace SardCoreAPI.DataAccess.DataPoints
             SqlBuilder builder = new SqlBuilder();
             var template = builder.AddTemplate(sql);
 
-            if (!string.IsNullOrEmpty(criteria.Query)) { builder.Where("Name LIKE CONCAT('%', IFNULL(@Query, ''), '%')"); }
-            if (criteria.TypeId != null && criteria.TypeId != -1) { builder.Where("TypeId = @TypeId"); }
-            if (criteria.Id != null) { builder.Where("Id = @Id"); }
+            if (!string.IsNullOrEmpty(criteria.Query)) { builder.Where("dp.Name LIKE CONCAT('%', IFNULL(@Query, ''), '%')"); }
+            if (criteria.TypeId != null && criteria.TypeId != -1) { builder.Where("dp.TypeId = @TypeId"); }
+            if (criteria.Id != null) { builder.Where("dp.Id = @Id"); }
+
+            if (criteria.TypeIds != null)
+            {
+                builder.Where("dp.TypeId IN @TypeIds");
+            }
+
+            if (criteria.Parameters != null)
+            {
+                foreach (var parameter in criteria.Parameters)
+                {
+                    
+                }
+            }
 
             return await Query<DataPoint>(template.RawSql, criteria, info);
         }

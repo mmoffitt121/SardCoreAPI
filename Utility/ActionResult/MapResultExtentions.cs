@@ -16,7 +16,7 @@ namespace SardCoreAPI.Utility.Error
             switch (ex.Number)
             {
                 case 1062:
-                    return new ConflictObjectResult("This item already exists.");
+                    return new ConflictObjectResult("An item in your request already exists or is a duplicate.");
                 case 1451:
                     return new ConflictObjectResult("This item is in use by another item, and cannot be deleted.");
                 default:
@@ -45,6 +45,18 @@ namespace SardCoreAPI.Utility.Error
         /// <returns></returns>
         public static IActionResult Handle(this Exception ex)
         {
+            if (ex is MySqlException)
+            {
+                return ((MySqlException)ex).Handle();
+            }
+            if (ex is IOException)
+            {
+                return ((IOException)ex).Handle();
+            }
+            if (ex is IOException)
+            {
+                return ((IOException)ex).Handle();
+            }
             return new BadRequestObjectResult("An unknown error occured. Check the server logs for more information.");
         }
 

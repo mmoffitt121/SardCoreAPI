@@ -77,31 +77,39 @@ namespace SardCoreAPI.Controllers.Map
         [HttpPut(Name = "PutMapLayer")]
         public async Task<IActionResult> PutMapLayer([FromBody] MapLayer data)
         {
-            if (data == null) { return new BadRequestResult(); }
-
-            int result = await new MapLayerDataAccess().PutMapLayer(data, WorldInfo);
-
-            if (result > 0)
+            try
             {
-                await new PersistentZoomLevelDataAccess().Delete(data.Id, WorldInfo);
-                if (data.PersistentZoomLevels != null)
+                if (data == null) { return new BadRequestResult(); }
+
+                int result = await new MapLayerDataAccess().PutMapLayer(data, WorldInfo);
+
+                if (result > 0)
                 {
-                    foreach (var level in data.PersistentZoomLevels)
+                    await new PersistentZoomLevelDataAccess().Delete(data.Id, WorldInfo);
+                    if (data.PersistentZoomLevels != null)
                     {
-                        await new PersistentZoomLevelDataAccess().Post(level, WorldInfo);
+                        foreach (var level in data.PersistentZoomLevels)
+                        {
+                            await new PersistentZoomLevelDataAccess().Post(level, WorldInfo);
+                        }
                     }
+
+                    return new OkResult();
                 }
-                
-                return new OkResult();
+                else if (result == 0)
+                {
+                    return new NotFoundResult();
+                }
+                else
+                {
+                    return new BadRequestResult();
+                }
             }
-            else if (result == 0)
+            catch (Exception ex)
             {
-                return new NotFoundResult();
+                return ex.Handle();
             }
-            else
-            {
-                return new BadRequestResult();
-            }
+            
         }
 
         [Authorize(Roles = "Administrator,Editor")]
