@@ -1,4 +1,6 @@
-﻿namespace SardCoreAPI.Models.Map
+﻿using SardCoreAPI.Models.Map.MapLayer;
+
+namespace SardCoreAPI.Models.Map
 {
     public class Map
     {

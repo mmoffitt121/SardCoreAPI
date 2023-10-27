@@ -24,7 +24,7 @@ namespace SardCoreAPI.Controllers.DataPoints
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetDataPointTypes([FromQuery] PagedSearchCriteria criteria)
+        public async Task<IActionResult> GetDataPointTypes([FromQuery] DataPointTypeSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
 
@@ -32,6 +32,24 @@ namespace SardCoreAPI.Controllers.DataPoints
             if (result != null)
             {
                 return new OkObjectResult(result);
+            }
+            return new BadRequestResult();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetDataPointTypesFull([FromQuery] DataPointTypeSearchCriteria criteria)
+        {
+            if (criteria == null) { return new BadRequestResult(); }
+
+            List<DataPointType> types = await new DataPointTypeDataAccess().GetDataPointTypes(criteria, WorldInfo);
+            if (types != null)
+            {
+                foreach (DataPointType type in types)
+                {
+                    type.TypeParameters = (await new DataPointTypeParameterDataAccess().GetDataPointTypeParameters(type.Id, WorldInfo)).ToList();
+                }
+
+                return new OkObjectResult(types);
             }
             return new BadRequestResult();
         }
@@ -52,7 +70,7 @@ namespace SardCoreAPI.Controllers.DataPoints
             if (Id == null) { return new BadRequestResult(); }
 
             // Get Data Point Type
-            DataPointType? result = (await new DataPointTypeDataAccess().GetDataPointTypes(new PagedSearchCriteria() { Id = Id }, WorldInfo)).FirstOrDefault();
+            DataPointType? result = (await new DataPointTypeDataAccess().GetDataPointTypes(new DataPointTypeSearchCriteria() { Id = Id }, WorldInfo)).FirstOrDefault();
 
             if (result == null) { return new NotFoundResult(); }
 

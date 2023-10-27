@@ -20,14 +20,14 @@
  
   /*
  The TypeValue field contains a character value representing what data type this is.
-    -> ‘int’ for integer
-    -> ‘dub’ for double
-    -> ‘str’ for string
-    -> ‘sum’ for summary
-    -> ‘doc’ for document
-    -> ‘img’ for image
-    -> ‘dat’ for data point
-    -> ‘bit’ for boolean
+    -> ï¿½intï¿½ for integer
+    -> ï¿½dubï¿½ for double
+    -> ï¿½strï¿½ for string
+    -> ï¿½sumï¿½ for summary
+    -> ï¿½docï¿½ for document
+    -> ï¿½imgï¿½ for image
+    -> ï¿½datï¿½ for data point
+    -> ï¿½bitï¿½ for boolean
  */
  
  CREATE TABLE IF NOT EXISTS DataPoints (
@@ -266,4 +266,11 @@ CREATE TABLE IF NOT EXISTS Units (
     Symbol                     VARCHAR(100)   NOT NULL,
     PRIMARY KEY (Id),
     FOREIGN KEY (MeasurableId) REFERENCES Measurables (Id)
+);
+
+CREATE TABLE IF NOT EXISTS PersistentZoomLevels (
+	Zoom        INT            NOT NULL,
+	MapLayerId  INT            NOT NULL,
+	PRIMARY KEY (Zoom, MapLayerId),
+    FOREIGN KEY (MapLayerId) REFERENCES MapLayers (Id)
 );
