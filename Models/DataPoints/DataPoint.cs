@@ -1,4 +1,5 @@
 ﻿using SardCoreAPI.Models.DataPoints.DataPointParameters;
+using System.Text.Json.Serialization;
 
 namespace SardCoreAPI.Models.DataPoints
 {

@@ -11,7 +11,7 @@ namespace SardCoreAPI.DataAccess.DataPoints
 {
     public class DataPointTypeDataAccess : GenericDataAccess
     {
-        public async Task<List<DataPointType>> GetDataPointTypes(PagedSearchCriteria criteria, WorldInfo info)
+        public async Task<List<DataPointType>> GetDataPointTypes(DataPointTypeSearchCriteria criteria, WorldInfo info)
         {
             string pageSettings = "";
             if (criteria.PageNumber != null && criteria.PageSize != null)
@@ -31,6 +31,7 @@ namespace SardCoreAPI.DataAccess.DataPoints
 
             if (!string.IsNullOrEmpty(criteria.Query)) { builder.Where("Name LIKE CONCAT('%', IFNULL(@Query, ''), '%')"); }
             if (criteria.Id != null) { builder.Where("Id = @Id"); }
+            if (criteria.DataPointTypeIds != null && criteria.DataPointTypeIds.Length > 0) { builder.Where("Id IN @DataPointTypeIds"); }
 
             builder.OrderBy("Name");
 

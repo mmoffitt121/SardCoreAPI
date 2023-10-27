@@ -21,8 +21,8 @@ namespace SardCoreAPI.Controllers.DataPoints
             _logger = logger;
         }
 
-        [HttpGet(Name = "GetDataPoints")]
-        public async Task<IActionResult> GetDataPoints([FromQuery] DataPointSearchCriteria criteria)
+        [HttpPost(Name = "GetDataPoints")]
+        public async Task<IActionResult> GetDataPoints([FromBody] DataPointSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
 
@@ -34,12 +34,12 @@ namespace SardCoreAPI.Controllers.DataPoints
             return new BadRequestResult();
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetDataPointsCount([FromQuery] DataPointSearchCriteria criteria)
+        [HttpPost(Name = "GetDataPointsCount")]
+        public async Task<IActionResult> GetDataPointsCount([FromBody] DataPointSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
 
-            int result = await new DataPointDataAccess().GetDataPointsCount(criteria, WorldInfo);
+            int? result = await new DataPointDataAccess().GetDataPointsCount(criteria, WorldInfo);
             if (result != null)
             {
                 return new OkObjectResult(result);
@@ -72,7 +72,7 @@ namespace SardCoreAPI.Controllers.DataPoints
             if (result == null) { return new NotFoundResult(); }
 
             // Attach Type
-            DataPointType? type = (await new DataPointTypeDataAccess().GetDataPointTypes(new PagedSearchCriteria() { Id = result.TypeId }, WorldInfo)).FirstOrDefault();
+            DataPointType? type = (await new DataPointTypeDataAccess().GetDataPointTypes(new DataPointTypeSearchCriteria() { Id = result.TypeId }, WorldInfo)).FirstOrDefault();
 
             if (type == null) { return new OkObjectResult(result); }
 
@@ -129,7 +129,7 @@ namespace SardCoreAPI.Controllers.DataPoints
             if (data == null) { return new BadRequestResult(); }
 
             // Get data point type
-            DataPointType? type = (await new DataPointTypeDataAccess().GetDataPointTypes(new PagedSearchCriteria() { Id = data.TypeId }, WorldInfo)).FirstOrDefault();
+            DataPointType? type = (await new DataPointTypeDataAccess().GetDataPointTypes(new DataPointTypeSearchCriteria() { Id = data.TypeId }, WorldInfo)).FirstOrDefault();
             if (type == null) { return new BadRequestResult(); }
             // Attach type Parameters
             List<DataPointTypeParameter> typeParameters = (await new DataPointTypeParameterDataAccess().GetDataPointTypeParameters(type.Id, WorldInfo)).ToList();
