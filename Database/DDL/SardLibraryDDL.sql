@@ -260,12 +260,18 @@ CREATE TABLE IF NOT EXISTS Units (
 	Id                         INT            NOT NULL AUTO_INCREMENT,
     Name                       VARCHAR(1000)  NOT NULL,
     Summary                    VARCHAR(3000),
-    ParentId                   INT,
 	AmountPerParent            DOUBLE,
     MeasurableId               INT            NOT NULL,
     Symbol                     VARCHAR(100)   NOT NULL,
     PRIMARY KEY (Id),
     FOREIGN KEY (MeasurableId) REFERENCES Measurables (Id)
+);
+
+CREATE TABLE IF NOT EXISTS DataPointParameterUnit (
+    DataPointId               INT  NOT NULL,
+    DataPointTypeParameterId  INT  NOT NULL,
+    Value                     DOUBLE,
+    PRIMARY KEY (DataPointId, DataPointTypeParameterId)
 );
 
 CREATE TABLE IF NOT EXISTS PersistentZoomLevels (

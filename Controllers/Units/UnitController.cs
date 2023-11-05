@@ -52,14 +52,6 @@ namespace SardCoreAPI.Controllers.Units
             return new BadRequestResult();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Convert([FromBody] UnitConversionRequest request)
-        {
-            if (request == null) { return new BadRequestResult(); }
-
-            return Ok(await new UnitDataAccess().Convert(request, WorldInfo));
-        }
-
 
         [Authorize(Roles = "Administrator,Editor")]
         [HttpPut]

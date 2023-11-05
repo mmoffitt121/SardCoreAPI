@@ -2,7 +2,6 @@
 using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.Hub.Worlds;
 using SardCoreAPI.Models.Units;
-using SardCoreAPI.Utility.Units;
 
 namespace SardCoreAPI.DataAccess.Units
 {
@@ -74,7 +73,7 @@ namespace SardCoreAPI.DataAccess.Units
             }
 
             string sql = $@"
-                SELECT Id, Name, Summary, ParentId, AmountPerParent, MeasurableId, Symbol
+                SELECT Id, Name, Summary, AmountPerParent, MeasurableId, Symbol
                 FROM Units
                 /**where**/
                 /**orderby**/
@@ -95,20 +94,11 @@ namespace SardCoreAPI.DataAccess.Units
 
         public async Task<bool> PostUnit(Unit data, WorldInfo info)
         {
-            string sql = @"INSERT INTO Units (Name, Summary, ParentId, AmountPerParent, MeasurableId, Symbol) 
-                VALUES (@Name, @Summary, @ParentId, @AmountPerParent, @MeasurableId, @Symbol)
+            string sql = @"INSERT INTO Units (Name, Summary, AmountPerParent, MeasurableId, Symbol) 
+                VALUES (@Name, @Summary, @AmountPerParent, @MeasurableId, @Symbol)
             ";
 
             return await Execute(sql, data, info) > 0;
-        }
-
-        public async Task<UnitConversionResult?> Convert(UnitConversionRequest request, WorldInfo info)
-        {
-            List<Unit> units = await GetUnits(new UnitSearchCriteria() { MeasurableId = request.UnitFrom.MeasurableId }, info);
-
-            UnitConversionResult result = UnitConverter.Convert(request, units);
-
-            return new UnitConversionResult();
         }
 
         public async Task<int> PutUnit(Unit data, WorldInfo info)
@@ -116,7 +106,6 @@ namespace SardCoreAPI.DataAccess.Units
             string sql = @"UPDATE Units SET 
 	                Name = @Name,
                     Summary = @Summary,
-                    ParentId = @ParentId,
                     AmountPerParent = @AmountPerParent,
                     MeasurableId = @MeasurableId,
                     Symbol = @Symbol
