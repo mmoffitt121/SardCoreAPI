@@ -32,6 +32,8 @@ namespace SardCoreAPI.DataAccess.DataPoints
                     return "DataPointValueId";
                 case "bit":
                     return "BoolValue";
+                case "uni":
+                    return "UnitValue";
                 default:
                     return "";
             }
@@ -55,6 +57,8 @@ namespace SardCoreAPI.DataAccess.DataPoints
                     return "DataPointParameterDataPoint";
                 case "bit":
                     return "DataPointParameterBoolean";
+                case "uni":
+                    return "DataPointParameterUnit";
                 default:
                     return "";
             }
@@ -70,7 +74,8 @@ namespace SardCoreAPI.DataAccess.DataPoints
                 GetTable("sum"),
                 GetTable("doc"),
                 GetTable("dat"),
-                GetTable("bit")
+                GetTable("bit"),
+                GetTable("uni")
             };
 
             return tables;
