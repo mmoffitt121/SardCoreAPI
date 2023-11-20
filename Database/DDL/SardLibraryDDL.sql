@@ -1,4 +1,4 @@
- CREATE TABLE IF NOT EXISTS DataPointTypes (
+CREATE TABLE IF NOT EXISTS DataPointTypes (
 	Id      INT               NOT NULL AUTO_INCREMENT,
     Name    VARCHAR (1000),
     Summary VARCHAR (3000),
@@ -248,6 +248,8 @@ SET @preparedStatement = (SELECT IF(
 PREPARE alterIfNotExists FROM @preparedStatement;
 EXECUTE alterIfNotExists;
 
+/** Units **/
+
 CREATE TABLE IF NOT EXISTS Measurables (
 	Id                         INT            NOT NULL AUTO_INCREMENT,
     Name                       VARCHAR(1000)  NOT NULL,
@@ -279,4 +281,12 @@ CREATE TABLE IF NOT EXISTS PersistentZoomLevels (
 	MapLayerId  INT            NOT NULL,
 	PRIMARY KEY (Zoom, MapLayerId),
     FOREIGN KEY (MapLayerId) REFERENCES MapLayers (Id)
+);
+
+/** Calendars **/
+
+CREATE TABLE IF NOT EXISTS Calendars (
+	Id                 INT            NOT NULL AUTO_INCREMENT,
+    CalendarObject     MEDIUMTEXT     NOT NULL,
+    PRIMARY KEY (Id)
 );
