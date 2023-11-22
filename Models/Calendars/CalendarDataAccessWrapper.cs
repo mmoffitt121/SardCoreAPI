@@ -14,7 +14,9 @@ namespace SardCoreAPI.Models.Calendars
         {
             get
             {
-                return JsonSerializer.Deserialize<Calendar>(_data);
+                var cal = JsonSerializer.Deserialize<Calendar>(_data);
+                if (cal != null) cal.Id = Id;
+                return cal;
             }
             set
             {

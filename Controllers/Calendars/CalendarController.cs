@@ -10,6 +10,7 @@ using SardCoreAPI.DataAccess.Calendars;
 using SardCoreAPI.Utility.Error;
 using SardCoreAPI.Models.Calendars.CalendarData;
 using SardCoreAPI.Models.Common;
+using SardCoreAPI.Utility.Validation;
 
 namespace SardCoreAPI.Controllers.Calendars
 {
@@ -43,6 +44,7 @@ namespace SardCoreAPI.Controllers.Calendars
         }
 
         [HttpPut]
+        [Validate]
         [Authorize(Roles = "Administrator,Editor")]
         public async Task<IActionResult> Put(Calendar calendar)
         {

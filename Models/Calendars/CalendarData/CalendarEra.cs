@@ -1,6 +1,8 @@
-﻿namespace SardCoreAPI.Models.Calendars.CalendarData
+﻿using SardCoreAPI.Models.Common;
+
+namespace SardCoreAPI.Models.Calendars.CalendarData
 {
-    public class CalendarEra : CalendarTimeUnit
+    public class CalendarEra : CalendarTimeUnit, IValidatable
     {
 
     }

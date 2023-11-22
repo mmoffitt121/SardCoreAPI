@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MySqlConnector;
+using System.Diagnostics;
 using System.Runtime.InteropServices.ObjectiveC;
 
 namespace SardCoreAPI.Utility.Error
@@ -45,6 +46,7 @@ namespace SardCoreAPI.Utility.Error
         /// <returns></returns>
         public static IActionResult Handle(this Exception ex)
         {
+            Debug.WriteLine(ex);
             if (ex is MySqlException)
             {
                 return ((MySqlException)ex).Handle();
