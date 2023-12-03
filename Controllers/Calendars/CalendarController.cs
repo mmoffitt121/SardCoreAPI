@@ -45,7 +45,7 @@ namespace SardCoreAPI.Controllers.Calendars
 
         [HttpPut]
         [Validate]
-        [Authorize(Roles = "Administrator,Editor")]
+        //[Authorize(Roles = "Administrator,Editor")]
         public async Task<IActionResult> Put(Calendar calendar)
         {
             try

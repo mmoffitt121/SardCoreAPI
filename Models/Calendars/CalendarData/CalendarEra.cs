@@ -4,6 +4,7 @@ namespace SardCoreAPI.Models.Calendars.CalendarData
 {
     public class CalendarEra : CalendarTimeUnit, IValidatable
     {
-
+        public List<CalendarEraDefinition>? EraDefinitions { get; set; }
+        public bool Defined { get; set; }
     }
 }
