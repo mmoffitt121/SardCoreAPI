@@ -290,3 +290,11 @@ CREATE TABLE IF NOT EXISTS Calendars (
     CalendarObject     MEDIUMTEXT     NOT NULL,
     PRIMARY KEY (Id)
 );
+
+/** Settings **/
+
+CREATE TABLE IF NOT EXISTS SettingJSON (
+	Id                  VARCHAR(500) NOT NULL,
+    Setting             MEDIUMTEXT,
+    PRIMARY KEY (Id)
+);

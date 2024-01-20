@@ -1,41 +1,36 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SardCoreAPI.Controllers.Map;
-using SardCoreAPI.DataAccess.DataPoints;
-using SardCoreAPI.DataAccess.Units;
-using SardCoreAPI.Models.DataPoints.DataPointParameters;
-using SardCoreAPI.Models.DataPoints;
-using SardCoreAPI.Models.Units;
 using SardCoreAPI.DataAccess.Calendars;
+using SardCoreAPI.DataAccess.Map;
+using SardCoreAPI.Models.Map.Location;
+using SardCoreAPI.Models.Map.LocationType;
+using SardCoreAPI.Models.Settings;
 using SardCoreAPI.Utility.Error;
-using SardCoreAPI.Models.Calendars.CalendarData;
-using SardCoreAPI.Models.Common;
-using SardCoreAPI.Utility.Validation;
 
-namespace SardCoreAPI.Controllers.Calendars
+namespace SardCoreAPI.Controllers.Map
 {
     [ApiController]
     [Route("Library/[controller]/[action]")]
-    public class CalendarController : GenericController
+    public class SettingJSONController : GenericController
     {
         private readonly ILogger<MapController> _logger;
 
-        public CalendarController(ILogger<MapController> logger)
+        public SettingJSONController(ILogger<MapController> logger)
         {
             _logger = logger;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] PagedSearchCriteria? criteria)
+        public async Task<IActionResult> Get([FromQuery] string Id)
         {
             try
             {
-                List<Calendar> result = await new CalendarDataAccess().Get(criteria, WorldInfo);
+                SettingJSON result = await new SettingJSONDataAccess().Get(Id, WorldInfo);
                 if (result != null)
                 {
                     return new OkObjectResult(result);
                 }
-                return new BadRequestResult();
+                return new NotFoundResult();
             }
             catch (Exception ex)
             {
@@ -43,14 +38,13 @@ namespace SardCoreAPI.Controllers.Calendars
             }
         }
 
-        [HttpPut]
-        [Validate]
         [Authorize(Roles = "Administrator,Editor")]
-        public async Task<IActionResult> Put(Calendar calendar)
+        [HttpPut]
+        public async Task<IActionResult> Put([FromBody] SettingJSON data)
         {
             try
             {
-                await new CalendarDataAccess().Put(calendar, WorldInfo);
+                await new SettingJSONDataAccess().Put(data, WorldInfo);
                 return Ok();
             }
             catch (Exception ex)
@@ -59,13 +53,13 @@ namespace SardCoreAPI.Controllers.Calendars
             }
         }
 
-        [HttpDelete]
         [Authorize(Roles = "Administrator,Editor")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpDelete]
+        public async Task<IActionResult> DeleteLocation([FromQuery] int Id)
         {
             try
             {
-                await new CalendarDataAccess().Delete(id, WorldInfo);
+                await new SettingJSONDataAccess().Delete(Id, WorldInfo);
                 return Ok();
             }
             catch (Exception ex)
