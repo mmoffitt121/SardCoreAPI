@@ -5,6 +5,20 @@ CREATE TABLE IF NOT EXISTS DataPointTypes (
     PRIMARY KEY (Id)
  );
  
+SET @preparedStatement = (SELECT IF(
+  (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE
+      (table_name = 'DataPointTypes')
+      AND (table_schema = @Location)
+      AND (column_name = 'Settings')
+  ) > 0,
+  "SELECT 1",
+  "ALTER TABLE DataPointTypes ADD Settings TEXT;"
+));
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+ 
  CREATE TABLE IF NOT EXISTS DataPointTypeParameter (
 	Id                       INT               NOT NULL AUTO_INCREMENT,
     Name                     VARCHAR (1000),
@@ -18,6 +32,20 @@ CREATE TABLE IF NOT EXISTS DataPointTypes (
     FOREIGN KEY (DataPointTypeReferenceId) REFERENCES DataPointTypes (Id)
  );
  
+ SET @preparedStatement = (SELECT IF(
+  (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE
+      (table_name = 'DataPointTypeParameter')
+      AND (table_schema = @Location)
+      AND (column_name = 'Settings')
+  ) > 0,
+  "SELECT 1",
+  "ALTER TABLE DataPointTypeParameter ADD Settings TEXT;"
+));
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+ 
   /*
  The TypeValue field contains a character value representing what data type this is.
     -> �int� for integer
@@ -28,6 +56,7 @@ CREATE TABLE IF NOT EXISTS DataPointTypes (
     -> �img� for image
     -> �dat� for data point
     -> �bit� for boolean
+    -> �tim� for time
  */
  
  CREATE TABLE IF NOT EXISTS DataPoints (
@@ -85,6 +114,13 @@ CREATE TABLE IF NOT EXISTS DataPointTypes (
 	DataPointId               INT NOT NULL,
     DataPointTypeParameterId  INT NOT NULL,
     Value                     BIT,
+    PRIMARY KEY (DataPointId, DataPointTypeParameterId)
+ );
+ 
+  CREATE TABLE IF NOT EXISTS DataPointParameterTime (
+	DataPointId               INT        NOT NULL,
+    DataPointTypeParameterId  INT        NOT NULL,
+    Value                     DECIMAL(65, 0),
     PRIMARY KEY (DataPointId, DataPointTypeParameterId)
  );
 

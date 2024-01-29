@@ -19,7 +19,7 @@ namespace SardCoreAPI.DataAccess.DataPoints
                 pageSettings = $"LIMIT {criteria.PageSize} OFFSET { (criteria.PageNumber - 1) * criteria.PageSize }";
             }
 
-            string sql = $@"SELECT Id, Name, Summary
+            string sql = $@"SELECT Id, Name, Summary, Settings
                 FROM DataPointTypes
                 /**where**/
                 ORDER BY Name
@@ -59,8 +59,8 @@ namespace SardCoreAPI.DataAccess.DataPoints
 
         public async Task<int> PostDataPointType(DataPointType data, WorldInfo info)
         {
-            string sql = @"INSERT INTO DataPointTypes (Name, Summary) 
-                VALUES (@Name, @Summary);
+            string sql = @"INSERT INTO DataPointTypes (Name, Summary, Settings) 
+                VALUES (@Name, @Summary, @Settings);
             
                 SELECT LAST_INSERT_ID();";
 
@@ -71,7 +71,8 @@ namespace SardCoreAPI.DataAccess.DataPoints
         {
             string sql = @"UPDATE DataPointTypes SET 
 	                Name = @Name,
-                    Summary = @Summary
+                    Summary = @Summary,
+                    Settings = @Settings
                 WHERE Id = @Id";
 
             return await Execute(sql, data, info);
