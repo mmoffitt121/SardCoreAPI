@@ -35,7 +35,7 @@ namespace SardCoreAPI.DataAccess.DataPoints
                 case "uni":
                     return "UnitValue";
                 case "tim":
-                    return "TimeValue";
+                    return "TimeValueString";
                 default:
                     return "";
             }

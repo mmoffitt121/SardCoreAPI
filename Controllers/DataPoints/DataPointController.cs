@@ -123,6 +123,9 @@ namespace SardCoreAPI.Controllers.DataPoints
                         ((DataPointParameterUnit)result.Parameters.Last()).Unit = unitList?.First();
                         
                         break;
+                    case "tim":
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterTime>((int)result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
+                        break;
                     default:
                         result.Parameters.Add(await dataAccess.GetParameter<DataPointParameter>((int)result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
                         break;
