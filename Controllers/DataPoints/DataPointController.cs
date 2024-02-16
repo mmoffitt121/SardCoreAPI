@@ -9,6 +9,7 @@ using System.Diagnostics;
 using SardCoreAPI.Models.Hub.Worlds;
 using SardCoreAPI.DataAccess.Units;
 using SardCoreAPI.Models.Units;
+using SardCoreAPI.Utility.Validation;
 
 namespace SardCoreAPI.Controllers.DataPoints
 {
@@ -24,6 +25,7 @@ namespace SardCoreAPI.Controllers.DataPoints
         }
 
         [HttpPost(Name = "GetDataPoints")]
+        [Validate]
         public async Task<IActionResult> GetDataPoints([FromBody] DataPointSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
@@ -37,6 +39,7 @@ namespace SardCoreAPI.Controllers.DataPoints
         }
 
         [HttpPost(Name = "GetDataPointsCount")]
+        [Validate]
         public async Task<IActionResult> GetDataPointsCount([FromBody] DataPointSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }

@@ -50,6 +50,10 @@ namespace SardCoreAPI.Models.DataPoints.DataPointParameters
                 {
                     return new DataPointParameterTime();
                 }
+                if (jObject.Value<string>("timeValueString") != null)
+                {
+                    return new DataPointParameterTime();
+                }
                 return new DataPointParameter();
             }
         }
