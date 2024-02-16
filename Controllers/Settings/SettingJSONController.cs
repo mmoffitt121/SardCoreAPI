@@ -25,7 +25,7 @@ namespace SardCoreAPI.Controllers.Map
         {
             try
             {
-                SettingJSON result = await new SettingJSONDataAccess().Get(Id, WorldInfo);
+                List<SettingJSON> result = await new SettingJSONDataAccess().Get(Id, WorldInfo);
                 if (result != null)
                 {
                     return new OkObjectResult(result);
@@ -55,7 +55,7 @@ namespace SardCoreAPI.Controllers.Map
 
         [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete]
-        public async Task<IActionResult> DeleteLocation([FromQuery] int Id)
+        public async Task<IActionResult> Delete([FromQuery] int Id)
         {
             try
             {

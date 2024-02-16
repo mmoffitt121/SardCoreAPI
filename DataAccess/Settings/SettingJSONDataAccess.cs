@@ -10,7 +10,7 @@ namespace SardCoreAPI.DataAccess.Map
 {
     public class SettingJSONDataAccess : GenericDataAccess
     { 
-        public async Task<SettingJSON> Get(string Id, WorldInfo info)
+        public async Task<List<SettingJSON>> Get(string Id, WorldInfo info)
         {
             string sql = @"SELECT * FROM SettingJSON /**where**/";
 
@@ -19,7 +19,7 @@ namespace SardCoreAPI.DataAccess.Map
 
             builder.Where("Id = @Id");
 
-            return await QueryFirst<SettingJSON>(template.RawSql, new { Id }, info);
+            return await Query<SettingJSON>(template.RawSql, new { Id }, info);
         } 
 
         public async Task<int> Put(SettingJSON data, WorldInfo info)
