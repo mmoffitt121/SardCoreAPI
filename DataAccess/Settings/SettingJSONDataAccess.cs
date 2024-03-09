@@ -17,7 +17,7 @@ namespace SardCoreAPI.DataAccess.Map
             SqlBuilder builder = new SqlBuilder();
             var template = builder.AddTemplate(sql);
 
-            builder.Where("Id = @Id");
+            builder.Where("Id LIKE @Id");
 
             return await Query<SettingJSON>(template.RawSql, new { Id }, info);
         } 
@@ -31,7 +31,7 @@ namespace SardCoreAPI.DataAccess.Map
             return await Execute(sql, data, info);
         }
 
-        public async Task<int> Delete(int Id, WorldInfo info)
+        public async Task<int> Delete(string Id, WorldInfo info)
         {
             string sql = @"DELETE FROM SettingJSON WHERE Id = @Id;";
             return await Execute(sql, new { Id }, info);

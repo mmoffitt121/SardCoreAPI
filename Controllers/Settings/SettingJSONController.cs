@@ -55,7 +55,7 @@ namespace SardCoreAPI.Controllers.Map
 
         [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete]
-        public async Task<IActionResult> Delete([FromQuery] int Id)
+        public async Task<IActionResult> Delete([FromQuery] string Id)
         {
             try
             {
