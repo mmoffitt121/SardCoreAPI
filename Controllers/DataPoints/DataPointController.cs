@@ -7,6 +7,9 @@ using SardCoreAPI.Models.DataPoints;
 using Microsoft.AspNetCore.Authorization;
 using System.Diagnostics;
 using SardCoreAPI.Models.Hub.Worlds;
+using SardCoreAPI.DataAccess.Units;
+using SardCoreAPI.Models.Units;
+using SardCoreAPI.Utility.Validation;
 
 namespace SardCoreAPI.Controllers.DataPoints
 {
@@ -22,6 +25,7 @@ namespace SardCoreAPI.Controllers.DataPoints
         }
 
         [HttpPost(Name = "GetDataPoints")]
+        [Validate]
         public async Task<IActionResult> GetDataPoints([FromBody] DataPointSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
@@ -35,6 +39,7 @@ namespace SardCoreAPI.Controllers.DataPoints
         }
 
         [HttpPost(Name = "GetDataPointsCount")]
+        [Validate]
         public async Task<IActionResult> GetDataPointsCount([FromBody] DataPointSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
@@ -112,6 +117,17 @@ namespace SardCoreAPI.Controllers.DataPoints
                         break;
                     case "bit":
                         result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterBoolean>((int)result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
+                        break;
+                    case "uni":
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterUnit>((int)result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
+                        UnitSearchCriteria unitSearch = new UnitSearchCriteria() { Id = tp.DataPointTypeReferenceId };
+                        List<Unit> unitList = await new UnitDataAccess().GetUnits(unitSearch, WorldInfo);
+                        if (unitList.Count() < 1 || result.Parameters.Last() == null) break;
+                        ((DataPointParameterUnit)result.Parameters.Last()).Unit = unitList?.First();
+                        
+                        break;
+                    case "tim":
+                        result.Parameters.Add(await dataAccess.GetParameter<DataPointParameterTime>((int)result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));
                         break;
                     default:
                         result.Parameters.Add(await dataAccess.GetParameter<DataPointParameter>((int)result.Id, (int)tp.Id, tp.TypeValue, WorldInfo));

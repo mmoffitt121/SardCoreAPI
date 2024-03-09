@@ -1,9 +1,23 @@
- CREATE TABLE IF NOT EXISTS DataPointTypes (
+CREATE TABLE IF NOT EXISTS DataPointTypes (
 	Id      INT               NOT NULL AUTO_INCREMENT,
     Name    VARCHAR (1000),
     Summary VARCHAR (3000),
     PRIMARY KEY (Id)
  );
+ 
+SET @preparedStatement = (SELECT IF(
+  (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE
+      (table_name = 'DataPointTypes')
+      AND (table_schema = @Location)
+      AND (column_name = 'Settings')
+  ) > 0,
+  "SELECT 1",
+  "ALTER TABLE DataPointTypes ADD Settings TEXT;"
+));
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
  
  CREATE TABLE IF NOT EXISTS DataPointTypeParameter (
 	Id                       INT               NOT NULL AUTO_INCREMENT,
@@ -18,16 +32,31 @@
     FOREIGN KEY (DataPointTypeReferenceId) REFERENCES DataPointTypes (Id)
  );
  
+ SET @preparedStatement = (SELECT IF(
+  (
+    SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+    WHERE
+      (table_name = 'DataPointTypeParameter')
+      AND (table_schema = @Location)
+      AND (column_name = 'Settings')
+  ) > 0,
+  "SELECT 1",
+  "ALTER TABLE DataPointTypeParameter ADD Settings TEXT;"
+));
+PREPARE alterIfNotExists FROM @preparedStatement;
+EXECUTE alterIfNotExists;
+ 
   /*
  The TypeValue field contains a character value representing what data type this is.
-    -> ‘int’ for integer
-    -> ‘dub’ for double
-    -> ‘str’ for string
-    -> ‘sum’ for summary
-    -> ‘doc’ for document
-    -> ‘img’ for image
-    -> ‘dat’ for data point
-    -> ‘bit’ for boolean
+    -> ï¿½intï¿½ for integer
+    -> ï¿½dubï¿½ for double
+    -> ï¿½strï¿½ for string
+    -> ï¿½sumï¿½ for summary
+    -> ï¿½docï¿½ for document
+    -> ï¿½imgï¿½ for image
+    -> ï¿½datï¿½ for data point
+    -> ï¿½bitï¿½ for boolean
+    -> ï¿½timï¿½ for time
  */
  
  CREATE TABLE IF NOT EXISTS DataPoints (
@@ -85,6 +114,13 @@
 	DataPointId               INT NOT NULL,
     DataPointTypeParameterId  INT NOT NULL,
     Value                     BIT,
+    PRIMARY KEY (DataPointId, DataPointTypeParameterId)
+ );
+ 
+  CREATE TABLE IF NOT EXISTS DataPointParameterTime (
+	DataPointId               INT        NOT NULL,
+    DataPointTypeParameterId  INT        NOT NULL,
+    Value                     DECIMAL(65, 0),
     PRIMARY KEY (DataPointId, DataPointTypeParameterId)
  );
 
@@ -248,9 +284,53 @@ SET @preparedStatement = (SELECT IF(
 PREPARE alterIfNotExists FROM @preparedStatement;
 EXECUTE alterIfNotExists;
 
+/** Units **/
+
+CREATE TABLE IF NOT EXISTS Measurables (
+	Id                         INT            NOT NULL AUTO_INCREMENT,
+    Name                       VARCHAR(1000)  NOT NULL,
+    Summary                    VARCHAR(3000),
+    UnitType                   INT            NOT NULL,
+    PRIMARY KEY (Id)
+);
+
+CREATE TABLE IF NOT EXISTS Units (
+	Id                         INT            NOT NULL AUTO_INCREMENT,
+    Name                       VARCHAR(1000)  NOT NULL,
+    Summary                    VARCHAR(3000),
+	AmountPerParent            DOUBLE,
+    MeasurableId               INT            NOT NULL,
+    Symbol                     VARCHAR(100)   NOT NULL,
+    PRIMARY KEY (Id),
+    FOREIGN KEY (MeasurableId) REFERENCES Measurables (Id)
+);
+
+CREATE TABLE IF NOT EXISTS DataPointParameterUnit (
+    DataPointId               INT  NOT NULL,
+    DataPointTypeParameterId  INT  NOT NULL,
+    Value                     DOUBLE,
+    PRIMARY KEY (DataPointId, DataPointTypeParameterId)
+);
+
 CREATE TABLE IF NOT EXISTS PersistentZoomLevels (
 	Zoom        INT            NOT NULL,
 	MapLayerId  INT            NOT NULL,
 	PRIMARY KEY (Zoom, MapLayerId),
     FOREIGN KEY (MapLayerId) REFERENCES MapLayers (Id)
+);
+
+/** Calendars **/
+
+CREATE TABLE IF NOT EXISTS Calendars (
+	Id                 INT            NOT NULL AUTO_INCREMENT,
+    CalendarObject     MEDIUMTEXT     NOT NULL,
+    PRIMARY KEY (Id)
+);
+
+/** Settings **/
+
+CREATE TABLE IF NOT EXISTS SettingJSON (
+	Id                  VARCHAR(500) NOT NULL,
+    Setting             MEDIUMTEXT,
+    PRIMARY KEY (Id)
 );

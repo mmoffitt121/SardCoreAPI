@@ -50,17 +50,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Services\" />
     <Folder Include="Utility\ActionResult\ActionResults\" />
     <Folder Include="WorldMap\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Database\DDL\SardCoreDDL.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Database\DDL\SardLibraryDDL.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

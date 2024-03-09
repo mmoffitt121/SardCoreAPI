@@ -64,10 +64,14 @@ namespace SardCoreAPI.Controllers.Map
 
             if (id > 0)
             {
-                foreach (var level in layer.PersistentZoomLevels)
+                if (layer.PersistentZoomLevels != null)
                 {
-                    await new PersistentZoomLevelDataAccess().Post(level, WorldInfo);
+                    foreach (var level in layer.PersistentZoomLevels)
+                    {
+                        await new PersistentZoomLevelDataAccess().Post(level, WorldInfo);
+                    }
                 }
+                
                 return new OkObjectResult(id);
             }
             return new BadRequestResult();

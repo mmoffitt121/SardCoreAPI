@@ -32,6 +32,10 @@ namespace SardCoreAPI.DataAccess.DataPoints
                     return "DataPointValueId";
                 case "bit":
                     return "BoolValue";
+                case "uni":
+                    return "UnitValue";
+                case "tim":
+                    return "TimeValueString";
                 default:
                     return "";
             }
@@ -55,6 +59,10 @@ namespace SardCoreAPI.DataAccess.DataPoints
                     return "DataPointParameterDataPoint";
                 case "bit":
                     return "DataPointParameterBoolean";
+                case "uni":
+                    return "DataPointParameterUnit";
+                case "tim":
+                    return "DataPointParameterTime";
                 default:
                     return "";
             }
@@ -70,7 +78,9 @@ namespace SardCoreAPI.DataAccess.DataPoints
                 GetTable("sum"),
                 GetTable("doc"),
                 GetTable("dat"),
-                GetTable("bit")
+                GetTable("bit"),
+                GetTable("uni"),
+                GetTable("tim")
             };
 
             return tables;

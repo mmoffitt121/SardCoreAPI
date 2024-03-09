@@ -12,7 +12,7 @@ namespace SardCoreAPI.DataAccess.DataPoints
     {
         public async Task<List<DataPointTypeParameter>> GetDataPointTypeParameters(int Id, WorldInfo info)
         {
-            string sql = @"SELECT Id, Name, Summary, DataPointTypeId, TypeValue, Sequence, DataPointTypeReferenceId
+            string sql = @"SELECT Id, Name, Summary, DataPointTypeId, TypeValue, Sequence, DataPointTypeReferenceId, Settings
                     FROM DataPointTypeParameter
                     /**where**/
                     ORDER BY Sequence";
@@ -29,8 +29,8 @@ namespace SardCoreAPI.DataAccess.DataPoints
         {
             if (data.DataPointTypeReferenceId == -1) data.DataPointTypeReferenceId = null;
 
-            string sql = @"INSERT INTO DataPointTypeParameter (Name, Summary, DataPointTypeId, TypeValue, Sequence, DataPointTypeReferenceId)
-                    VALUES (@Name, @Summary, @DataPointTypeId, @TypeValue, @Sequence, @DataPointTypeReferenceId)";
+            string sql = @"INSERT INTO DataPointTypeParameter (Name, Summary, DataPointTypeId, TypeValue, Sequence, DataPointTypeReferenceId, Settings)
+                    VALUES (@Name, @Summary, @DataPointTypeId, @TypeValue, @Sequence, @DataPointTypeReferenceId, @Settings)";
 
             SqlBuilder builder = new SqlBuilder();
             var template = builder.AddTemplate(sql);
@@ -51,7 +51,8 @@ namespace SardCoreAPI.DataAccess.DataPoints
                     DataPointTypeId = @DataPointTypeId,
                     Typevalue = @TypeValue,
                     Sequence = @Sequence,
-                    DataPointTypeReferenceId = @DataPointTypeReferenceId
+                    DataPointTypeReferenceId = @DataPointTypeReferenceId,
+                    Settings = @Settings
                 WHERE Id = @Id";
 
             return await Execute(sql, data, info);

@@ -85,10 +85,6 @@ namespace SardCoreAPI.Controllers.Map
         public async Task<IActionResult> DeleteTilesOfLayer(int layerId)
         {
             int result = await new MapTileDataAccess().DeleteTiles(layerId, WorldInfo);
-            if (result == 0)
-            {
-                return new NotFoundResult();
-            }
             return new OkResult();
         }
 
@@ -97,10 +93,6 @@ namespace SardCoreAPI.Controllers.Map
         public async Task<IActionResult> DeleteTilesOfMap(int mapId)
         {
             int result = await new MapTileDataAccess().DeleteTilesOfMap(mapId, WorldInfo);
-            if (result == 0)
-            {
-                return new NotFoundResult();
-            }
             return new OkResult();
         }
     }

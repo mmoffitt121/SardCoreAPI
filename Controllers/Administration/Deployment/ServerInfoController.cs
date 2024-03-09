@@ -11,7 +11,7 @@ namespace SardCoreAPI.Controllers.Administration.Deployment
         [HttpGet]
         public async Task<IActionResult> GetServerVersion()
         {
-            return Ok(new { Version = "0.0.0" });
+            return Ok(new { Version = "0.1.0" });
         }
     }
 }

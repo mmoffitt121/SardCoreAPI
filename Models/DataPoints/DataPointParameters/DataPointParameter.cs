@@ -42,6 +42,18 @@ namespace SardCoreAPI.Models.DataPoints.DataPointParameters
                 {
                     return new DataPointParameterSummary();
                 }
+                if (jObject.Value<string>("unitValue") != null)
+                {
+                    return new DataPointParameterUnit();
+                }
+                if (jObject.Value<string>("timeValue") != null)
+                {
+                    return new DataPointParameterTime();
+                }
+                if (jObject.Value<string>("timeValueString") != null)
+                {
+                    return new DataPointParameterTime();
+                }
                 return new DataPointParameter();
             }
         }
