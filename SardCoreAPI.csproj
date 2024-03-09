@@ -12,6 +12,11 @@
   <ItemGroup>
     <None Remove="Database\DDL\IdentityDDL.sql" />
   </ItemGroup>
+  
+  <ItemGroup>
+	<None Include="Database\DDL\SardCoreDDL.sql" CopyToOutputDirectory="Always" />
+	<None Include="Database\DDL\SardLibraryDDL.sql" CopyToOutputDirectory="Always" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AspNet.Identity.MySQL" Version="1.0.0.38741" />
