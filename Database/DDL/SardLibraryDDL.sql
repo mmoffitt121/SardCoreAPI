@@ -334,3 +334,24 @@ CREATE TABLE IF NOT EXISTS SettingJSON (
     Setting             MEDIUMTEXT,
     PRIMARY KEY (Id)
 );
+
+/** Security **/
+
+CREATE TABLE IF NOT EXISTS Roles (
+	Id       VARCHAR(255) NOT NULL,
+    PRIMARY KEY (Id)
+);
+
+CREATE TABLE IF NOT EXISTS UserRoles (
+	UserId VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL,
+    RoleId VARCHAR(255) NOT NULL,
+    PRIMARY KEY (UserId, RoleId),
+    FOREIGN KEY (RoleId) REFERENCES Roles (Id)
+);
+
+CREATE TABLE IF NOT EXISTS RolePermissions (
+	RoleId VARCHAR(255) NOT NULL,
+    Permission VARCHAR(512) NOT NULL,
+    PRIMARY KEY (Permission, RoleId),
+    FOREIGN KEY (RoleId) REFERENCES Roles (Id)
+);
