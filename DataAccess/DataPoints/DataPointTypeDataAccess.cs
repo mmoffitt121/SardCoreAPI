@@ -9,7 +9,16 @@ using System.Collections.Generic;
 
 namespace SardCoreAPI.DataAccess.DataPoints
 {
-    public class DataPointTypeDataAccess : GenericDataAccess
+    public interface IDataPointTypeDataAccess
+    {
+        public Task<List<DataPointType>> GetDataPointTypes(DataPointTypeSearchCriteria criteria, WorldInfo info);
+        public Task<int> GetDataPointTypesCount(PagedSearchCriteria criteria, WorldInfo info);
+        public Task<int> PostDataPointType(DataPointType data, WorldInfo info);
+        public Task<int> PutDataPointType(DataPointType data, WorldInfo info);
+        public Task<int> DeleteDataPointType(int Id, WorldInfo info);
+    }
+
+    public class DataPointTypeDataAccess : GenericDataAccess, IDataPointTypeDataAccess
     {
         public async Task<List<DataPointType>> GetDataPointTypes(DataPointTypeSearchCriteria criteria, WorldInfo info)
         {

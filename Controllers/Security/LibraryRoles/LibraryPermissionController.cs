@@ -13,12 +13,14 @@ namespace SardCoreAPI.Controllers.Security.LibraryRoles
     [Route("Library/[controller]/[action]")]
     public class LibraryPermissionController : GenericController
     {
+        private ISecurityService securityService;
+
         [HttpGet]
         public async Task<IActionResult> GetPermissions()
         {
             try
             {
-                Permission result = await new SecurityService().GetAllPermissions(WorldInfo);
+                Permission result = await securityService.GetAllPermissions(WorldInfo);
                 if (result != null)
                 {
                     return new OkObjectResult(result);
@@ -31,13 +33,31 @@ namespace SardCoreAPI.Controllers.Security.LibraryRoles
             }
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
-        [HttpPut]
-        public async Task<IActionResult> Put([FromBody] SettingJSON data)
+        [HttpGet]
+        public async Task<IActionResult> GetRoles([FromQuery] string? id)
         {
             try
             {
-                await new SettingJSONDataAccess().Put(data, WorldInfo);
+                List<Role> roles = await securityService.GetRoles(id, WorldInfo);
+                if (roles != null)
+                {
+                    return new OkObjectResult(roles);
+                }
+                return new NotFoundResult();
+            }
+            catch (Exception ex)
+            {
+                return ex.Handle();
+            }
+        }
+
+        [Authorize(Roles = "Administrator,Editor")]
+        [HttpPut]
+        public async Task<IActionResult> PutRole([FromBody] Role data)
+        {
+            try
+            {
+                await securityService.UpdateRoles(new Role[] { data }, WorldInfo);
                 return Ok();
             }
             catch (Exception ex)
@@ -48,17 +68,22 @@ namespace SardCoreAPI.Controllers.Security.LibraryRoles
 
         [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete]
-        public async Task<IActionResult> Delete([FromQuery] string Id)
+        public async Task<IActionResult> DeleteRole([FromQuery] string Id)
         {
             try
             {
-                await new SettingJSONDataAccess().Delete(Id, WorldInfo);
+                await securityService.DeleteRole(Id, WorldInfo);
                 return Ok();
             }
             catch (Exception ex)
             {
                 return ex.Handle();
             }
+        }
+
+        public LibraryPermissionController(ISecurityService securityService)
+        {
+            this.securityService = securityService;
         }
     }
 }

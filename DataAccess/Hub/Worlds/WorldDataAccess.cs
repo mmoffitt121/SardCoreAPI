@@ -6,7 +6,14 @@ using SardCoreAPI.Models.Map;
 
 namespace SardCoreAPI.DataAccess.Hub.Worlds
 {
-    public class WorldDataAccess : GenericDataAccess
+    public interface IWorldDataAccess
+    {
+        public Task<List<World>> GetWorlds(WorldSearchCriteria criteria);
+        public Task<int> PostWorld(World data);
+        public Task<int> PutWorld(World data);
+    }
+
+    public class WorldDataAccess : GenericDataAccess, IWorldDataAccess
     {
         public async Task<List<World>> GetWorlds(WorldSearchCriteria criteria)
         {

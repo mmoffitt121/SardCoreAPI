@@ -40,15 +40,30 @@ namespace SardCoreAPI.Services.Security
                 Id = "Setup",
                 Permissions = new string[]
                 {
-                    PERMISSION_ROOT + ".Setup",
+                    PERMISSION_ROOT + ".Setup.Calendars",
+                    PERMISSION_ROOT + ".Setup.Types",
+                    PERMISSION_ROOT + ".Setup.Pages",
+                    PERMISSION_ROOT + ".Setup.Themes",
+                    PERMISSION_ROOT + ".Setup.Units",
                 }
             },
             new Role()
             {
-                Id = "All Documents",
+                Id = "Security",
                 Permissions = new string[]
                 {
-                    PERMISSION_ROOT + ".Setup",
+                    PERMISSION_ROOT + ".Setup.Security",
+                }
+            },
+            new Role()
+            {
+                Id = "Editor",
+                Permissions = new string[]
+                {
+                    PERMISSION_ROOT + ".Map",
+                    PERMISSION_ROOT + ".Location",
+                    PERMISSION_ROOT + ".Images",
+                    DOCUMENT_PERMISSION,
                 }
             },
             new Role()

@@ -18,6 +18,10 @@ using SardCoreAPI.Areas.Identity.Data;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Hosting;
 using SardCoreAPI.DataAccess.Administration.Database;
+using SardCoreAPI.DataAccess.DataPoints;
+using SardCoreAPI.Services.Security;
+using SardCoreAPI.DataAccess.Hub.Worlds;
+using SardCoreAPI.DataAccess.Security.LibraryRoles;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("SardCoreAPIContextConnection") ?? throw new InvalidOperationException("Connection string 'SardCoreAPIContextConnection' not found.");
@@ -87,6 +91,12 @@ builder.Services.AddAuthentication(opt =>
 );
 builder.Services.AddScoped<JwtHandler>();
 
+builder.Services.AddTransient<IDataPointTypeDataAccess, DataPointTypeDataAccess>();
+builder.Services.AddTransient<IWorldDataAccess, WorldDataAccess>();
+builder.Services.AddTransient<ILibraryPermissionDataAccess, LibraryPermissionDataAccess>();
+
+builder.Services.AddTransient<ISecurityService, SecurityService>();
+
 /* builder.Services.AddHttpContextAccessor(); */
 
 var app = builder.Build();
@@ -131,5 +141,7 @@ app.MapControllers();
 
 await new DatabaseDataAccess().UpdateDatabase();
 await new DatabaseDataAccess().UpdateWorldDatabases();
+
+await app.Services.GetService<ISecurityService>()!.InitializeWorldsWithDefaultRoles();
 
 app.Run();
