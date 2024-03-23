@@ -1,15 +1,23 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SardCoreAPI.Attributes.Easy;
+using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
 namespace SardCoreAPI.Models.Hub.Worlds
 {
+    [Table("Worlds")]
     public class World
     {
+        [Column]
         public int Id { get; set; }
+        [Column]
         public string OwnerId { get; set; }
+        [Column]
         public string Location { get; set; }
+        [Column]
         public string Name { get; set; }
+        [Column]
         public string? Summary { get; set; }
+        [Column]
         public DateTime? CreatedDate { get; set; }
 
         public void Normalize()

@@ -6,6 +6,7 @@ using SardCoreAPI.Models.Hub.Worlds;
 using SardCoreAPI.Models.Security.Users;
 using System.Linq.Expressions;
 using SardCoreAPI.Models.Common;
+using Microsoft.CodeAnalysis;
 
 namespace SardCoreAPI.DataAccess
 {
@@ -18,6 +19,7 @@ namespace SardCoreAPI.DataAccess
 
         public async Task<List<T>> Query<T>(string sql, object? data, string? location, bool globalConnection = false)
         {
+            if (location == null) globalConnection = true;
             string connectionString = globalConnection ? Connection.GetGlobalConnectionString() : Connection.GetConnectionString(location);
             try
             {
@@ -103,6 +105,7 @@ namespace SardCoreAPI.DataAccess
 
         public async Task<int> Execute(string sql, object data, string? location, bool globalConnection = false)
         {
+            if (location == null) globalConnection = true;
             string connectionString = globalConnection ? Connection.GetGlobalConnectionString() : Connection.GetConnectionString(location);
 
             try

@@ -1,4 +1,5 @@
-﻿using SardCoreAPI.Models.Calendars.CalendarData;
+﻿using SardCoreAPI.Attributes.Easy;
+using SardCoreAPI.Models.Calendars.CalendarData;
 using System.Text.Json;
 
 namespace SardCoreAPI.Models.Calendars
@@ -6,8 +7,10 @@ namespace SardCoreAPI.Models.Calendars
     /// <summary>
     /// Class that handles serialization and deserialization of calendars when loading and saving to the database.
     /// </summary>
+    [Table("Calendars")]
     public class CalendarDataAccessWrapper
     {
+        [Column]
         public int? Id { get; set; }
         private string _data { get; set; }
         public Calendar Calendar
@@ -23,7 +26,8 @@ namespace SardCoreAPI.Models.Calendars
                 _data = JsonSerializer.Serialize(value);
             }
         }
-        public string Data
+        [Column("CalendarObject")]
+        public string CalendarObject
         {
             get { return _data; }
             set { _data = value; } 

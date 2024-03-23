@@ -6,7 +6,15 @@ using SardCoreAPI.Models.Hub.Worlds;
 
 namespace SardCoreAPI.DataAccess.Administration.Database
 {
-    public class DatabaseDataAccess : GenericDataAccess
+    public interface IDatabaseDataAccess
+    {
+        public Task<string> GetServerVersion();
+        public Task<List<DatabaseInfo>> GetDatabases();
+        public Task UpdateDatabase();
+        public Task UpdateWorldDatabases();
+    }
+
+    public class MySQLDatabaseDataAccess : GenericDataAccess, IDatabaseDataAccess
     {
         public async Task<string> GetServerVersion()
         {

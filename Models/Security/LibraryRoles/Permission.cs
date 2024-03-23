@@ -1,6 +1,4 @@
-﻿using Swashbuckle.AspNetCore.SwaggerGen;
-
-namespace SardCoreAPI.Models.Security.LibraryRoles
+﻿namespace SardCoreAPI.Models.Security.LibraryRoles
 {
     public class Permission
     {

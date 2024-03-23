@@ -1,11 +1,11 @@
-﻿namespace SardCoreAPI.Models.Common
+﻿using SardCoreAPI.Models.Easy;
+
+namespace SardCoreAPI.Models.Common
 {
-    public class PagedSearchCriteria : IValidatable
+    public class PagedSearchCriteria : QueryOptions, IValidatable
     {
         public int? Id { get; set; }
         public string? Query { get; set; }
-        public int? PageNumber { get; set; } = 0;
-        public int? PageSize { get; set; }
 
         public virtual List<string> Validate()
         {

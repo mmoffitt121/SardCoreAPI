@@ -10,18 +10,25 @@ namespace SardCoreAPI.Controllers.Administration.Database
     [Route("Library/[controller]/[action]")]
     public class DatabaseController : Controller
     { 
+        private IDatabaseDataAccess databaseDataAccess;
+
         [Authorize(Roles = "Administrator")]
         [HttpGet]
         public async Task<IActionResult> GetServerVersion()
         {
-            return Ok(new { Version = await new DatabaseDataAccess().GetServerVersion() });
+            return Ok(new { Version = await databaseDataAccess.GetServerVersion() });
         }
 
         [Authorize(Roles = "Administrator")]
         [HttpGet]
         public async Task<IActionResult> GetDatabases()
         {
-            return Ok(await new DatabaseDataAccess().GetDatabases());
+            return Ok(await databaseDataAccess.GetDatabases());
+        }
+
+        public DatabaseController(IDatabaseDataAccess databaseDataAccess)
+        {
+            this.databaseDataAccess = databaseDataAccess;
         }
     }
 }

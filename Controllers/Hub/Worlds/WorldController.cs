@@ -10,6 +10,7 @@ using SardCoreAPI.Models.Hub.Worlds;
 using SardCoreAPI.DataAccess.Hub.Worlds;
 using MySqlConnector;
 using SardCoreAPI.Utility.Error;
+using SardCoreAPI.DataAccess.Easy;
 
 namespace SardCoreAPI.Controllers.Hub.Worlds
 {
@@ -18,10 +19,12 @@ namespace SardCoreAPI.Controllers.Hub.Worlds
     public class WorldController : GenericController
     {
         private readonly ILogger<DataPointTypeController> _logger;
+        private readonly IEasyDataAccess _dataAccess;
 
-        public WorldController(ILogger<DataPointTypeController> logger)
+        public WorldController(ILogger<DataPointTypeController> logger, IEasyDataAccess easyDataAccess)
         {
             _logger = logger;
+            _dataAccess = easyDataAccess;
         }
 
         [HttpGet]
@@ -29,7 +32,7 @@ namespace SardCoreAPI.Controllers.Hub.Worlds
         {
             if (criteria == null) { return new BadRequestResult(); }
 
-            List<World> result = await new WorldDataAccess().GetWorlds(criteria);
+            List<World> result = await _dataAccess.Get<World>(new { Id = criteria.Id, OwnerId = criteria.OwnerId, Location = criteria.Location }, queryOptions: criteria);
             if (result != null)
             {
                 return new OkObjectResult(result);
@@ -42,12 +45,8 @@ namespace SardCoreAPI.Controllers.Hub.Worlds
         {
             if (criteria == null) { return new BadRequestResult(); }
 
-            List<World> result = await new WorldDataAccess().GetWorlds(criteria);
-            if (result != null)
-            {
-                return new OkObjectResult(result.Count);
-            }
-            return new BadRequestResult();
+            int count = await _dataAccess.Count<World>(new { Id = criteria.Id, OwnerId = criteria.OwnerId, Location = criteria.Location }, queryOptions: criteria);
+            return new OkObjectResult(count);
         }
 
         [Authorize(Roles = "Administrator,Editor")]
@@ -60,7 +59,8 @@ namespace SardCoreAPI.Controllers.Hub.Worlds
 
             try
             {
-                int result = await new WorldDataAccess().PostWorld(data);
+                data.CreatedDate = DateTime.Now;
+                int result = await _dataAccess.Post(data);
 
                 if (result != 0)
                 {
@@ -90,7 +90,7 @@ namespace SardCoreAPI.Controllers.Hub.Worlds
         {
             if (data == null) { return new BadRequestResult(); }
 
-            int result = await new WorldDataAccess().PutWorld(data);
+            int result = await _dataAccess.Put(data);
 
             if (result != 0)
             {

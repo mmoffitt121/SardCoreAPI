@@ -11,7 +11,7 @@ namespace SardCoreAPI.Controllers.Security.LibraryRoles
 {
     [ApiController]
     [Route("Library/[controller]/[action]")]
-    public class LibraryPermissionController : GenericController
+    public class LibraryRoleController : GenericController
     {
         private ISecurityService securityService;
 
@@ -34,7 +34,7 @@ namespace SardCoreAPI.Controllers.Security.LibraryRoles
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetRoles([FromQuery] string? id)
+        public async Task<IActionResult> Get([FromQuery] string? id)
         {
             try
             {
@@ -51,9 +51,9 @@ namespace SardCoreAPI.Controllers.Security.LibraryRoles
             }
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
+        //[Authorize(Roles = "Administrator,Editor")]
         [HttpPut]
-        public async Task<IActionResult> PutRole([FromBody] Role data)
+        public async Task<IActionResult> Put([FromBody] Role data)
         {
             try
             {
@@ -66,9 +66,9 @@ namespace SardCoreAPI.Controllers.Security.LibraryRoles
             }
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
+        //[Authorize(Roles = "Administrator,Editor")]
         [HttpDelete]
-        public async Task<IActionResult> DeleteRole([FromQuery] string Id)
+        public async Task<IActionResult> Delete([FromQuery] string Id)
         {
             try
             {
@@ -81,7 +81,7 @@ namespace SardCoreAPI.Controllers.Security.LibraryRoles
             }
         }
 
-        public LibraryPermissionController(ISecurityService securityService)
+        public LibraryRoleController(ISecurityService securityService)
         {
             this.securityService = securityService;
         }

@@ -11,6 +11,8 @@ using SardCoreAPI.Utility.Error;
 using SardCoreAPI.Models.Calendars.CalendarData;
 using SardCoreAPI.Models.Common;
 using SardCoreAPI.Utility.Validation;
+using SardCoreAPI.DataAccess.Easy;
+using SardCoreAPI.Models.Calendars;
 
 namespace SardCoreAPI.Controllers.Calendars
 {
@@ -19,10 +21,12 @@ namespace SardCoreAPI.Controllers.Calendars
     public class CalendarController : GenericController
     {
         private readonly ILogger<MapController> _logger;
+        private readonly IEasyDataAccess _dataAccess;
 
-        public CalendarController(ILogger<MapController> logger)
+        public CalendarController(ILogger<MapController> logger, IEasyDataAccess dataAccess)
         {
             _logger = logger;
+            _dataAccess = dataAccess;
         }
 
         [HttpGet]
@@ -30,12 +34,13 @@ namespace SardCoreAPI.Controllers.Calendars
         {
             try
             {
-                List<Calendar> result = await new CalendarDataAccess().Get(criteria, WorldInfo);
-                if (result != null)
+                List<CalendarDataAccessWrapper> wrappers = await _dataAccess.Get<CalendarDataAccessWrapper>(new { Id = criteria?.Id }, WorldInfo, queryOptions: criteria);
+                List<Calendar> result = new List<Calendar>();
+                foreach (var item in wrappers)
                 {
-                    return new OkObjectResult(result);
+                    result.Add(item.Calendar);
                 }
-                return new BadRequestResult();
+                return new OkObjectResult(result);
             }
             catch (Exception ex)
             {
@@ -50,7 +55,7 @@ namespace SardCoreAPI.Controllers.Calendars
         {
             try
             {
-                await new CalendarDataAccess().Put(calendar, WorldInfo);
+                await _dataAccess.Put(new CalendarDataAccessWrapper(calendar), WorldInfo, insert: true);
                 return Ok();
             }
             catch (Exception ex)
@@ -65,7 +70,7 @@ namespace SardCoreAPI.Controllers.Calendars
         {
             try
             {
-                await new CalendarDataAccess().Delete(id, WorldInfo);
+                await _dataAccess.Delete<CalendarDataAccessWrapper>(new { id }, WorldInfo);
                 return Ok();
             }
             catch (Exception ex)

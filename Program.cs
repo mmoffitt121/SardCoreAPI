@@ -22,6 +22,8 @@ using SardCoreAPI.DataAccess.DataPoints;
 using SardCoreAPI.Services.Security;
 using SardCoreAPI.DataAccess.Hub.Worlds;
 using SardCoreAPI.DataAccess.Security.LibraryRoles;
+using SardCoreAPI.DataAccess.Easy;
+using SardCoreAPI.Services.Easy;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("SardCoreAPIContextConnection") ?? throw new InvalidOperationException("Connection string 'SardCoreAPIContextConnection' not found.");
@@ -91,11 +93,15 @@ builder.Services.AddAuthentication(opt =>
 );
 builder.Services.AddScoped<JwtHandler>();
 
-builder.Services.AddTransient<IDataPointTypeDataAccess, DataPointTypeDataAccess>();
-builder.Services.AddTransient<IWorldDataAccess, WorldDataAccess>();
-builder.Services.AddTransient<ILibraryPermissionDataAccess, LibraryPermissionDataAccess>();
+builder.Services.AddScoped<IDataPointTypeDataAccess, DataPointTypeDataAccess>();
+builder.Services.AddScoped<ILibraryPermissionDataAccess, LibraryPermissionDataAccess>();
+builder.Services.AddScoped<IEasyDataAccess, EasyDataAccess>();
 
-builder.Services.AddTransient<ISecurityService, SecurityService>();
+builder.Services.AddScoped<ISecurityService, SecurityService>();
+builder.Services.AddScoped<IEasyQueryService, MySQLEasyQueryService>();
+
+builder.Services.AddSingleton<IDatabaseDataAccess, MySQLDatabaseDataAccess>();
+
 
 /* builder.Services.AddHttpContextAccessor(); */
 
@@ -123,7 +129,7 @@ app.Use(async (context, next) =>
 {
     var request = context.Request;
     var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-    logger.LogInformation($"Received Request: {request.Method} {request.Path}");
+    logger.LogTrace($"Received Request: {request.Method} {request.Path}");
 
     await next.Invoke();
 });
@@ -139,9 +145,9 @@ app.UseEndpoints(endpoints =>
 });
 app.MapControllers();
 
-await new DatabaseDataAccess().UpdateDatabase();
-await new DatabaseDataAccess().UpdateWorldDatabases();
+await app.Services.GetRequiredService<IDatabaseDataAccess>().UpdateDatabase();
+await app.Services.GetRequiredService<IDatabaseDataAccess>().UpdateWorldDatabases();
 
-await app.Services.GetService<ISecurityService>()!.InitializeWorldsWithDefaultRoles();
+await app.Services.CreateScope().ServiceProvider.GetRequiredService<ISecurityService>().InitializeWorldsWithDefaultRoles();
 
 app.Run();
