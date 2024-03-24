@@ -29,10 +29,10 @@ namespace SardCoreAPI.Services.Security
                 Id = "Viewer",
                 Permissions = new string[]
                 {
-                    PERMISSION_ROOT + ".Map.View",
-                    PERMISSION_ROOT + ".Location.View",
-                    PERMISSION_ROOT + ".Images.View",
-                    DOCUMENT_PERMISSION + ".View",
+                    PERMISSION_ROOT + ".Map.Read",
+                    PERMISSION_ROOT + ".Location.Read",
+                    PERMISSION_ROOT + ".Images.Read",
+                    DOCUMENT_PERMISSION + ".Read",
                 }
             },
             new Role()

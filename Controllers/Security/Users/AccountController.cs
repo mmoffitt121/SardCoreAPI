@@ -107,6 +107,7 @@ namespace SardCoreAPI.Controllers.Security.Users
             return Ok(vUsers);
         }
 
+        [Authorize(Roles = "Administrator")]
         [HttpDelete]
         public async Task<IActionResult> DeleteUser(string username)
         {

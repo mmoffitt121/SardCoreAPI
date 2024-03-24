@@ -43,6 +43,7 @@ namespace SardCoreAPI.Services.Security
         public async Task<Permission> BuildPermissionObject(HashSet<string> permissions)
         {
             Permission permission = new Permission(SecurityServiceConstants.PERMISSION_ROOT);
+            permission.Description = SecurityServiceConstants.PERMISSION_ROOT;
             foreach (string permString in permissions)
             {
                 Permission selectedPermission = permission;
@@ -50,14 +51,14 @@ namespace SardCoreAPI.Services.Security
                 string[] permissionArray = permString.Split('.');
                 while (i < permissionArray.Length)
                 {
-                    if (!selectedPermission.Children.ContainsKey(permissionArray[i]))
+                    if (!selectedPermission.ChildrenDictionary.ContainsKey(permissionArray[i]))
                     {
                         string[] arrayWithoutParenthesis = permissionArray[i].Split('(', ')');
                         string id = arrayWithoutParenthesis[0];
                         string description = arrayWithoutParenthesis.Length > 1 ? arrayWithoutParenthesis[1] : arrayWithoutParenthesis[0];
-                        selectedPermission.Children.Add(permissionArray[i], new Permission(id, description));
+                        selectedPermission.ChildrenDictionary.Add(permissionArray[i], new Permission(id, description));
                     }
-                    selectedPermission = selectedPermission.Children[permissionArray[i]];
+                    selectedPermission = selectedPermission.ChildrenDictionary[permissionArray[i]];
                     i++;
                 }
             }

@@ -51,7 +51,7 @@ namespace SardCoreAPI.Controllers.Security.LibraryRoles
             }
         }
 
-        //[Authorize(Roles = "Administrator,Editor")]
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpPut]
         public async Task<IActionResult> Put([FromBody] Role data)
         {
@@ -66,7 +66,7 @@ namespace SardCoreAPI.Controllers.Security.LibraryRoles
             }
         }
 
-        //[Authorize(Roles = "Administrator,Editor")]
+        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete]
         public async Task<IActionResult> Delete([FromQuery] string Id)
         {
