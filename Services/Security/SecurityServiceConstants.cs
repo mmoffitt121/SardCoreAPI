@@ -1,4 +1,5 @@
 ﻿using SardCoreAPI.Models.Security.LibraryRoles;
+using SardCoreAPI.Services.MenuItems;
 
 namespace SardCoreAPI.Services.Security
 {
@@ -24,6 +25,7 @@ namespace SardCoreAPI.Services.Security
             PERMISSION_ROOT + ".Map",
             PERMISSION_ROOT + ".Location",
             PERMISSION_ROOT + ".Images",
+            MenuItemServiceConstants.MENU_ITEM_RESOURCE,
             DOCUMENT_PERMISSION,
             DOCUMENT_PERMISSION + ".Type"
         };

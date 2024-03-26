@@ -9,7 +9,9 @@ using SardCoreAPI.Models.DataPoints;
 using SardCoreAPI.Models.Hub.Worlds;
 using SardCoreAPI.Models.Security.LibraryRoles;
 using SardCoreAPI.Models.Security.Users;
+using SardCoreAPI.Models.Settings;
 using SardCoreAPI.Services.Easy;
+using SardCoreAPI.Services.MenuItems;
 using System.Security.Claims;
 
 namespace SardCoreAPI.Services.Security
@@ -36,6 +38,7 @@ namespace SardCoreAPI.Services.Security
         {
             HashSet<string> permissionsSet = new HashSet<string>(SecurityServiceConstants.PERMISSIONS);
             await AddDataPointTypePermissions(permissionsSet, info);
+            await AddMenuItemPermissions(permissionsSet, info);
 
             return await BuildPermissionObject(permissionsSet);
         }
@@ -83,6 +86,16 @@ namespace SardCoreAPI.Services.Security
             {
                 permissions.Add(SecurityServiceConstants.DOCUMENT_PERMISSION + ".Type" + "." + type.Id + "(" + type.Name + ")");
             }
+        }
+
+        private async Task AddMenuItemPermissions(HashSet<string> permissions, WorldInfo info)
+        {
+            /*SettingJSON types = await dataAccess.First<SettingJSON>(new { Id = MenuItemServiceConstants. }, info);
+
+            foreach (DataPointType type in types)
+            {
+                permissions.Add(SecurityServiceConstants.DOCUMENT_PERMISSION + ".Type" + "." + type.Id + "(" + type.Id + ")");
+            }*/
         }
         #endregion
 

@@ -32,7 +32,7 @@ namespace SardCoreAPI.Controllers.Hub.Worlds
         {
             if (criteria == null) { return new BadRequestResult(); }
 
-            List<World> result = await _dataAccess.Get<World>(new { Id = criteria.Id, OwnerId = criteria.OwnerId, Location = criteria.Location }, queryOptions: criteria);
+            List<World> result = await _dataAccess.Get<World>(new { Id = criteria.Id, OwnerId = criteria.OwnerId, Location = criteria.Location }, queryOptions: criteria, global: true);
             if (result != null)
             {
                 return new OkObjectResult(result);
@@ -45,7 +45,7 @@ namespace SardCoreAPI.Controllers.Hub.Worlds
         {
             if (criteria == null) { return new BadRequestResult(); }
 
-            int count = await _dataAccess.Count<World>(new { Id = criteria.Id, OwnerId = criteria.OwnerId, Location = criteria.Location }, queryOptions: criteria);
+            int count = await _dataAccess.Count<World>(new { Id = criteria.Id, OwnerId = criteria.OwnerId, Location = criteria.Location }, queryOptions: criteria, global: true);
             return new OkObjectResult(count);
         }
 
@@ -60,7 +60,7 @@ namespace SardCoreAPI.Controllers.Hub.Worlds
             try
             {
                 data.CreatedDate = DateTime.Now;
-                int result = await _dataAccess.Post(data);
+                int result = await _dataAccess.Post(data, global: true);
 
                 if (result != 0)
                 {
@@ -90,7 +90,7 @@ namespace SardCoreAPI.Controllers.Hub.Worlds
         {
             if (data == null) { return new BadRequestResult(); }
 
-            int result = await _dataAccess.Put(data);
+            int result = await _dataAccess.Put(data, global: true);
 
             if (result != 0)
             {

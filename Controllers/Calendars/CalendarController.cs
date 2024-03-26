@@ -34,7 +34,7 @@ namespace SardCoreAPI.Controllers.Calendars
         {
             try
             {
-                List<CalendarDataAccessWrapper> wrappers = await _dataAccess.Get<CalendarDataAccessWrapper>(new { Id = criteria?.Id }, WorldInfo, queryOptions: criteria);
+                List<CalendarDataAccessWrapper> wrappers = await _dataAccess.Get<CalendarDataAccessWrapper>(new { Id = criteria?.Id }, queryOptions: criteria);
                 List<Calendar> result = new List<Calendar>();
                 foreach (var item in wrappers)
                 {
@@ -55,7 +55,7 @@ namespace SardCoreAPI.Controllers.Calendars
         {
             try
             {
-                await _dataAccess.Put(new CalendarDataAccessWrapper(calendar), WorldInfo, insert: true);
+                await _dataAccess.Put(new CalendarDataAccessWrapper(calendar), insert: true);
                 return Ok();
             }
             catch (Exception ex)
@@ -70,7 +70,7 @@ namespace SardCoreAPI.Controllers.Calendars
         {
             try
             {
-                await _dataAccess.Delete<CalendarDataAccessWrapper>(new { id }, WorldInfo);
+                await _dataAccess.Delete<CalendarDataAccessWrapper>(new { id });
                 return Ok();
             }
             catch (Exception ex)
