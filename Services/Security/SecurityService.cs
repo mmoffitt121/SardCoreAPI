@@ -131,6 +131,8 @@ namespace SardCoreAPI.Services.Security
         private async Task InitializeWorldWithDefaultRoles(WorldInfo info)
         {
             await UpdateRoles(SecurityServiceConstants.DEFAULT_ROLES, info);
+            World world = (await dataAccess.Get<World>(new { location = info.WorldLocation })).First();
+            await UpdateUserRoles(world.OwnerId, new string[] { SecurityServiceConstants.ROLE_ADMINISTRATOR }, info);
         }
         #endregion
 

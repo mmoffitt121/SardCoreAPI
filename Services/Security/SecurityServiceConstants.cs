@@ -6,6 +6,11 @@ namespace SardCoreAPI.Services.Security
     {
         public static string PERMISSION_ROOT = "Library";
         public static string DOCUMENT_PERMISSION = PERMISSION_ROOT + ".Document";
+        public static string ROLE_VIEWER = "Viewer";
+        public static string ROLE_SETUP = "Setup";
+        public static string ROLE_SECURITY = "Security";
+        public static string ROLE_EDITOR = "Editor";
+        public static string ROLE_ADMINISTRATOR = "Administrator";
         public static HashSet<string> PERMISSIONS = new HashSet<string> {
             PERMISSION_ROOT,
             PERMISSION_ROOT + ".Administration",
@@ -26,7 +31,7 @@ namespace SardCoreAPI.Services.Security
         {
             new Role()
             {
-                Id = "Viewer",
+                Id = ROLE_VIEWER,
                 Permissions = new string[]
                 {
                     PERMISSION_ROOT + ".Map.Read",
@@ -37,7 +42,7 @@ namespace SardCoreAPI.Services.Security
             },
             new Role()
             {
-                Id = "Setup",
+                Id = ROLE_SETUP,
                 Permissions = new string[]
                 {
                     PERMISSION_ROOT + ".Setup.Calendars",
@@ -49,7 +54,7 @@ namespace SardCoreAPI.Services.Security
             },
             new Role()
             {
-                Id = "Security",
+                Id = ROLE_SECURITY,
                 Permissions = new string[]
                 {
                     PERMISSION_ROOT + ".Setup.Security",
@@ -57,7 +62,7 @@ namespace SardCoreAPI.Services.Security
             },
             new Role()
             {
-                Id = "Editor",
+                Id = ROLE_EDITOR,
                 Permissions = new string[]
                 {
                     PERMISSION_ROOT + ".Map",
@@ -68,7 +73,7 @@ namespace SardCoreAPI.Services.Security
             },
             new Role()
             {
-                Id = "Administrator",
+                Id = ROLE_ADMINISTRATOR,
                 Permissions = new string[]
                 {
                     PERMISSION_ROOT
