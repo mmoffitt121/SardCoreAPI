@@ -175,6 +175,7 @@ namespace SardCoreAPI.Services.Easy
             {
                 // Build Update
                 List<string> updates = new List<string>();
+                List<string> primaryKeys = new List<string>();
 
                 // Get Columns from Properties
                 foreach (PropertyInfo prop in typeProperties)
@@ -182,11 +183,18 @@ namespace SardCoreAPI.Services.Easy
                     ColumnAttribute? attribute = prop.GetCustomAttribute<ColumnAttribute>();
                     if (attribute != null)
                     {
-                        updates.Add($"{GetColumnName(prop)} = @{ prop.Name }");
+                        if (attribute.PrimaryKey)
+                        {
+                            primaryKeys.Add($"{GetColumnName(prop)} = @{prop.Name}");
+                        }
+                        else
+                        {
+                            updates.Add($"{GetColumnName(prop)} = @{prop.Name}");
+                        }
                     }
                 }
 
-                return @$"UPDATE {tableName} SET {string.Join(",", updates)}";
+                return @$"UPDATE {tableName} SET {string.Join(",", updates)} {(primaryKeys.Count() > 0 ? "WHERE" : "")} {string.Join(" AND ", primaryKeys)}";
             }
         }
 

@@ -5,7 +5,7 @@ namespace SardCoreAPI.Models.Settings
     [Table("SettingJSON")]
     public class SettingJSON
     {
-        [Column]
+        [Column(PrimaryKey = true)]
         public string Id { get; set; }
         [Column]
         public string Setting { get; set; }

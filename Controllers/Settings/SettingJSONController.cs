@@ -5,6 +5,7 @@ using SardCoreAPI.DataAccess.Map;
 using SardCoreAPI.Models.Map.Location;
 using SardCoreAPI.Models.Map.LocationType;
 using SardCoreAPI.Models.Settings;
+using SardCoreAPI.Services.Setting;
 using SardCoreAPI.Utility.Error;
 
 namespace SardCoreAPI.Controllers.Map
@@ -14,10 +15,12 @@ namespace SardCoreAPI.Controllers.Map
     public class SettingJSONController : GenericController
     {
         private readonly ILogger<MapController> _logger;
+        private readonly ISettingJSONService _settingService;
 
-        public SettingJSONController(ILogger<MapController> logger)
+        public SettingJSONController(ILogger<MapController> logger, ISettingJSONService settingService)
         {
             _logger = logger;
+            _settingService = settingService;
         }
 
         [HttpGet]
@@ -25,7 +28,7 @@ namespace SardCoreAPI.Controllers.Map
         {
             try
             {
-                List<SettingJSON> result = await new SettingJSONDataAccess().Get(Id, WorldInfo);
+                List<SettingJSON> result = await _settingService.Get(Id);
                 if (result != null)
                 {
                     return new OkObjectResult(result);
@@ -44,7 +47,7 @@ namespace SardCoreAPI.Controllers.Map
         {
             try
             {
-                await new SettingJSONDataAccess().Put(data, WorldInfo);
+                await _settingService.Put(data);
                 return Ok();
             }
             catch (Exception ex)
@@ -59,7 +62,7 @@ namespace SardCoreAPI.Controllers.Map
         {
             try
             {
-                await new SettingJSONDataAccess().Delete(Id, WorldInfo);
+                await _settingService.Delete(Id);
                 return Ok();
             }
             catch (Exception ex)

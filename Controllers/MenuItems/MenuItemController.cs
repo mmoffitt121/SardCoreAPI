@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SardCoreAPI.DataAccess.Map;
 using SardCoreAPI.Models.Hub.Worlds;
+using SardCoreAPI.Models.MenuItems;
 using SardCoreAPI.Models.Settings;
 using SardCoreAPI.Services.MenuItems;
 using SardCoreAPI.Utility.Error;
@@ -33,11 +34,11 @@ namespace SardCoreAPI.Controllers.MenuItems
 
         [Authorize(Roles = "Administrator,Editor")]
         [HttpPut]
-        public async Task<IActionResult> Put([FromBody] SettingJSON data)
+        public async Task<IActionResult> Put([FromBody]List<MenuItem> data)
         {
             try
             {
-                await new SettingJSONDataAccess().Put(data, WorldInfo);
+                await _menuItemService.SetMenuItems(data);
                 return Ok();
             }
             catch (Exception ex)

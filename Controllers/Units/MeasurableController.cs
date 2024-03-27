@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SardCoreAPI.DataAccess.Theming;
 using SardCoreAPI.DataAccess.Units;
 using SardCoreAPI.Models.Common;
-using SardCoreAPI.Models.Theming;
 using SardCoreAPI.Models.Units;
 
 namespace SardCoreAPI.Controllers.Units

@@ -26,6 +26,7 @@ using SardCoreAPI.DataAccess.Easy;
 using SardCoreAPI.Services.Easy;
 using SardCoreAPI.Services.MenuItems;
 using SardCoreAPI.Services.WorldContext;
+using SardCoreAPI.Services.Setting;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("SardCoreAPIContextConnection") ?? throw new InvalidOperationException("Connection string 'SardCoreAPIContextConnection' not found.");
@@ -100,6 +101,7 @@ builder.Services.AddScoped<ILibraryPermissionDataAccess, LibraryPermissionDataAc
 builder.Services.AddScoped<IEasyDataAccess, EasyDataAccess>();
 
 builder.Services.AddScoped<ISecurityService, SecurityService>();
+builder.Services.AddScoped<ISettingJSONService, SettingJSONService>();
 builder.Services.AddScoped<IMenuItemService, MenuItemService>();
 builder.Services.AddScoped<IWorldInfoService, WorldInfoService>();
 builder.Services.AddScoped<IEasyQueryService, MySQLEasyQueryService>();
