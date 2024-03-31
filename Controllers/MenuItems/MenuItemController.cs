@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SardCoreAPI.Attributes.Security;
 using SardCoreAPI.DataAccess.Map;
 using SardCoreAPI.Models.Hub.Worlds;
 using SardCoreAPI.Models.MenuItems;
@@ -20,7 +21,7 @@ namespace SardCoreAPI.Controllers.MenuItems
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] string Id)
+        public async Task<IActionResult> Get()
         {
             try
             {
@@ -32,8 +33,8 @@ namespace SardCoreAPI.Controllers.MenuItems
             }
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPut]
+        [Resource("Library.Setup.Pages")]
         public async Task<IActionResult> Put([FromBody]List<MenuItem> data)
         {
             try

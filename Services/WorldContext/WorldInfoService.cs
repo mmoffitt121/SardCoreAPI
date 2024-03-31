@@ -6,6 +6,7 @@ namespace SardCoreAPI.Services.WorldContext
     public interface IWorldInfoService
     {
         public WorldInfo GetWorldInfo();
+        public bool IsInWorld();
     }
     public class WorldInfoService : IWorldInfoService
     {
@@ -26,6 +27,11 @@ namespace SardCoreAPI.Services.WorldContext
                 return new WorldInfo(loc.First()!);
             }
             return null;
+        }
+
+        public bool IsInWorld()
+        {
+            return !string.IsNullOrEmpty(GetWorldInfo()?.WorldLocation);
         }
     }
 }

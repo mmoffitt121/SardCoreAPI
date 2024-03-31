@@ -5,6 +5,7 @@ using SardCoreAPI.Utility.Map;
 using Microsoft.AspNetCore.SignalR;
 using SardCoreAPI.Utility.Progress;
 using Microsoft.AspNetCore.Authorization;
+using SardCoreAPI.Attributes.Security;
 
 namespace SardCoreAPI.Controllers.Map
 {
@@ -28,8 +29,8 @@ namespace SardCoreAPI.Controllers.Map
             return new FileStreamResult(new MemoryStream(result.Tile), "image/png");
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost]
+        [Resource("Library.Map")]
         public async Task<IActionResult> UploadTile([FromForm] TileUploadRequest request)
         {
             if (request == null || request.Data == null || request.Data.Length == 0)
@@ -68,8 +69,8 @@ namespace SardCoreAPI.Controllers.Map
             return new BadRequestResult();
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete]
+        [Resource("Library.Map.Read")]
         public async Task<IActionResult> DeleteTile(int z, int x, int y, int layerId)
         {
             int result = await new MapTileDataAccess().DeleteTile(z, x, y, layerId, WorldInfo);
@@ -80,16 +81,16 @@ namespace SardCoreAPI.Controllers.Map
             return new OkResult();
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete]
+        [Resource("Library.Map")]
         public async Task<IActionResult> DeleteTilesOfLayer(int layerId)
         {
             int result = await new MapTileDataAccess().DeleteTiles(layerId, WorldInfo);
             return new OkResult();
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete]
+        [Resource("Library.Map")]
         public async Task<IActionResult> DeleteTilesOfMap(int mapId)
         {
             int result = await new MapTileDataAccess().DeleteTilesOfMap(mapId, WorldInfo);

@@ -13,6 +13,9 @@ using SardCoreAPI.Models.Common;
 using SardCoreAPI.Utility.Validation;
 using SardCoreAPI.DataAccess.Easy;
 using SardCoreAPI.Models.Calendars;
+using SardCoreAPI.Attributes.Security;
+using Humanizer.Localisation;
+using SardCoreAPI.Services.Security;
 
 namespace SardCoreAPI.Controllers.Calendars
 {
@@ -30,6 +33,7 @@ namespace SardCoreAPI.Controllers.Calendars
         }
 
         [HttpGet]
+        [Resource("Library.General.Read")]
         public async Task<IActionResult> Get([FromQuery] PagedSearchCriteria? criteria)
         {
             try
@@ -50,7 +54,7 @@ namespace SardCoreAPI.Controllers.Calendars
 
         [HttpPut]
         [Validate]
-        [Authorize(Roles = "Administrator,Editor")]
+        [Resource("Library.Setup.Calendars")]
         public async Task<IActionResult> Put(Calendar calendar)
         {
             try
@@ -65,7 +69,7 @@ namespace SardCoreAPI.Controllers.Calendars
         }
 
         [HttpDelete]
-        [Authorize(Roles = "Administrator,Editor")]
+        [Resource("Library.Setup.Calendars")]
         public async Task<IActionResult> Delete(int id)
         {
             try

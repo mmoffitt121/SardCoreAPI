@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using SardCoreAPI.Attributes.Security;
 using SardCoreAPI.DataAccess.Map;
 using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.Map.Location;
@@ -23,6 +24,7 @@ namespace SardCoreAPI.Controllers.Map
         }
 
         [HttpGet(Name = "GetLocationTypes")]
+        [Resource("Library.Location.Read")]
         public async Task<IActionResult> GetLocationTypes([FromQuery] PagedSearchCriteria criteria)
         {
             List<LocationType> locationTypes = await new LocationTypeDataAccess().GetLocationTypes(criteria, WorldInfo);
@@ -36,6 +38,7 @@ namespace SardCoreAPI.Controllers.Map
 
 
         [HttpGet]
+        [Resource("Library.Location.Read")]
         public async Task<IActionResult> GetLocationTypeCount([FromQuery] PagedSearchCriteria criteria)
         {
             List<LocationType> locationTypes = await new LocationTypeDataAccess().GetLocationTypes(criteria, WorldInfo);
@@ -49,6 +52,7 @@ namespace SardCoreAPI.Controllers.Map
 
 
         [HttpGet(Name = "GetLocationType")]
+        [Resource("Library.Location.Read")]
         public async Task<IActionResult> GetLocationType(int? id)
         {
             if (id == null) { return new BadRequestResult(); }
@@ -62,8 +66,8 @@ namespace SardCoreAPI.Controllers.Map
             return new NotFoundResult();
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost(Name = "PostLocationType")]
+        [Resource("Library.Location")]
         public async Task<IActionResult> PostLocationType([FromBody] LocationType data)
         {
             if (data == null) { return new BadRequestResult(); }
@@ -78,8 +82,8 @@ namespace SardCoreAPI.Controllers.Map
             return new BadRequestResult();
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPut(Name = "PutLocationType")]
+        [Resource("Library.Location")]
         public async Task<IActionResult> PutLocationType([FromBody] LocationType data)
         {
             if (data == null) { return new BadRequestResult(); }
@@ -100,8 +104,8 @@ namespace SardCoreAPI.Controllers.Map
             }
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete]
+        [Resource("Library.Location")]
         public async Task<IActionResult> DeleteLocationType(int? Id)
         {
             if (Id == null) { return new BadRequestResult(); }

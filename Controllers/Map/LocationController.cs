@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SardCoreAPI.Attributes.Security;
 using SardCoreAPI.DataAccess.Map;
 using SardCoreAPI.Models.Map.Location;
 using SardCoreAPI.Models.Map.LocationType;
@@ -18,6 +19,7 @@ namespace SardCoreAPI.Controllers.Map
         }
 
         [HttpGet(Name = "GetLocations")]
+        [Resource("Library.Location.Read")]
         public async Task<IActionResult> GetLocations([FromQuery] LocationSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
@@ -31,6 +33,7 @@ namespace SardCoreAPI.Controllers.Map
         }
 
         [HttpGet]
+        [Resource("Library.Location.Read")]
         public async Task<IActionResult> GetLocationsCount([FromQuery] LocationSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
@@ -43,6 +46,7 @@ namespace SardCoreAPI.Controllers.Map
         }
 
         [HttpGet(Name = "GetLocation")]
+        [Resource("Library.Location.Read")]
         public async Task<ActionResult> GetLocation([FromQuery] int? Id)
         {
             Location result = await new LocationDataAccess().GetLocation(Id, WorldInfo);
@@ -54,6 +58,7 @@ namespace SardCoreAPI.Controllers.Map
         }
 
         [HttpGet]
+        [Resource("Library.Location.Read")]
         public async Task<IActionResult> GetLocationHeiarchy(int id, int depth)
         {
             List<Location> result = new List<Location>();
@@ -74,8 +79,8 @@ namespace SardCoreAPI.Controllers.Map
             return new BadRequestResult();
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost(Name = "PostLocation")]
+        [Resource("Library.Location")]
         public async Task<IActionResult> PostLocation([FromBody] Location location)
         {
             if (location == null) { return new BadRequestResult(); }
@@ -88,8 +93,8 @@ namespace SardCoreAPI.Controllers.Map
             return new BadRequestResult();
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPut(Name = "PutLocation")]
+        [Resource("Library.Location")]
         public async Task<IActionResult> PutLocation([FromBody] Location location)
         {
             int result = await new LocationDataAccess().PutLocation(location, WorldInfo);
@@ -107,8 +112,8 @@ namespace SardCoreAPI.Controllers.Map
             }
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete(Name = "DeleteLocation")]
+        [Resource("Library.Location")]
         public async Task<IActionResult> DeleteLocation([FromQuery] int? Id)
         {
             if (Id == null) { return new BadRequestResult(); }

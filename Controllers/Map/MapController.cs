@@ -14,6 +14,7 @@ using SardCoreAPI.Models.Map.MapLayer;
 using SardCoreAPI.Models.Content;
 using Microsoft.AspNetCore.Authorization;
 using SardCoreAPI.Utility.Auth;
+using SardCoreAPI.Attributes.Security;
 
 namespace SardCoreAPI.Controllers.Map
 {
@@ -31,6 +32,7 @@ namespace SardCoreAPI.Controllers.Map
         #region Map
 
         [HttpGet(Name = "GetMaps")]
+        [Resource("Library.Map.Read")]
         public async Task<IActionResult> GetMaps([FromQuery] MapSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
@@ -44,6 +46,7 @@ namespace SardCoreAPI.Controllers.Map
         }
 
         [HttpGet(Name = "GetMapCount")]
+        [Resource("Library.Map.Read")]
         public async Task<IActionResult> GetMapCount([FromQuery] MapSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
@@ -52,8 +55,8 @@ namespace SardCoreAPI.Controllers.Map
             return new OkObjectResult(result);
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost(Name = "PostMap")]
+        [Resource("Library.Map")]
         public async Task<IActionResult> PostMap([FromBody] m.Map data)
         {
             if (data == null) { return new BadRequestResult(); }
@@ -68,8 +71,9 @@ namespace SardCoreAPI.Controllers.Map
             return new BadRequestResult();
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPut(Name = "PutMap")]
+        [Resource("Library.Map")]
+
         public async Task<IActionResult> PutMap([FromBody] m.Map data)
         {
             if (data == null) { return new BadRequestResult(); }
@@ -90,8 +94,9 @@ namespace SardCoreAPI.Controllers.Map
             }
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete(Name = "DeleteMap")]
+        [Resource("Library.Map")]
+
         public async Task<IActionResult> DeleteMap([FromQuery] int? Id)
         {
             if (Id == null) { return new BadRequestResult(); }
@@ -115,6 +120,7 @@ namespace SardCoreAPI.Controllers.Map
 
         #region Map Icon
         [HttpGet(Name = "GetMapIcon")]
+        [Resource("Library.Map.Read")]
         public async Task<IActionResult> GetMapIcon(int id)
         {
             try
@@ -141,8 +147,8 @@ namespace SardCoreAPI.Controllers.Map
             
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost(Name = "PostMapIcon")]
+        [Resource("Library.Map")]
         public async Task<IActionResult> PostMapIcon([FromForm] ImagePostRequest file)
         {
             if (file == null || file.Data.Length == 0)

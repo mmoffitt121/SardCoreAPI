@@ -12,26 +12,114 @@ using SardCoreAPI.Models.Security.Users;
 using SardCoreAPI.Models.Settings;
 using SardCoreAPI.Services.Easy;
 using SardCoreAPI.Services.MenuItems;
+using SardCoreAPI.Services.WorldContext;
+using System.Runtime.CompilerServices;
 using System.Security.Claims;
 
 namespace SardCoreAPI.Services.Security
 {
     public interface ISecurityService
     {
+        public Task<bool> HasAccess(string resource);
+        public Task<bool> HasAccessAny(string resource);
+        public Task<bool> HasGlobalAccess(string resource);
         public Task<Permission> GetAllPermissions(WorldInfo info);
         public Task<Permission> BuildPermissionObject(HashSet<string> permissions);
         public Task<List<Role>> GetRoles(string? roleId, WorldInfo info);
         public Task UpdateRoles(Role[] roles, WorldInfo info);
         public Task DeleteRole(string roleId, WorldInfo info);
         public Task InitializeWorldsWithDefaultRoles();
-        public Task<ViewableLibraryUser[]> GetUsersWithRoles(WorldInfo info);
+        public Task<ViewableLibraryUser[]> GetUsersWithRoles(WorldInfo info, string? userId = null);
         public Task UpdateUserRoles(string userId, string[] roles, WorldInfo info);
     }
 
     public class SecurityService : ISecurityService
     {
         private IEasyDataAccess dataAccess;
-        private readonly UserManager<SardCoreAPIUser> userManager;
+        private readonly UserManager<SardCoreAPIUser> _userManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IWorldInfoService _worldInfoService;
+
+        private HashSet<string>? _currentUserPermissions = null;
+
+        #region Access
+        public async Task<bool> HasAccess(string resource)
+        {
+            if (string.IsNullOrEmpty(resource))
+            {
+                return true;
+            }
+
+            string[] path = resource.Split(".");
+            bool read = path.Last().Equals("Read");
+
+            HashSet<string> currentUserPermissions = await GetUserPermissions();
+
+            string resourceIterator = "";
+            for (int i = 0; i < path.Length; i++)
+            {
+                resourceIterator += path[i];
+                if (currentUserPermissions.Contains(resourceIterator) || (read && currentUserPermissions.Contains($"{resourceIterator}.Read")))
+                {
+                    return true;
+                }
+                resourceIterator += ".";
+            }
+            return false;
+        }
+
+        public async Task<bool> HasAccessAny(string resource)
+        {
+            return (await HasAccess(resource)) || (await GetUserPermissions()).Any(x => x.StartsWith(resource) || x.StartsWith(resource.Replace(".Read", "")));
+        }
+
+        public async Task<bool> HasGlobalAccess(string role)
+        {
+            if (string.IsNullOrEmpty(role)) return true;
+            var roles = ((ClaimsIdentity)_httpContextAccessor.HttpContext!.User.Identity!).Claims
+                .Where(c => c.Type == ClaimTypes.Role)
+                .Select(c => c.Value);
+            return roles != null && roles.Contains(role);
+        }
+
+        private async Task<HashSet<string>> GetUserPermissions()
+        {
+            if (_currentUserPermissions != null) return _currentUserPermissions;
+
+            var userId = _httpContextAccessor.HttpContext?.User.FindFirstValue("Id");
+            List<Role> roles;
+            if (userId != null)
+            {
+                roles = (await GetUsersWithRoles(_worldInfoService.GetWorldInfo(), userId)).FirstOrDefault()?.LibraryRoles;
+                
+            }
+            else
+            {
+                roles = (await GetUsersWithRoles(_worldInfoService.GetWorldInfo(), SecurityServiceConstants.DEFAULT_USER_ID)).FirstOrDefault()?.LibraryRoles;
+            }
+
+            if (roles == null)
+            {
+                _currentUserPermissions = new HashSet<string>();
+                return _currentUserPermissions;
+            }
+
+            _currentUserPermissions = new HashSet<string>();
+            await Task.WhenAll(roles.Select(async role =>
+            {
+                Role? r = (await GetRoles(role.Id, _worldInfoService.GetWorldInfo())).FirstOrDefault();
+                if (r != null && r.Permissions != null)
+                {
+                    foreach (string p in r.Permissions)
+                    {
+                        _currentUserPermissions.Add(p);
+                    }
+                }
+            }));
+
+            return _currentUserPermissions;
+        }
+        #endregion
 
         #region Permissions
         public async Task<Permission> GetAllPermissions(WorldInfo info)
@@ -146,17 +234,32 @@ namespace SardCoreAPI.Services.Security
             await UpdateRoles(SecurityServiceConstants.DEFAULT_ROLES, info);
             World world = (await dataAccess.Get<World>(new { location = info.WorldLocation })).First();
             await UpdateUserRoles(world.OwnerId, new string[] { SecurityServiceConstants.ROLE_ADMINISTRATOR }, info);
+
+            // Initialize default user
+            var defaultUserRoles = await dataAccess.Get<UserRole>(new { UserId = SecurityServiceConstants.DEFAULT_USER_ID }, info);
+            if (defaultUserRoles == null)
+            {
+                await UpdateUserRoles(SecurityServiceConstants.DEFAULT_USER_ID, new string[] { SecurityServiceConstants.ROLE_VIEWER }, info);
+            }
         }
         #endregion
 
         #region User Roles
-        public async Task<ViewableLibraryUser[]> GetUsersWithRoles(WorldInfo info)
+        public async Task<ViewableLibraryUser[]> GetUsersWithRoles(WorldInfo info, string? userId = null)
         {
-            List<UserRole> userRoles = await dataAccess.Get<UserRole>(new { }, info);
+            List<UserRole> userRoles;
+            if (userId != null)
+            {
+                userRoles = await dataAccess.Get<UserRole>(new { userId }, info);
+            }
+            else
+            {
+                userRoles = await dataAccess.Get<UserRole>(new { }, info);
+            }
             Dictionary<string, ViewableLibraryUser> users = new Dictionary<string, ViewableLibraryUser>();
             foreach (UserRole userRole in userRoles)
             {
-                SardCoreAPIUser user = await userManager.FindByIdAsync(userRole.UserId);
+                SardCoreAPIUser user = await _userManager.FindByIdAsync(userRole.UserId);
                 users.TryAdd(user.Id, new ViewableLibraryUser()
                 {
                     Id = user.Id,
@@ -186,10 +289,14 @@ namespace SardCoreAPI.Services.Security
 
         public SecurityService(
             IEasyDataAccess dataAccess,
-            UserManager<SardCoreAPIUser> userManager)
+            UserManager<SardCoreAPIUser> userManager,
+            IHttpContextAccessor httpContextAccessor,
+            IWorldInfoService worldInfoService)
         {
-            this.userManager = userManager;
+            this._userManager = userManager;
             this.dataAccess = dataAccess;
+            this._httpContextAccessor = httpContextAccessor;
+            this._worldInfoService = worldInfoService;
         }
     }
 }

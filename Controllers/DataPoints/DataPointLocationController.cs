@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MySqlConnector;
+using SardCoreAPI.Attributes.Security;
 using SardCoreAPI.Controllers.Map;
 using SardCoreAPI.DataAccess.DataPoints;
 using SardCoreAPI.DataAccess.Map;
@@ -25,6 +26,8 @@ namespace SardCoreAPI.Controllers.DataPoints
         }
 
         [HttpGet]
+        [Resource("Library.Document.Read")]
+        [Resource("Library.Location.Read")]
         public async Task<IActionResult> GetDataPointsFromLocationId([FromQuery] PagedSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
@@ -38,6 +41,8 @@ namespace SardCoreAPI.Controllers.DataPoints
         }
 
         [HttpGet]
+        [Resource("Library.Document.Read")]
+        [Resource("Library.Location.Read")]
         public async Task<IActionResult> GetDataPointsFromLocationIdCount([FromQuery] PagedSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
@@ -51,6 +56,8 @@ namespace SardCoreAPI.Controllers.DataPoints
         }
 
         [HttpGet]
+        [Resource("Library.Document.Read")]
+        [Resource("Library.Location.Read")]
         public async Task<IActionResult> GetLocationsFromDataPointId([FromQuery] PagedSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
@@ -64,6 +71,8 @@ namespace SardCoreAPI.Controllers.DataPoints
         }
 
         [HttpGet]
+        [Resource("Library.Document.Read")]
+        [Resource("Library.Location.Read")]
         public async Task<IActionResult> GetLocationsFromDataPointIdCount([FromQuery] PagedSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
@@ -76,8 +85,9 @@ namespace SardCoreAPI.Controllers.DataPoints
             return new BadRequestResult();
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost]
+        [Resource("Library.Document")]
+        [Resource("Library.Location")]
         public async Task<IActionResult> PostDataPointLocation([FromBody] DataPointLocation location)
         {
             if (location == null) { return new BadRequestResult(); }
@@ -98,8 +108,9 @@ namespace SardCoreAPI.Controllers.DataPoints
             return Ok();
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost]
+        [Resource("Library.Document")]
+        [Resource("Library.Location")]
         public async Task<IActionResult> DeleteDataPointLocation([FromBody] DataPointLocation location)
         {
             if (location == null) { return new BadRequestResult(); }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SardCoreAPI.Attributes.Security;
 using SardCoreAPI.DataAccess.Units;
 using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.Units;
@@ -11,6 +12,7 @@ namespace SardCoreAPI.Controllers.Units
     public class MeasurableController : GenericController
     {
         [HttpGet]
+        [Resource("Library.Setup.Units.Read")]
         public async Task<IActionResult> Get([FromQuery] PagedSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
@@ -23,8 +25,8 @@ namespace SardCoreAPI.Controllers.Units
             return new BadRequestResult();
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost]
+        [Resource("Library.Setup.Units")]
         public async Task<IActionResult> Post([FromBody] Measurable data)
         {
             if (data == null) { return new BadRequestResult(); }
@@ -39,8 +41,8 @@ namespace SardCoreAPI.Controllers.Units
             return new BadRequestResult();
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPut]
+        [Resource("Library.Setup.Units")]
         public async Task<IActionResult> Put([FromBody] Measurable data)
         {
             if (data == null) { return new BadRequestResult(); }
@@ -61,8 +63,8 @@ namespace SardCoreAPI.Controllers.Units
             }
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete]
+        [Resource("Library.Setup.Units")]
         public async Task<IActionResult> Delete([FromQuery] int? Id)
         {
             if (Id == null) { return new BadRequestResult(); }

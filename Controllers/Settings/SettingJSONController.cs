@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SardCoreAPI.Attributes.Security;
 using SardCoreAPI.DataAccess.Calendars;
 using SardCoreAPI.DataAccess.Map;
 using SardCoreAPI.Models.Map.Location;
@@ -24,6 +25,7 @@ namespace SardCoreAPI.Controllers.Map
         }
 
         [HttpGet]
+        [Resource("Library.Setup.Settings.Read")]
         public async Task<IActionResult> Get([FromQuery] string Id)
         {
             try
@@ -41,8 +43,8 @@ namespace SardCoreAPI.Controllers.Map
             }
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPut]
+        [Resource("Library.Setup.Settings")]
         public async Task<IActionResult> Put([FromBody] SettingJSON data)
         {
             try
@@ -56,8 +58,8 @@ namespace SardCoreAPI.Controllers.Map
             }
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete]
+        [Resource("Library.Setup.Settings")]
         public async Task<IActionResult> Delete([FromQuery] string Id)
         {
             try

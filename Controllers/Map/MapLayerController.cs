@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SardCoreAPI.Attributes.Security;
 using SardCoreAPI.DataAccess.Map;
 using SardCoreAPI.Models.Content;
 using SardCoreAPI.Models.Map.LocationType;
@@ -23,6 +24,7 @@ namespace SardCoreAPI.Controllers.Map
 
         #region Map Layer
         [HttpGet(Name = "GetMapLayers")]
+        [Resource("Library.Map.Read")]
         public async Task<IActionResult> GetMapLayers([FromQuery] MapLayerSearchCriteria criteria)
         {
             List<MapLayer>? mapLayers = await new MapLayerDataAccess().GetMapLayers(criteria, WorldInfo);
@@ -40,6 +42,7 @@ namespace SardCoreAPI.Controllers.Map
         }
 
         [HttpGet(Name = "GetMapLayersCount")]
+        [Resource("Library.Map.Read")]
         public async Task<IActionResult> GetMapLayersCount([FromQuery] MapLayerSearchCriteria criteria)
         {
             List<MapLayer>? mapLayers = await new MapLayerDataAccess().GetMapLayers(criteria, WorldInfo);
@@ -51,8 +54,9 @@ namespace SardCoreAPI.Controllers.Map
             return new BadRequestResult();
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost(Name = "PostMapLayer")]
+        [Resource("Library.Map")]
+
         public async Task<IActionResult> PostMapLayer(MapLayer layer)
         {
             if (layer == null || string.IsNullOrEmpty(layer.Name))
@@ -77,8 +81,8 @@ namespace SardCoreAPI.Controllers.Map
             return new BadRequestResult();
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPut(Name = "PutMapLayer")]
+        [Resource("Library.Map")]
         public async Task<IActionResult> PutMapLayer([FromBody] MapLayer data)
         {
             try
@@ -116,8 +120,8 @@ namespace SardCoreAPI.Controllers.Map
             
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete(Name = "DeleteMapLayer")]
+        [Resource("Library.Map")]
         public async Task<IActionResult> DeleteMapLayer([FromQuery] int? Id)
         {
             if (Id == null) { return new BadRequestResult(); }
@@ -142,8 +146,8 @@ namespace SardCoreAPI.Controllers.Map
             }
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete(Name = "DeleteMapLayersOfMapId")]
+        [Resource("Library.Map")]
         public async Task<IActionResult> DeleteMapLayersOfMapId([FromQuery] int? Id)
         {
             if (Id == null) { return new BadRequestResult(); }
@@ -156,6 +160,7 @@ namespace SardCoreAPI.Controllers.Map
 
         #region Map Layer Icon
         [HttpGet(Name = "GetMapLayerIcon")]
+        [Resource("Library.Map.Read")]
         public async Task<IActionResult> GetMapLayerIcon(int id)
         {
             try
@@ -181,8 +186,9 @@ namespace SardCoreAPI.Controllers.Map
             }
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost(Name = "PostMapLayerIcon")]
+        [Resource("Library.Map")]
+
         public async Task<IActionResult> PostMapLayerIcon([FromForm] ImagePostRequest file)
         {
             if (file == null || file.Data.Length == 0)

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SardCoreAPI.Attributes.Security;
 using SardCoreAPI.DataAccess.Map;
 using SardCoreAPI.Models.Map.Region;
 
@@ -17,6 +18,7 @@ namespace SardCoreAPI.Controllers.Map
         }
 
         [HttpGet]
+        [Resource("Library.Map.Read")]
         public async Task<IActionResult> GetRegions([FromQuery] RegionSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
@@ -29,8 +31,8 @@ namespace SardCoreAPI.Controllers.Map
             return new BadRequestResult();
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost]
+        [Resource("Library.Map")]
         public async Task<IActionResult> PostRegion([FromBody] Region data)
         {
             if (data == null) { return new BadRequestResult(); }
@@ -38,8 +40,8 @@ namespace SardCoreAPI.Controllers.Map
             return Ok(await new RegionDataAccess().PostRegion(data, WorldInfo));
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPut]
+        [Resource("Library.Map")]
         public async Task<IActionResult> PutRegion([FromBody] Region data)
         {
             int result = await new RegionDataAccess().PutRegion(data, WorldInfo);
@@ -57,8 +59,8 @@ namespace SardCoreAPI.Controllers.Map
             }
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete]
+        [Resource("Library.Map")]
         public async Task<IActionResult> DeleteRegion([FromQuery] int? Id)
         {
             if (Id == null) { return new BadRequestResult(); }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MySqlConnector;
+using SardCoreAPI.Attributes.Security;
 using SardCoreAPI.DataAccess.Home;
 using SardCoreAPI.DataAccess.Map;
 using SardCoreAPI.Models.Home;
@@ -14,12 +15,14 @@ namespace SardCoreAPI.Controllers.Home
     public class FeaturedController : GenericController
     {
         [HttpGet]
+        [Resource("Library.General.Read")]
         public async Task<IActionResult> GetFeatured()
         {
             return Ok(await new FeaturedDataAccess().GetFeatured(WorldInfo));
         }
 
         [HttpGet]
+        [Resource("Library.General.Read")]
         public async Task<IActionResult> GetFeaturedFromWorld(string worldLocation)
         {
             try
@@ -39,8 +42,8 @@ namespace SardCoreAPI.Controllers.Home
         }
 
         
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost]
+        [Resource("Library.General")]
         public async Task<IActionResult> UpdateFeatured(FeaturedEditRequest request)
         {
             if (request == null) { return new BadRequestResult(); }

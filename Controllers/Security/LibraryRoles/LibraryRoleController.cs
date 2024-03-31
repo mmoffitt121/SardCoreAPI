@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SardCoreAPI.Attributes.Security;
 using SardCoreAPI.DataAccess.Map;
 using SardCoreAPI.Models.Hub.Worlds;
 using SardCoreAPI.Models.Security.LibraryRoles;
@@ -16,6 +17,7 @@ namespace SardCoreAPI.Controllers.Security.LibraryRoles
         private ISecurityService securityService;
 
         [HttpGet]
+        [Resource("Library.Setup.Security.Read")]
         public async Task<IActionResult> GetPermissions()
         {
             try
@@ -34,6 +36,7 @@ namespace SardCoreAPI.Controllers.Security.LibraryRoles
         }
 
         [HttpGet]
+        [Resource("Library.Setup.Security.Read")]
         public async Task<IActionResult> Get([FromQuery] string? id)
         {
             try
@@ -51,8 +54,8 @@ namespace SardCoreAPI.Controllers.Security.LibraryRoles
             }
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPut]
+        [Resource("Library.Setup.Security")]
         public async Task<IActionResult> Put([FromBody] Role data)
         {
             try
@@ -66,8 +69,8 @@ namespace SardCoreAPI.Controllers.Security.LibraryRoles
             }
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete]
+        [Resource("Library.Setup.Security")]
         public async Task<IActionResult> Delete([FromQuery] string Id)
         {
             try

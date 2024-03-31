@@ -4,6 +4,7 @@ using SardCoreAPI.Areas.Identity.Data;
 using SardCoreAPI.Controllers.Map;
 using SardCoreAPI.Models.Security.JWT;
 using SardCoreAPI.Models.Security.Users;
+using SardCoreAPI.Services.Security;
 using SardCoreAPI.Utility.JwtHandler;
 using System.IdentityModel.Tokens.Jwt;
 
@@ -47,6 +48,7 @@ namespace SardCoreAPI.Controllers.Security.Users
 
             var signingCredentials = _jwtHandler.GetSigningCredentials();
             var claims = await _jwtHandler.GetClaims(user);
+            claims.Add(new System.Security.Claims.Claim("Id", user.Id));
             var tokenOptions = _jwtHandler.GenerateTokenOptions(signingCredentials, claims);
             var token = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
             return new OkObjectResult(new AuthResponse { IsAuthSuccessful = true, Token = token });

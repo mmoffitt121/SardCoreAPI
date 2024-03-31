@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MySqlConnector;
+using SardCoreAPI.Attributes.Security;
 using SardCoreAPI.Controllers.Map;
 using SardCoreAPI.DataAccess.DataPoints;
 using SardCoreAPI.DataAccess.Map;
@@ -24,6 +25,7 @@ namespace SardCoreAPI.Controllers.DataPoints
         }
 
         [HttpGet]
+        [Resource("Library.Document.Type.Read")]
         public async Task<IActionResult> GetDataPointTypes([FromQuery] DataPointTypeSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
@@ -37,6 +39,7 @@ namespace SardCoreAPI.Controllers.DataPoints
         }
 
         [HttpGet]
+        [Resource("Library.Document.Type.Read")]
         public async Task<IActionResult> GetDataPointTypesFull([FromQuery] DataPointTypeSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
@@ -55,6 +58,7 @@ namespace SardCoreAPI.Controllers.DataPoints
         }
 
         [HttpGet]
+        [Resource("Library.Document.Type.Read")]
         public async Task<IActionResult> GetDataPointTypesCount([FromQuery] PagedSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
@@ -65,6 +69,7 @@ namespace SardCoreAPI.Controllers.DataPoints
         }
 
         [HttpGet]
+        [Resource("Library.Document.Type.Read")]
         public async Task<IActionResult> GetDataPointType([FromQuery] int? Id)
         {
             if (Id == null) { return new BadRequestResult(); }
@@ -81,8 +86,8 @@ namespace SardCoreAPI.Controllers.DataPoints
             return new OkObjectResult(result);
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost]
+        [Resource("Library.Setup.Types")]
         public async Task<IActionResult> PostDataPointType([FromBody] DataPointType data)
         {
             if (data == null) { return new BadRequestResult(); }
@@ -97,8 +102,8 @@ namespace SardCoreAPI.Controllers.DataPoints
             return new BadRequestResult();
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPut]
+        [Resource("Library.Setup.Types")]
         public async Task<IActionResult> PutDataPointType([FromBody] DataPointType data)
         {
             int result = await new DataPointTypeDataAccess().PutDataPointType(data, WorldInfo);
@@ -145,8 +150,8 @@ namespace SardCoreAPI.Controllers.DataPoints
             }
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete]
+        [Resource("Library.Setup.Types")]
         public async Task<IActionResult> DeleteDataPointType([FromQuery] int? Id)
         {
             if (Id == null) { return new BadRequestResult(); }

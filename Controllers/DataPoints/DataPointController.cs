@@ -10,6 +10,7 @@ using SardCoreAPI.Models.Hub.Worlds;
 using SardCoreAPI.DataAccess.Units;
 using SardCoreAPI.Models.Units;
 using SardCoreAPI.Utility.Validation;
+using SardCoreAPI.Attributes.Security;
 
 namespace SardCoreAPI.Controllers.DataPoints
 {
@@ -26,6 +27,7 @@ namespace SardCoreAPI.Controllers.DataPoints
 
         [HttpPost(Name = "GetDataPoints")]
         [Validate]
+        [Resource("Library.Document.Read")]
         public async Task<IActionResult> GetDataPoints([FromBody] DataPointSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
@@ -40,6 +42,7 @@ namespace SardCoreAPI.Controllers.DataPoints
 
         [HttpPost(Name = "GetDataPointsCount")]
         [Validate]
+        [Resource("Library.Document.Read")]
         public async Task<IActionResult> GetDataPointsCount([FromBody] DataPointSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
@@ -53,6 +56,7 @@ namespace SardCoreAPI.Controllers.DataPoints
         }
 
         [HttpGet]
+        [Resource("Library.Document.Read")]
         public async Task<IActionResult> GetDataPointsReferencingDataPoint(int? id)
         {
             if (id == null) { return new BadRequestResult(); }
@@ -67,6 +71,7 @@ namespace SardCoreAPI.Controllers.DataPoints
         }
 
         [HttpGet(Name = "GetDataPoint")]
+        [Resource("Library.Document.Read")]
         public async Task<IActionResult> GetDataPoint([FromQuery] int? Id)
         {
             if (Id == null) { return new BadRequestResult(); }
@@ -138,8 +143,8 @@ namespace SardCoreAPI.Controllers.DataPoints
             return new OkObjectResult(result);
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPut(Name = "PutDataPoint")]
+        [Resource("Library.Document")]
         public async Task<IActionResult> PutDataPoint([FromBody] DataPoint data)
         {
             if (data == null) { return new BadRequestResult(); }
@@ -194,8 +199,8 @@ namespace SardCoreAPI.Controllers.DataPoints
             return new OkObjectResult(id);
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete(Name = "DeleteDataPoint")]
+        [Resource("Library.Document")]
         public async Task<IActionResult> DeleteDataPoint([FromQuery] int? Id)
         {
             if (Id == null) { return new BadRequestResult(); }
