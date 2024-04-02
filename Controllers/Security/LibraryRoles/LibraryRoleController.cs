@@ -22,12 +22,20 @@ namespace SardCoreAPI.Controllers.Security.LibraryRoles
         {
             try
             {
-                Permission result = await securityService.GetAllPermissions(WorldInfo);
-                if (result != null)
-                {
-                    return new OkObjectResult(result);
-                }
-                return new NotFoundResult();
+                return Ok(await securityService.GetAllPermissions(WorldInfo));
+            }
+            catch (Exception ex)
+            {
+                return ex.Handle();
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUserPermissions()
+        {
+            try
+            {
+                return Ok(await securityService.GetUserPermissions());
             }
             catch (Exception ex)
             {

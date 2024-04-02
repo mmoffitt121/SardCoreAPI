@@ -23,6 +23,7 @@ namespace SardCoreAPI.Services.Security
         public Task<bool> HasAccess(string resource);
         public Task<bool> HasAccessAny(string resource);
         public Task<bool> HasGlobalAccess(string resource);
+        public Task<HashSet<string>> GetUserPermissions();
         public Task<Permission> GetAllPermissions(WorldInfo info);
         public Task<Permission> BuildPermissionObject(HashSet<string> permissions);
         public Task<List<Role>> GetRoles(string? roleId, WorldInfo info);
@@ -82,12 +83,12 @@ namespace SardCoreAPI.Services.Security
             return roles != null && roles.Contains(role);
         }
 
-        private async Task<HashSet<string>> GetUserPermissions()
+        public async Task<HashSet<string>> GetUserPermissions()
         {
             if (_currentUserPermissions != null) return _currentUserPermissions;
 
             var userId = _httpContextAccessor.HttpContext?.User.FindFirstValue("Id");
-            List<Role> roles;
+            List<Role>? roles;
             if (userId != null)
             {
                 roles = (await GetUsersWithRoles(_worldInfoService.GetWorldInfo(), userId)).FirstOrDefault()?.LibraryRoles;
