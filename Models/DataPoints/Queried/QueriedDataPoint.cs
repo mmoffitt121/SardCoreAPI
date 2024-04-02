@@ -6,7 +6,11 @@ namespace SardCoreAPI.Models.DataPoints.Queried
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string Settings { get; set; }
         public int TypeId { get; set; }
-        public List<DataPointParameter>? Parameters { get; set; }
+        public string TypeName { get; set; }
+        public string? TypeSummary { get; set; }
+        public string? TypeSettings { get; set; }
+        public List<QueriedDataPointParameter>? Parameters { get; set; }
     }
 }
