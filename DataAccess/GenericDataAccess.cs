@@ -10,7 +10,20 @@ using Microsoft.CodeAnalysis;
 
 namespace SardCoreAPI.DataAccess
 {
-    public class GenericDataAccess
+    public interface IGenericDataAccess
+    {
+        public Task<List<T>> Query<T>(string sql, object? data, WorldInfo? info, bool globalConnection = false);
+        public Task<List<T>> Query<T>(string sql, object? data, string? location, bool globalConnection = false);
+        public Task<string> QueryStr(string sql, object? data, string? location, bool globalConnection = false);
+        public Task<List<string>> QueryStrList(string sql, object? data, string? location, bool globalConnection = false);
+        public Task<T> QueryFirst<T>(string sql, object data, WorldInfo? info, bool globalConnection = false);
+        public Task<T> QueryFirst<T>(string sql, object data, string? location, bool globalConnection = false);
+        public Task<int> Execute(string sql, object data, WorldInfo? info, bool globalConnection = false);
+        public Task<int> Execute(string sql, object data, string? location, bool globalConnection = false);
+        public Task<int> ExecuteBase(string sql, object data);
+    }
+
+    public class GenericDataAccess : IGenericDataAccess
     {
         public async Task<List<T>> Query<T>(string sql, object? data, WorldInfo? info, bool globalConnection = false)
         {

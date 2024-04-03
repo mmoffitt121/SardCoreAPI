@@ -10,9 +10,9 @@ namespace SardCoreAPI.DataAccess.Easy
 {
     public interface IEasyDataAccess
     {
-        public Task<T> First<T>(object? query = null, WorldInfo? info = null, bool global = false, IEnumerable<object>? subqueries = null, QueryOptions? queryOptions = null);
-        public Task<List<T>> Get<T>(object? query = null, WorldInfo? info = null, bool global = false, IEnumerable<object>? subqueries = null, QueryOptions? queryOptions = null);
-        public Task<int> Count<T>(object? query = null, WorldInfo? info = null, bool global = false, IEnumerable<object>? subqueries = null, QueryOptions? queryOptions = null);
+        public Task<T> First<T>(object? query = null, WorldInfo? info = null, bool global = false, QueryOptions? queryOptions = null);
+        public Task<List<T>> Get<T>(object? query = null, WorldInfo? info = null, bool global = false, QueryOptions? queryOptions = null);
+        public Task<int> Count<T>(object? query = null, WorldInfo? info = null, bool global = false, QueryOptions? queryOptions = null);
         public Task<int> Post<T>(T data, WorldInfo? info = null, bool global = false);
         public Task<int> Post<T>(IEnumerable<T> data, WorldInfo? info = null, bool global = false);
         public Task<int> Put<T>(T data, WorldInfo? info = null, bool insert = false, bool global = false);
@@ -30,26 +30,26 @@ namespace SardCoreAPI.DataAccess.Easy
             _worldInfoService = worldInfoService;
         }
 
-        public async Task<T> First<T>(object? query = null, WorldInfo? info = null, bool global = false, IEnumerable<object>? subqueries = null, QueryOptions? queryOptions = null)
+        public async Task<T> First<T>(object? query = null, WorldInfo? info = null, bool global = false, QueryOptions? queryOptions = null)
         {
             if (info == null && !global) { info = _worldInfoService.GetWorldInfo(); }
-            string sql = _queryService.BuildGet<T>(query, subqueries, queryOptions);
+            string sql = _queryService.BuildGet<T>(query, queryOptions);
 
             return await QueryFirst<T>(sql, query, info);
         }
 
-        public async Task<List<T>> Get<T>(object? query = null, WorldInfo? info = null, bool global = false, IEnumerable<object>? subqueries = null, QueryOptions? queryOptions = null)
+        public async Task<List<T>> Get<T>(object? query = null, WorldInfo? info = null, bool global = false, QueryOptions? queryOptions = null)
         {
             if (info == null && !global) { info = _worldInfoService.GetWorldInfo(); }
-            string sql = _queryService.BuildGet<T>(query, subqueries, queryOptions);
+            string sql = _queryService.BuildGet<T>(query, queryOptions);
 
             return await Query<T>(sql, query, info);
         }
 
-        public async Task<int> Count<T>(object? query = null, WorldInfo? info = null, bool global = false, IEnumerable<object>? subqueries = null, QueryOptions? queryOptions = null)
+        public async Task<int> Count<T>(object? query = null, WorldInfo? info = null, bool global = false, QueryOptions? queryOptions = null)
         {
             if (info == null && !global) { info = _worldInfoService.GetWorldInfo(); }
-            string sql = _queryService.BuildGet<T>(query, subqueries, queryOptions, count: true);
+            string sql = _queryService.BuildGet<T>(query, queryOptions, count: true);
 
             return await QueryFirst<int>(sql, query, info);
         }

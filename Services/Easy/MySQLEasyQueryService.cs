@@ -12,7 +12,7 @@ namespace SardCoreAPI.Services.Easy
 {
     public interface IEasyQueryService
     {
-        public string BuildGet<T>(object? query, IEnumerable<object>? subqueries = null, QueryOptions? queryOptions = null, bool count = false);
+        public string BuildGet<T>(object? query, QueryOptions? queryOptions = null, bool count = false);
         public string BuildPost<T>();
         public string BuildPut<T>(bool insert);
         public string BuildDelete<T>(object? key);
@@ -20,7 +20,7 @@ namespace SardCoreAPI.Services.Easy
 
     public class MySQLEasyQueryService : IEasyQueryService
     {
-        public string BuildGet<T>(object? query, IEnumerable<object>? subqueries = null, QueryOptions? queryOptions = null, bool count = false)
+        public string BuildGet<T>(object? query, QueryOptions? queryOptions = null, bool count = false)
         {
             PropertyInfo[] queryProperties = query?.GetType().GetProperties() ?? Array.Empty<PropertyInfo>();
             Attribute[] attributes = Attribute.GetCustomAttributes(typeof(T));

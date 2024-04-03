@@ -28,6 +28,8 @@ using SardCoreAPI.Services.MenuItems;
 using SardCoreAPI.Services.WorldContext;
 using SardCoreAPI.Services.Setting;
 using SardCoreAPI.Services.DataPoints;
+using SardCoreAPI.DataAccess;
+using SardCoreAPI.Services.Pages;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("SardCoreAPIContextConnection") ?? throw new InvalidOperationException("Connection string 'SardCoreAPIContextConnection' not found.");
@@ -108,9 +110,10 @@ builder.Services.AddScoped<IWorldInfoService, WorldInfoService>();
 builder.Services.AddScoped<IEasyQueryService, MySQLEasyQueryService>();
 builder.Services.AddScoped<IDataPointService, DataPointService>();
 builder.Services.AddScoped<IDataPointQueryService, MySQLDataPointQueryService>();
+builder.Services.AddScoped<IViewService, ViewService>();
 
 builder.Services.AddSingleton<IDatabaseDataAccess, MySQLDatabaseDataAccess>();
-builder.Services.AddScoped<IDataPointQueryDataAccess, DataPointQueryDataAccess>();
+builder.Services.AddScoped<IGenericDataAccess, GenericDataAccess>();
 
 builder.Services.AddHttpContextAccessor();
 

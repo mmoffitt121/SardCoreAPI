@@ -22,11 +22,11 @@ namespace SardCoreAPI.Controllers.DataPoints
         [HttpPost]
         [Validate]
         [Resource("Library.Document.Read")]
-        public async Task<IActionResult> Get([FromBody] DataPointQuery criteria)
+        public async Task<IActionResult> Get([FromBody] DataPointSearchCriteria criteria)
         {
             if (criteria == null) { return new BadRequestResult(); }
 
-            List<DataPoint> result = await _dataPointService.GetList(criteria);
+            DataPointQueryResult result = await _dataPointService.GetList(criteria);
             if (result != null)
             {
                 return new OkObjectResult(result);
