@@ -41,7 +41,7 @@ namespace SardCoreAPI.Services.DataPoints
 
             List<int> ids = await _genericDataAccess.Query<int>(idQueryInfo.Item2, idQueryInfo.Item1, info);
 
-            string constructionQuery = _queryService.BuildDataPointQuery();
+            string constructionQuery = _queryService.BuildDataPointQuery(criteria, idQueryInfo.Item1);
 
             List<FlatDataPointComponent> flat = await _genericDataAccess.Query<FlatDataPointComponent>(constructionQuery, new { ids }, info);
 

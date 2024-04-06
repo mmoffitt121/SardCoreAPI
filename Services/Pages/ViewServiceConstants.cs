@@ -1,6 +1,7 @@
 ﻿namespace SardCoreAPI.Services.Pages
 {
-    public class ViewServiceConstants
+    public static class ViewServiceConstants
     {
+        public static string VIEW_SETTING = "libratlas.view";
     }
 }

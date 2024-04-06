@@ -6,6 +6,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.Reflection;
 using SardCoreAPI.Models.DataPoints;
 using SardCoreAPI.Models.DataPoints.DataPointParameters;
+using System.Threading.Tasks;
 
 namespace SardCoreAPI.Services.DataPoints
 {
@@ -13,36 +14,10 @@ namespace SardCoreAPI.Services.DataPoints
     {
         public (ExpandoObject, string) BuildIdQuery(DataPointSearchCriteria query);
         public (ExpandoObject, string) BuildCountQuery(DataPointSearchCriteria query);
-        public string BuildDataPointQuery();
+        public string BuildDataPointQuery(DataPointSearchCriteria criteria, ExpandoObject valuebank);
     }
     public class MySQLDataPointQueryService : IDataPointQueryService
     {
-
-        public string BuildDataPointQuery()
-        {
-            string sql = @$"
-                SELECT dp.Id, dp.Name, dp.TypeId, dp.Settings, dpt.Name AS TypeName, dpt.Summary AS TypeSummary, dpt.Settings AS TypeSettings,
-	                tp.Id AS TypeParameterId, tp.Summary AS TypeParameterSummary, tp.TypeValue AS TypeParameterTypeValue, tp.Sequence as TypeParameterSequence, tp.DataPointTypeReferenceId, tp.Settings AS TypeParameterSettings,
-                    p.Value
-                FROM DataPoints dp
-	                LEFT JOIN DataPointTypes dpt ON dpt.Id = dp.TypeId
-	                LEFT JOIN DataPointTypeParameter tp ON tp.DataPointTypeId = dpt.Id
-                    LEFT JOIN (   SELECT DataPointId, DataPointTypeParameterId, IF(Value, 'true', 'false') AS Value, ""Bool"" FROM DataPointParameterBoolean
-		                UNION ALL SELECT DataPointId, DataPointTypeParameterId, CAST(Value AS CHAR) AS Value, ""DataPoint"" FROM DataPointParameterDataPoint
-		                UNION ALL SELECT DataPointId, DataPointTypeParameterId, CAST(Value AS CHAR) AS Value, ""String"" FROM DataPointParameterDocument
-		                UNION ALL SELECT DataPointId, DataPointTypeParameterId, CAST(Value AS CHAR) AS Value, ""String"" FROM DataPointParameterDouble
-		                UNION ALL SELECT DataPointId, DataPointTypeParameterId, CAST(Value AS CHAR) AS Value, ""String"" FROM DataPointParameterInt
-		                UNION ALL SELECT DataPointId, DataPointTypeParameterId, CAST(Value AS CHAR) AS Value, ""String"" FROM DataPointParameterString
-		                UNION ALL SELECT DataPointId, DataPointTypeParameterId, CAST(Value AS CHAR) AS Value, ""String"" FROM DataPointParameterSummary
-		                UNION ALL SELECT DataPointId, DataPointTypeParameterId, CAST(Value AS CHAR) AS Value, ""String"" FROM DataPointParameterTime
-		                UNION ALL SELECT DataPointId, DataPointTypeParameterId, CAST(Value AS CHAR) AS Value, ""String"" FROM DataPointParameterUnit
-                    ) p ON p.DataPointId = dp.Id AND p.DataPointTypeParameterId = tp.Id 
-                WHERE dp.Id IN @Ids
-                GROUP BY dp.Id, tp.Id, p.Value
-            ";
-
-            return sql;
-        }
         public (ExpandoObject, string) BuildIdQuery(DataPointSearchCriteria criteria)
         {
             string pageSettings = "";
@@ -194,6 +169,39 @@ namespace SardCoreAPI.Services.DataPoints
             }
             if (param.GetType() == typeof(DataPointParameterUnit)) valueBank.TryAdd(key, ((DataPointParameterUnit)param).UnitValue);
             if (param.GetType() == typeof(DataPointParameterTime)) valueBank.TryAdd(key, ((DataPointParameterTime)param).TimeValueString);
+        }
+
+        public string BuildDataPointQuery(DataPointSearchCriteria criteria, ExpandoObject valuebank)
+        {
+            string includeTypeParamIdsQuery = "";
+            if (criteria.ParameterReturnOptions != null && criteria.ParameterReturnOptions.Count() > 0)
+            {
+                valuebank.TryAdd("ReturnableParams", criteria.ParameterReturnOptions.Select(p => p.TypeParameterId));
+                includeTypeParamIdsQuery = $"AND DataPointTypeParameterId IN @ReturnableParams";
+            }
+            string sql = @$"
+                SELECT dp.Id, dp.Name, dp.TypeId, dp.Settings, dpt.Name AS TypeName, dpt.Summary AS TypeSummary, dpt.Settings AS TypeSettings,
+	                tp.Id AS TypeParameterId, tp.Summary AS TypeParameterSummary, tp.TypeValue AS TypeParameterTypeValue, tp.Sequence as TypeParameterSequence, tp.DataPointTypeReferenceId, tp.Settings AS TypeParameterSettings,
+                    p.Value
+                FROM DataPoints dp
+	                LEFT JOIN DataPointTypes dpt ON dpt.Id = dp.TypeId
+	                LEFT JOIN DataPointTypeParameter tp ON tp.DataPointTypeId = dpt.Id
+                    LEFT JOIN (   SELECT DataPointId, DataPointTypeParameterId, IF(Value, 'true', 'false') AS Value, ""Bool"" FROM DataPointParameterBoolean
+		                UNION ALL SELECT DataPointId, DataPointTypeParameterId, CAST(Value AS CHAR) AS Value, ""DataPoint"" FROM DataPointParameterDataPoint
+		                UNION ALL SELECT DataPointId, DataPointTypeParameterId, CAST(Value AS CHAR) AS Value, ""String"" FROM DataPointParameterDocument
+		                UNION ALL SELECT DataPointId, DataPointTypeParameterId, CAST(Value AS CHAR) AS Value, ""String"" FROM DataPointParameterDouble
+		                UNION ALL SELECT DataPointId, DataPointTypeParameterId, CAST(Value AS CHAR) AS Value, ""String"" FROM DataPointParameterInt
+		                UNION ALL SELECT DataPointId, DataPointTypeParameterId, CAST(Value AS CHAR) AS Value, ""String"" FROM DataPointParameterString
+		                UNION ALL SELECT DataPointId, DataPointTypeParameterId, CAST(Value AS CHAR) AS Value, ""String"" FROM DataPointParameterSummary
+		                UNION ALL SELECT DataPointId, DataPointTypeParameterId, CAST(Value AS CHAR) AS Value, ""String"" FROM DataPointParameterTime
+		                UNION ALL SELECT DataPointId, DataPointTypeParameterId, CAST(Value AS CHAR) AS Value, ""String"" FROM DataPointParameterUnit
+                    ) p ON p.DataPointId = dp.Id AND p.DataPointTypeParameterId = tp.Id 
+                WHERE dp.Id IN @Ids
+                    {includeTypeParamIdsQuery}
+                GROUP BY dp.Id, tp.Id, p.Value
+            ";
+
+            return sql;
         }
     }
 }

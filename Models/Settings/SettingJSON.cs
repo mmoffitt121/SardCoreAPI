@@ -9,5 +9,12 @@ namespace SardCoreAPI.Models.Settings
         public string Id { get; set; }
         [Column]
         public string Setting { get; set; }
+
+        public SettingJSON() { }
+        public SettingJSON(string id, string setting)
+        {
+            Id = id;
+            Setting = setting;
+        }
     }
 }
