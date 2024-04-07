@@ -67,7 +67,11 @@ namespace SardCoreAPI.Services.Easy
             {
                 if (p.GetValue(query) != null)
                 {
-                    if (typeof(string).Equals(p.PropertyType))
+                    if (typeof(List<string>).Equals(p.PropertyType) || typeof(List<int>).Equals(p.PropertyType))
+                    {
+                        builder.Where($"{GetColumnName(p)} IN @{p.Name}");
+                    }
+                    else if (typeof(string).Equals(p.PropertyType))
                     {
                         builder.Where($"{GetColumnName(p)} LIKE @{p.Name}");
                     }

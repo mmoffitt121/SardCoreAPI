@@ -22,11 +22,16 @@ namespace SardCoreAPI.Controllers.Pages
 
         [HttpPost]
         [Resource("Library.Setup.Pages.Read")]
-        public async Task<IActionResult> Get(PagedSearchCriteria criteria)
+        public async Task<IActionResult> Get(List<string>? ids)
         {
+            if (ids?.Count == 0)
+            {
+                ids = null;
+            }
+
             try
             {
-                return new OkObjectResult(await _viewService.GetViews(criteria));
+                return new OkObjectResult(await _viewService.GetViews(ids));
             }
             catch (Exception ex)
             {
@@ -41,6 +46,21 @@ namespace SardCoreAPI.Controllers.Pages
             try
             {
                 await _viewService.PutView(data);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return ex.Handle();
+            }
+        }
+
+        [HttpDelete]
+        [Resource("Library.Setup.Pages")]
+        public async Task<IActionResult> Delete([FromQuery] string id)
+        {
+            try
+            {
+                await _viewService.DeleteView(id);
                 return Ok();
             }
             catch (Exception ex)

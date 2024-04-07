@@ -8,8 +8,9 @@ namespace SardCoreAPI.Services.Pages
 {
     public interface IViewService
     {
-        public Task<List<View>> GetViews(PagedSearchCriteria criteria);
+        public Task<List<View>> GetViews(List<string>? ids);
         public Task PutView(View view);
+        public Task DeleteView(string id);
     }
 
     public class ViewService : IViewService
@@ -21,10 +22,18 @@ namespace SardCoreAPI.Services.Pages
             _dataAccess = dataAccess;
         }
 
-        public async Task<List<View>> GetViews(PagedSearchCriteria criteria)
+        public async Task<List<View>> GetViews(List<string>? ids)
         {
-            criteria.StringId = criteria.StringId != null ? $"{ViewServiceConstants.VIEW_SETTING}.{criteria.StringId}" : $"{ViewServiceConstants.VIEW_SETTING}.%";
-            List <SettingJSON> settings = await _dataAccess.Get<SettingJSON>(new { id = criteria.StringId});
+            List<SettingJSON> settings = null;
+            if (ids == null || ids.Count == 0)
+            {
+                settings = await _dataAccess.Get<SettingJSON>(new {id = $"{ViewServiceConstants.VIEW_SETTING}.%"});
+            }
+            else
+            {
+                ids = ids.Select(id => $"{ViewServiceConstants.VIEW_SETTING}.{id}").ToList();
+                settings = await _dataAccess.Get<SettingJSON>(new { id = ids });
+            }
 
             if (settings == null || settings.Count() == 0)
             {
@@ -38,6 +47,8 @@ namespace SardCoreAPI.Services.Pages
                 if (view != null) views.Add(view);
             });
 
+            views = views.OrderBy(view => view.Name).ToList();
+
             return views;
         }
 
@@ -49,6 +60,11 @@ namespace SardCoreAPI.Services.Pages
             }
             SettingJSON setting = new SettingJSON($"{ViewServiceConstants.VIEW_SETTING}.{view.Id}", JsonConvert.SerializeObject(view));
             await _dataAccess.Put(setting, insert: true);
+        }
+
+        public async Task DeleteView(string id)
+        {
+            await _dataAccess.Delete<SettingJSON>(new { id = $"{ViewServiceConstants.VIEW_SETTING}.{id}" });
         }
     }
 }
