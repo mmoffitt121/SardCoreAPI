@@ -3,6 +3,7 @@
     public class QueriedDataPointParameter
     {
         public int TypeParameterId { get; set; }
+        public string TypeParameterName { get; set; }
         public string? TypeParameterSummary { get; set; }
         public string TypeParameterTypeValue { get; set; }
         public int TypeParameterSequence { get; set; }

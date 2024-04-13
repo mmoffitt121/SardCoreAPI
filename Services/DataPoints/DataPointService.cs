@@ -51,6 +51,7 @@ namespace SardCoreAPI.Services.DataPoints
                 List<QueriedDataPointParameter> parameters = flat.Where(p => id.Equals(p.Id)).Select(p => new QueriedDataPointParameter()
                 {
                     TypeParameterId = p.TypeParameterId,
+                    TypeParameterName = p.TypeParameterName,
                     TypeParameterSummary = p.TypeParameterSummary,
                     TypeParameterTypeValue = p.TypeParameterTypeValue,
                     TypeParameterSequence = p.TypeParameterSequence,
