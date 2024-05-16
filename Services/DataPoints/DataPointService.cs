@@ -39,11 +39,13 @@ namespace SardCoreAPI.Services.DataPoints
                 return new DataPointQueryResult() { Count = 0, Results = new List<QueriedDataPoint>() };
             }
 
-            List<int> ids = await _genericDataAccess.Query<int>(idQueryInfo.Item2, idQueryInfo.Item1, info);
+            List<DataPoint> ids = await _genericDataAccess.Query<DataPoint>(idQueryInfo.Item2, idQueryInfo.Item1, info);
 
             string constructionQuery = _queryService.BuildDataPointQuery(criteria, idQueryInfo.Item1);
 
-            List<FlatDataPointComponent> flat = await _genericDataAccess.Query<FlatDataPointComponent>(constructionQuery, new { ids }, info);
+            idQueryInfo.Item1.TryAdd("ids", ids);
+
+            List<FlatDataPointComponent> flat = await _genericDataAccess.Query<FlatDataPointComponent>(constructionQuery, idQueryInfo.Item1, info);
 
             List<QueriedDataPoint> dataPoints = new List<QueriedDataPoint>();
             ids.ForEach(id =>
@@ -59,19 +61,26 @@ namespace SardCoreAPI.Services.DataPoints
                     TypeParameterSettings = p.TypeParameterSettings,
                     Value = p.Value,
                 }).ToList();
-                FlatDataPointComponent first = flat.Where(p => id.Equals(p.Id)).First();
-                QueriedDataPoint dp = new QueriedDataPoint()
+                FlatDataPointComponent? first = flat.Where(p => id.Equals(p.Id)).FirstOrDefault();
+                if (first != null)
                 {
-                    Id = id,
-                    Name = first.Name,
-                    Settings = first.Settings,
-                    TypeId = first.TypeId,
-                    TypeName = first.TypeName,
-                    TypeSummary = first.TypeSummary,
-                    TypeSettings = first.TypeSettings,
-                    Parameters = parameters,
-                };
-                dataPoints.Add(dp);
+                    QueriedDataPoint dp = new QueriedDataPoint()
+                    {
+                        Id = id,
+                        Name = first.Name,
+                        Settings = first.Settings,
+                        TypeId = first.TypeId,
+                        TypeName = first.TypeName,
+                        TypeSummary = first.TypeSummary,
+                        TypeSettings = first.TypeSettings,
+                        Parameters = parameters,
+                    };
+                    dataPoints.Add(dp);
+                }
+                else
+                {
+
+                }
             });
             return new DataPointQueryResult() { Count = count, Results = dataPoints };
         }

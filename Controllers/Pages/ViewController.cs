@@ -20,6 +20,13 @@ namespace SardCoreAPI.Controllers.Pages
             _viewService = viewService;
         }
 
+        [HttpGet]
+        [Resource("Library.Setup.Pages.Read")]
+        public async Task<IActionResult> GetViewTypes()
+        {
+            return Ok();
+        }
+
         [HttpPost]
         [Resource("Library.Setup.Pages.Read")]
         public async Task<IActionResult> Get(List<string>? ids)

@@ -184,11 +184,11 @@ namespace SardCoreAPI.Services.DataPoints
         public string BuildDataPointQuery(DataPointSearchCriteria criteria, ExpandoObject valuebank)
         {
             string includeTypeParamIdsQuery = "";
-            /*if (criteria.ParameterReturnOptions != null && criteria.ParameterReturnOptions.Count() > 0)
+            if (criteria.ParameterReturnOptions != null && criteria.ParameterReturnOptions.Count() > 0)
             {
-                valuebank.TryAdd("ReturnableParams", criteria.ParameterReturnOptions.Select(p => p.TypeParameterId));
-                includeTypeParamIdsQuery = $"AND DataPointTypeParameterId IN @ReturnableParams";
-            }*/
+                valuebank.TryAdd("ReturnableParams", criteria.ParameterReturnOptions.Select(p => p.TypeParameterId).ToList());
+                includeTypeParamIdsQuery = $"AND tp.Id IN @ReturnableParams";
+            }
             string sql = @$"
                 SELECT dp.Id, dp.Name, dp.TypeId, dp.Settings, dpt.Name AS TypeName, dpt.Summary AS TypeSummary, dpt.Settings AS TypeSettings,
 	                tp.Id AS TypeParameterId, tp.name AS TypeParameterName, tp.Summary AS TypeParameterSummary, tp.TypeValue AS TypeParameterTypeValue, tp.Sequence as TypeParameterSequence, tp.DataPointTypeReferenceId, tp.Settings AS TypeParameterSettings,
