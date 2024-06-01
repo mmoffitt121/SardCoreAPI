@@ -11,7 +11,10 @@ namespace SardCoreAPI.Models.DataPoints
         public List<DataPointParameter>? Parameters { get; set; }
         public List<ParameterReturnOptions>? ParameterReturnOptions { get; set; }
         public List<ParameterSearchOptions>? ParameterSearchOptions { get; set; }
-        public int? OrderByTypeParamId { get; set; }
+        public DataPointTypeParameter? OrderByTypeParam { get; set; }
+        public bool? OrderByTypeParamDesc { get; set; }
+
+        public bool? IncludeTypes { get; set; }
 
         public override List<string> Validate()
         {

@@ -182,10 +182,11 @@ namespace SardCoreAPI.Services.MenuItems
                     Options = new MenuItem[]
                     {
                         new MenuItem() {
-                            Name = "Library Home",
-                            Icon = "apartment",
+                            Name = "Administration",
+                            Icon = "shield_person",
                             IsRoot = true,
-                            Route = "home",
+                            Route = "administration",
+                            Resource = "Administrator"
                         },
                         new MenuItem() {
                             Name = "User Settings",
@@ -195,11 +196,37 @@ namespace SardCoreAPI.Services.MenuItems
                             Resource = "Viewer",
                         },
                         new MenuItem() {
-                            Name = "Administration",
-                            Icon = "shield_person",
+                            Name = "Library Home",
+                            Icon = "home",
                             IsRoot = true,
-                            Route = "administration",
-                            Resource = "Administrator"
+                            Route = "home",
+                        },
+                    }
+                };
+            }
+        }
+        public static MenuItem WORLDS
+        {
+            get
+            {
+                return new MenuItem()
+                {
+                    Name = "Worlds",
+                    Expanded = true,
+                    Options = new MenuItem[]
+                    {
+                        new MenuItem() {
+                            Name = "World Browser",
+                            Icon = "travel_explore",
+                            IsRoot = true,
+                            Route = "world-browser",
+                        },
+                        new MenuItem() {
+                            Name = "World Manager",
+                            Icon = "construction",
+                            IsRoot = true,
+                            Route = "world-manager",
+                            Resource = "Administrator",
                         },
                     }
                 };
@@ -211,7 +238,7 @@ namespace SardCoreAPI.Services.MenuItems
             {
                 return new MenuItem()
                 {
-                    Name = "Log In",
+                    Name = "User",
                     Expanded = true,
                     Options = new MenuItem[]
                     {

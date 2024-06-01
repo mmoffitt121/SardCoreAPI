@@ -20,6 +20,7 @@ namespace SardCoreAPI.Services.Security
 {
     public interface ISecurityService
     {
+        public bool IsLoggedIn();
         public Task<bool> HasAccess(string resource);
         public Task<bool> HasAccessAny(string resource);
         public Task<bool> HasGlobalAccess(string resource);
@@ -42,6 +43,11 @@ namespace SardCoreAPI.Services.Security
         private readonly IWorldInfoService _worldInfoService;
 
         private HashSet<string>? _currentUserPermissions = null;
+
+        public bool IsLoggedIn()
+        {
+            return _httpContextAccessor.HttpContext?.User.FindFirstValue("Id") != null;
+        }
 
         #region Access
         public async Task<bool> HasAccess(string resource)

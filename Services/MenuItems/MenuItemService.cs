@@ -30,7 +30,15 @@ namespace SardCoreAPI.Services.MenuItems
                 menuItems.Add(MenuItemServiceConstants.WORLD_SETUP);
                 await _securityService.HasAccess("Library");
             }
+            else
+            {
+                menuItems.Add(MenuItemServiceConstants.WORLDS);
+            }
             menuItems.Add(MenuItemServiceConstants.GLOBAL);
+            if (!_securityService.IsLoggedIn())
+            {
+                menuItems.Add(MenuItemServiceConstants.LOGGED_OUT);
+            }
 
             menuItems = await FilterMenuItems(menuItems);
 

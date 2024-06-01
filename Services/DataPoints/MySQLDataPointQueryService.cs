@@ -7,6 +7,7 @@ using System.Reflection;
 using SardCoreAPI.Models.DataPoints;
 using SardCoreAPI.Models.DataPoints.DataPointParameters;
 using System.Threading.Tasks;
+using SardCoreAPI.DataAccess.DataPoints;
 
 namespace SardCoreAPI.Services.DataPoints
 {
@@ -27,8 +28,9 @@ namespace SardCoreAPI.Services.DataPoints
             }
 
             string sql = $@"SELECT * FROM DataPoints dp
+                    /**leftjoin**/
                     /**where**/
-                    ORDER BY Name
+                    /**orderby**/
                     {pageSettings}
             ";
 
@@ -46,7 +48,7 @@ namespace SardCoreAPI.Services.DataPoints
             string sql = $@"SELECT COUNT(*) FROM DataPoints dp
                     /**leftjoin**/
                     /**where**/
-                    ORDER BY Name
+                    /**orderby**/
             ";
 
             SqlBuilder builder = new SqlBuilder();
@@ -79,6 +81,18 @@ namespace SardCoreAPI.Services.DataPoints
             if (criteria.TypeIds != null && criteria.TypeIds.Count() > 0)
             {
                 builder.Where("dp.TypeId IN @TypeIds");
+            }
+
+            string orderDirection = ((criteria.OrderByTypeParamDesc ?? false) ? "DESC" : "ASC");
+
+            if (criteria.OrderByTypeParam != null)
+            {
+                builder.LeftJoin($"{criteria.OrderByTypeParam.GetTable()} ord ON ord.DataPointId = dp.Id");
+                builder.OrderBy($"ord.Value {orderDirection}");
+            }
+            else
+            {
+                builder.OrderBy($"Name {orderDirection}");
             }
         }
 
@@ -209,6 +223,7 @@ namespace SardCoreAPI.Services.DataPoints
                 WHERE dp.Id IN @Ids
                     {includeTypeParamIdsQuery}
                 GROUP BY dp.Id, tp.Id, p.Value
+                ORDER BY tp.Sequence
             ";
 
             return sql;

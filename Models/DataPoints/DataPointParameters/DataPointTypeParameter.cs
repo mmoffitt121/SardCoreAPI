@@ -10,5 +10,18 @@
         public int Sequence { get; set; }
         public int? DataPointTypeReferenceId { get; set; }
         public string? Settings { get; set; }
+
+        public string GetTable()
+        {
+            if (string.Equals(TypeValue, "bit")) { return "DataPointParameterBoolean"; }
+            if (string.Equals(TypeValue, "dat")) { return "DataPointParameterDataPoint"; }
+            if (string.Equals(TypeValue, "dub")) { return "DataPointParameterDouble"; }
+            if (string.Equals(TypeValue, "int")) { return "DataPointParameterInt"; }
+            if (string.Equals(TypeValue, "str")) { return "DataPointParameterString"; }
+            if (string.Equals(TypeValue, "sum")) { return "DataPointParameterSummary"; }
+            if (string.Equals(TypeValue, "uni")) { return "DataPointParameterUnit"; }
+            if (string.Equals(TypeValue, "tim")) { return "DataPointParameterTime"; }
+            return "DataPointParameterString";
+        }
     }
 }
