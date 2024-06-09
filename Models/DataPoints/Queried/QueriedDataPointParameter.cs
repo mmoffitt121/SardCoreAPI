@@ -10,5 +10,6 @@
         public int DataPointTypeReferenceId { get; set; }
         public string TypeParameterSettings { get; set; }
         public string? Value { get; set; }
+        public object? ValueData { get; set; }
     }
 }

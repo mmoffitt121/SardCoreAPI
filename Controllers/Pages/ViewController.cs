@@ -2,7 +2,7 @@
 using SardCoreAPI.Attributes.Security;
 using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.MenuItems;
-using SardCoreAPI.Models.Pages;
+using SardCoreAPI.Models.Pages.Views;
 using SardCoreAPI.Services.MenuItems;
 using SardCoreAPI.Services.Pages;
 using SardCoreAPI.Utility.Error;
@@ -29,16 +29,35 @@ namespace SardCoreAPI.Controllers.Pages
 
         [HttpPost]
         [Resource("Library.Setup.Pages.Read")]
-        public async Task<IActionResult> Get(List<string>? ids)
+        public async Task<IActionResult> Get(ViewSearchCriteria criteria)
         {
-            if (ids?.Count == 0)
+            if (criteria.Ids?.Count == 0)
             {
-                ids = null;
+                criteria.Ids = null;
             }
 
             try
             {
-                return new OkObjectResult(await _viewService.GetViews(ids));
+                return new OkObjectResult(await _viewService.GetViews(criteria));
+            }
+            catch (Exception ex)
+            {
+                return ex.Handle();
+            }
+        }
+
+        [HttpPost]
+        [Resource("Library.Setup.Pages.Read")]
+        public async Task<IActionResult> GetCount(ViewSearchCriteria criteria)
+        {
+            if (criteria.Ids?.Count == 0)
+            {
+                criteria.Ids = null;
+            }
+
+            try
+            {
+                return new OkObjectResult(await _viewService.GetViewCount(criteria));
             }
             catch (Exception ex)
             {

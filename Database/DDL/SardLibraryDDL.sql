@@ -355,3 +355,12 @@ CREATE TABLE IF NOT EXISTS RolePermissions (
     PRIMARY KEY (Permission, RoleId),
     FOREIGN KEY (RoleId) REFERENCES Roles (Id)
 );
+
+/** Pages **/
+
+CREATE TABLE IF NOT EXISTS Views (
+	Id       VARCHAR(256),
+    Name     VARCHAR(1000),
+    View     MEDIUMTEXT,
+    PRIMARY KEY (Id)
+);

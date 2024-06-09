@@ -1,14 +1,15 @@
 ﻿using SardCoreAPI.DataAccess.Easy;
 using SardCoreAPI.Models.Common;
-using SardCoreAPI.Models.Pages;
 using SardCoreAPI.Models.Settings;
 using Newtonsoft.Json;
+using SardCoreAPI.Models.Pages.Views;
 
 namespace SardCoreAPI.Services.Pages
 {
     public interface IViewService
     {
-        public Task<List<View>> GetViews(List<string>? ids);
+        public Task<int> GetViewCount(ViewSearchCriteria criteria); 
+        public Task<List<View>> GetViews(ViewSearchCriteria criteria);
         public Task PutView(View view);
         public Task DeleteView(string id);
     }
@@ -22,28 +23,44 @@ namespace SardCoreAPI.Services.Pages
             _dataAccess = dataAccess;
         }
 
-        public async Task<List<View>> GetViews(List<string>? ids)
+        public async Task<int> GetViewCount(ViewSearchCriteria criteria)
         {
-            List<SettingJSON> settings = null;
-            if (ids == null || ids.Count == 0)
+            int count = 0;
+            if (criteria.Ids == null || criteria.Ids.Count == 0)
             {
-                settings = await _dataAccess.Get<SettingJSON>(new {id = $"{ViewServiceConstants.VIEW_SETTING}.%"});
+                count = await _dataAccess.Count<ViewWrapper>(new { id = $"{ViewServiceConstants.VIEW_SETTING}.%" }, queryOptions: criteria);
             }
             else
             {
-                ids = ids.Select(id => $"{ViewServiceConstants.VIEW_SETTING}.{id}").ToList();
-                settings = await _dataAccess.Get<SettingJSON>(new { id = ids });
+                criteria.Ids = criteria.Ids.Select(id => $"{ViewServiceConstants.VIEW_SETTING}.{id}").ToList();
+                count = await _dataAccess.Count<ViewWrapper>(new { id = criteria.Ids }, queryOptions: criteria);
             }
 
-            if (settings == null || settings.Count() == 0)
+            return count;
+        }
+
+        public async Task<List<View>> GetViews(ViewSearchCriteria criteria)
+        {
+            List<ViewWrapper> wrappers = null;
+            if (criteria.Ids == null || criteria.Ids.Count == 0)
+            {
+                wrappers = await _dataAccess.Get<ViewWrapper>(new {id = $"{ViewServiceConstants.VIEW_SETTING}.%"}, queryOptions: criteria);
+            }
+            else
+            {
+                criteria.Ids = criteria.Ids.Select(id => $"{ViewServiceConstants.VIEW_SETTING}.{id}").ToList();
+                wrappers = await _dataAccess.Get<ViewWrapper>(new { id = criteria.Ids }, queryOptions: criteria);
+            }
+
+            if (wrappers == null || wrappers.Count() == 0)
             {
                 return new List<View> { };
             }
 
             List<View> views = new List<View>();
-            settings.ForEach(setting =>
+            wrappers.ForEach(wrapper =>
             {
-                View? view = JsonConvert.DeserializeObject<View>(setting.Setting);
+                View? view = JsonConvert.DeserializeObject<View>(wrapper.View);
                 if (view != null) views.Add(view);
             });
 
@@ -58,13 +75,13 @@ namespace SardCoreAPI.Services.Pages
             {
                 view.Id = Guid.NewGuid().ToString();
             }
-            SettingJSON setting = new SettingJSON($"{ViewServiceConstants.VIEW_SETTING}.{view.Id}", JsonConvert.SerializeObject(view));
+            ViewWrapper setting = new ViewWrapper($"{ViewServiceConstants.VIEW_SETTING}.{view.Id}", view.Name, JsonConvert.SerializeObject(view));
             await _dataAccess.Put(setting, insert: true);
         }
 
         public async Task DeleteView(string id)
         {
-            await _dataAccess.Delete<SettingJSON>(new { id = $"{ViewServiceConstants.VIEW_SETTING}.{id}" });
+            await _dataAccess.Delete<ViewWrapper>(new { id = $"{ViewServiceConstants.VIEW_SETTING}.{id}" });
         }
     }
 }

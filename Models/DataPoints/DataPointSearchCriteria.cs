@@ -7,6 +7,7 @@ namespace SardCoreAPI.Models.DataPoints
     public class DataPointSearchCriteria : PagedSearchCriteria
     {
         public int? TypeId { get; set; }
+        public List<int>? DataPointIds { get; set; }
         public List<int>? TypeIds { get; set; }
         public List<DataPointParameter>? Parameters { get; set; }
         public List<ParameterReturnOptions>? ParameterReturnOptions { get; set; }
@@ -15,6 +16,11 @@ namespace SardCoreAPI.Models.DataPoints
         public bool? OrderByTypeParamDesc { get; set; }
 
         public bool? IncludeTypes { get; set; }
+        public bool? IncludeChildDataPoints { get; set; }
+        public bool? IncludeRelevantDataPoints { get; set; }
+        public bool? IncludeParameters { get; set; } = true;
+        public bool? IncludeChildParameters { get; set; }
+        public bool? IncludeRelevantLocations { get; set; }
 
         public override List<string> Validate()
         {

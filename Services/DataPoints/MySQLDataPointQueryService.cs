@@ -64,19 +64,20 @@ namespace SardCoreAPI.Services.DataPoints
         {
             if (criteria.Parameters != null && criteria.Parameters.Count() > 0 && criteria.ParameterSearchOptions != null && criteria.ParameterSearchOptions.Count() > 0)
             {
-                int i = 0;
-                criteria.ParameterSearchOptions.ForEach(opt =>
+                for (int i = 0; i < criteria.ParameterSearchOptions.Count(); i++)
                 {
-                    var param = criteria.Parameters.FirstOrDefault(p => p.DataPointTypeParameterId == opt.DataPointTypeParameterId);
+                    var opt = criteria.ParameterSearchOptions[i];
+                    var param = criteria.Parameters[i];
                     opt.SequenceId = i;
                     builder.Where($"dp.Id IN ({GetParameterSubquery(param, opt, valueBank)})");
-                    i++;
-                });
+                }
             }
 
             if (!string.IsNullOrEmpty(criteria.Query)) { builder.Where("dp.Name LIKE CONCAT('%', IFNULL(@Query, ''), '%')"); }
             if (criteria.TypeId != null && criteria.TypeId != -1) { builder.Where("dp.TypeId = @TypeId"); }
             if (criteria.Id != null) { builder.Where("dp.Id = @Id"); }
+
+            if (criteria.DataPointIds != null && criteria.DataPointIds.Count() > 0) { builder.Where("dp.Id IN @DataPointIds"); }
 
             if (criteria.TypeIds != null && criteria.TypeIds.Count() > 0)
             {
@@ -102,6 +103,7 @@ namespace SardCoreAPI.Services.DataPoints
             valueBank.TypeId = criteria.TypeId;
             valueBank.TypeIds = criteria.TypeIds;
             valueBank.Id = criteria.Id;
+            valueBank.DataPointIds = criteria.DataPointIds;
             valueBank.Query = criteria.Query;
             valueBank.PageNumber = criteria.PageNumber;
             valueBank.PageSize = criteria.PageSize;
