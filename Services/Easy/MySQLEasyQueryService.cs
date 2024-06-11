@@ -22,6 +22,11 @@ namespace SardCoreAPI.Services.Easy
     {
         public string BuildGet<T>(object? query, QueryOptions? queryOptions = null, bool count = false)
         {
+            if (queryOptions == null && (query?.GetType().IsAssignableFrom(typeof(QueryOptions)) ?? false))
+            {
+                queryOptions = new QueryOptions((QueryOptions)query);
+            }
+
             PropertyInfo[] queryProperties = query?.GetType().GetProperties() ?? Array.Empty<PropertyInfo>();
             Attribute[] attributes = Attribute.GetCustomAttributes(typeof(T));
 

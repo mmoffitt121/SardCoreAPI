@@ -364,3 +364,12 @@ CREATE TABLE IF NOT EXISTS Views (
     View     MEDIUMTEXT,
     PRIMARY KEY (Id)
 );
+
+CREATE TABLE IF NOT EXISTS Pages (
+	Id              VARCHAR(256),
+    Name            VARCHAR(1000),
+    Description     VARCHAR(5000),
+    Path            VARCHAR(256),
+    PageData        MEDIUMTEXT,
+    PRIMARY KEY (Id)
+);
