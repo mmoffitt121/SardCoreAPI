@@ -13,14 +13,10 @@ using System.Text;
 using SardCoreAPI.Utility.JwtHandler;
 using SardCoreAPI.Models.Security.Users;
 using Microsoft.AspNetCore.Identity;
-using SardCoreAPI.Data;
-using SardCoreAPI.Areas.Identity.Data;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Hosting;
-using SardCoreAPI.DataAccess.Administration.Database;
 using SardCoreAPI.DataAccess.DataPoints;
 using SardCoreAPI.Services.Security;
-using SardCoreAPI.DataAccess.Hub.Worlds;
 using SardCoreAPI.DataAccess.Security.LibraryRoles;
 using SardCoreAPI.DataAccess.Easy;
 using SardCoreAPI.Services.Easy;
@@ -30,19 +26,28 @@ using SardCoreAPI.Services.Setting;
 using SardCoreAPI.Services.DataPoints;
 using SardCoreAPI.DataAccess;
 using SardCoreAPI.Services.Pages;
+using SardCoreAPI.Database.DBContext;
+using SardCoreAPI.Services.Context;
+using SardCoreAPI.Services.Database;
+using SardCoreAPI.Services.Hub;
+using SardCoreAPI.Models.Security;
+using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("SardCoreAPIContextConnection") ?? throw new InvalidOperationException("Connection string 'SardCoreAPIContextConnection' not found.");
 Connection.SetGlobalConnectionString(connectionString);
-var baseConnectionString = builder.Configuration.GetConnectionString("SardCoreAPIWorldContextConnection") ?? throw new InvalidOperationException("Connection string 'SardCoreAPIWorldContextConnection' not found.");
-Connection.SetConnectionString(baseConnectionString);
+var libraryConnectionString = builder.Configuration.GetConnectionString("SardCoreAPIWorldContextConnection") ?? throw new InvalidOperationException("Connection string 'SardCoreAPIWorldContextConnection' not found.");
+Connection.SetConnectionString(libraryConnectionString);
 
-builder.Services.AddDbContext<SardCoreAPIContext>(options =>
+builder.Services.AddDbContext<SardCoreDBContext>(options =>
     options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 32))));
+
+builder.Services.AddDbContext<SardLibraryDBContext>(options =>
+    options.UseMySql(libraryConnectionString, new MySqlServerVersion(new Version(8, 0, 32))));
 
 builder.Services.AddDefaultIdentity<SardCoreAPIUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<SardCoreAPIContext>();
+    .AddEntityFrameworkStores<SardCoreDBContext>();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
@@ -57,7 +62,7 @@ Console.WriteLine(builder.Host);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -111,9 +116,13 @@ builder.Services.AddScoped<IEasyQueryService, MySQLEasyQueryService>();
 builder.Services.AddScoped<IDataPointService, DataPointService>();
 builder.Services.AddScoped<IDataPointQueryService, MySQLDataPointQueryService>();
 builder.Services.AddScoped<IViewService, ViewService>();
+builder.Services.AddScoped<IDataPointTypeService, DataPointTypeService>();
 
-builder.Services.AddSingleton<IDatabaseDataAccess, MySQLDatabaseDataAccess>();
+builder.Services.AddScoped<IDatabaseService, EFCoreDatabaseService>();
+builder.Services.AddScoped<IWorldService, WorldService>();
 builder.Services.AddScoped<IGenericDataAccess, GenericDataAccess>();
+
+builder.Services.AddScoped<IDataService, DataService>();
 
 builder.Services.AddHttpContextAccessor();
 
@@ -157,9 +166,9 @@ app.UseEndpoints(endpoints =>
 });
 app.MapControllers();
 
-await app.Services.GetRequiredService<IDatabaseDataAccess>().UpdateDatabase();
-await app.Services.GetRequiredService<IDatabaseDataAccess>().UpdateWorldDatabases();
-
+await app.Services.CreateScope().ServiceProvider.GetRequiredService<IDatabaseService>().UpdateDatabase();
+await app.Services.CreateScope().ServiceProvider.GetRequiredService<IDatabaseService>().UpdateWorldDatabases();
+await app.Services.CreateScope().ServiceProvider.GetRequiredService<ISecurityService>().InitializeDefaultUsers();
 await app.Services.CreateScope().ServiceProvider.GetRequiredService<ISecurityService>().InitializeWorldsWithDefaultRoles();
 
 app.Run();

@@ -1,16 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SardCoreAPI.Controllers.DataPoints;
-using SardCoreAPI.DataAccess.DataPoints;
-using SardCoreAPI.Models.Common;
-using SardCoreAPI.Models.DataPoints.DataPointParameters;
-using SardCoreAPI.Models.DataPoints;
-using System.Xml.Linq;
 using SardCoreAPI.Models.Hub.Worlds;
-using SardCoreAPI.DataAccess.Hub.Worlds;
-using MySqlConnector;
-using SardCoreAPI.Utility.Error;
-using SardCoreAPI.DataAccess.Easy;
+using SardCoreAPI.Services.Context;
+using Microsoft.EntityFrameworkCore;
+using SardCoreAPI.Services.Hub;
+using SardCoreAPI.Utility.Validation;
 
 namespace SardCoreAPI.Controllers.Hub.Worlds
 {
@@ -19,25 +14,22 @@ namespace SardCoreAPI.Controllers.Hub.Worlds
     public class WorldController : GenericController
     {
         private readonly ILogger<DataPointTypeController> _logger;
-        private readonly IEasyDataAccess _dataAccess;
+        private readonly IDataService _data;
+        private readonly IWorldService _worldService;
 
-        public WorldController(ILogger<DataPointTypeController> logger, IEasyDataAccess easyDataAccess)
+        public WorldController(ILogger<DataPointTypeController> logger, IDataService data, IWorldService worldService)
         {
             _logger = logger;
-            _dataAccess = easyDataAccess;
+            _data = data;
+            _worldService = worldService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetWorlds([FromQuery] WorldSearchCriteria criteria)
         {
-            if (criteria == null) { return new BadRequestResult(); }
+             if (criteria == null) { return new BadRequestResult(); }
 
-            List<World> result = await _dataAccess.Get<World>(new { Id = criteria.Id, OwnerId = criteria.OwnerId, Location = criteria.Location }, queryOptions: criteria, global: true);
-            if (result != null)
-            {
-                return new OkObjectResult(result);
-            }
-            return new BadRequestResult();
+             return await Handle(_data.CoreContext.World.Where(criteria.GetQuery()).ToListAsync());
         }
 
         [HttpGet]
@@ -45,59 +37,24 @@ namespace SardCoreAPI.Controllers.Hub.Worlds
         {
             if (criteria == null) { return new BadRequestResult(); }
 
-            int count = await _dataAccess.Count<World>(new { Id = criteria.Id, OwnerId = criteria.OwnerId, Location = criteria.Location }, queryOptions: criteria, global: true);
-            return new OkObjectResult(count);
+            return await Handle(_data.CoreContext.World.Where(criteria.GetQuery()).CountAsync());
         }
 
         [Authorize(Roles = "Administrator,Editor")]
         [HttpPost]
+        [Validate]
         public async Task<IActionResult> PostWorld([FromBody] World data)
         {
-            if (data == null) { return new BadRequestResult(); }
-            data.Normalize();
-            if (data.Validate() != null) { return BadRequest(data.Validate()); }
-
-            try
-            {
-                data.CreatedDate = DateTime.Now;
-                int result = await _dataAccess.Post(data, global: true);
-
-                if (result != 0)
-                {
-                    World genResult = await new WorldGenerator().GenerateWorld(data);
-                    if (genResult != null)
-                    {
-                        return new OkObjectResult(result);
-                    }
-                    return new BadRequestResult();
-                }
-
-                return new BadRequestResult();
-            }
-            catch (MySqlException ex)
-            {
-                return ex.Handle();
-            }
-            catch (Exception ex)
-            {
-                return new BadRequestObjectResult(ex);
-            }
+            return await Handle(_worldService.CreateWorld(data));
         }
 
         [Authorize(Roles = "Administrator,Editor")]
         [HttpPut]
+        [Validate]
         public async Task<IActionResult> PutWorld([FromBody] World data)
         {
-            if (data == null) { return new BadRequestResult(); }
-
-            int result = await _dataAccess.Put(data, global: true);
-
-            if (result != 0)
-            {
-                return new OkObjectResult(result);
-            }
-
-            return new BadRequestResult();
+            _data.CoreContext.World.Update(data);
+            return await Handle(_data.CoreContext.SaveChangesAsync());
         }
     }
 }

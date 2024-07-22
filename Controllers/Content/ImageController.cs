@@ -6,6 +6,7 @@ using SardCoreAPI.DataAccess.Map;
 using SardCoreAPI.Models.Content;
 using SardCoreAPI.Models.Hub.Worlds;
 using SardCoreAPI.Models.Map.MapTile;
+using SardCoreAPI.Services.Content;
 using SardCoreAPI.Utility.Map;
 
 namespace SardCoreAPI.Controllers.Content
@@ -14,13 +15,20 @@ namespace SardCoreAPI.Controllers.Content
     [Route("Library/[controller]/[action]")]
     public class ImageController : GenericController
     {
+        private IContentService _contentService;
+
+        public ImageController(IContentService contentService) 
+        { 
+            _contentService = contentService;
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetImage([FromQuery] ImageRequest request)
         {
             try
             {
                 request.WorldInfo = GetWorldInfo(request);
-                byte[] result = await new ImageDataAccess().GetImage(request);
+                byte[] result = await _contentService.GetImage(request);
                 return new FileStreamResult(new MemoryStream(result), "image/png");
             }
             catch (FileNotFoundException e)
@@ -44,9 +52,9 @@ namespace SardCoreAPI.Controllers.Content
 
             request.WorldInfo = GetWorldInfo(request);
 
-            if (await new ImageDataAccess().PostImage(request) != 0)
+            if (await _contentService.PostImage(request) != 0)
             {
-                await new ImageDataAccess().PutImageUrl(request);
+                await _contentService.PutImageUrl(request);
                 return new OkResult();
             }
             return new BadRequestResult();
@@ -57,7 +65,7 @@ namespace SardCoreAPI.Controllers.Content
         public async Task<IActionResult> DeleteImage([FromForm] ImageRequest request)
         {
             request.WorldInfo = GetWorldInfo(request);
-            int result = await new ImageDataAccess().DeleteImage(request);
+            int result = await _contentService.DeleteImage(request);
             if (result == 0)
             {
                 return new NotFoundResult();

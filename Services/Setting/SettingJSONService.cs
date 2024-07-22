@@ -1,5 +1,7 @@
-﻿using SardCoreAPI.DataAccess.Easy;
+﻿using Microsoft.EntityFrameworkCore;
+using SardCoreAPI.DataAccess.Easy;
 using SardCoreAPI.Models.Settings;
+using SardCoreAPI.Services.Context;
 
 namespace SardCoreAPI.Services.Setting
 {
@@ -9,27 +11,45 @@ namespace SardCoreAPI.Services.Setting
         public Task Put(SettingJSON setting);
         public Task Delete(string Id);
     }
+
     public class SettingJSONService : ISettingJSONService
     {
-        private readonly IEasyDataAccess _dataAccess;
-        public SettingJSONService(IEasyDataAccess dataAccess) 
+        private readonly IDataService _dataService;
+        public SettingJSONService(IDataService dataService) 
         {
-            _dataAccess = dataAccess;
+            _dataService = dataService;
         }
 
         public async Task<List<SettingJSON>> Get(string Id)
         {
-            return await _dataAccess.Get<SettingJSON>(new {Id});
+            if (Id.EndsWith('%'))
+            {
+                return _dataService.Context.SettingJSON.Where(sj => sj.Id.StartsWith(Id.Replace("%", ""))).ToList();
+            }
+            else
+            {
+                return _dataService.Context.SettingJSON.Where(sj => sj.Id.Equals(Id)).ToList();
+            }
+            
         }
 
         public async Task Put(SettingJSON setting)
         {
-            await _dataAccess.Put(setting, insert: true);
+            if (!_dataService.Context.SettingJSON.Any(sj => sj.Id.Equals(setting.Id)))
+            {
+                _dataService.Context.SettingJSON.Add(setting);
+            }
+            else
+            {
+                _dataService.Context.SettingJSON.Update(setting);
+            }
+
+            _dataService.Context.SaveChanges();
         }
 
         public async Task Delete(string Id)
         {
-            await _dataAccess.Delete<SettingJSON>(new {Id});
+            await _dataService.Context.SettingJSON.Where(sj => sj.Id.Equals(Id)).ExecuteDeleteAsync();
         }
     }
 }

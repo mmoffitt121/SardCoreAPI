@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using SardCoreAPI.Areas.Identity.Data;
+using SardCoreAPI.Models.Security;
 using SardCoreAPI.Models.Security.Users;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;

@@ -1,14 +1,15 @@
-﻿using AspNet.Identity.MySQL;
+﻿using Microsoft.EntityFrameworkCore;
 using SardCoreAPI.Attributes.Easy;
 
 namespace SardCoreAPI.Models.Security.LibraryRoles
 {
-    [Table("UserRoles")]
+    //[Table("UserRoles")]
+    [PrimaryKey("UserId", "RoleId")]
     public class UserRole
     {
-        [Column]
+        //[Column]
         public string UserId { get; set; }
-        [Column]
+        //[Column]
         public string RoleId { get; set; }
 
         public UserRole() { }

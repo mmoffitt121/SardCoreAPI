@@ -22,7 +22,7 @@ namespace SardCoreAPI.Controllers.Security.LibraryRoles
         {
             try
             {
-                return Ok(await securityService.GetAllPermissions(WorldInfo));
+                return Ok(await securityService.GetAllPermissions());
             }
             catch (Exception ex)
             {
@@ -49,7 +49,7 @@ namespace SardCoreAPI.Controllers.Security.LibraryRoles
         {
             try
             {
-                List<Role> roles = await securityService.GetRoles(id, WorldInfo);
+                List<Role> roles = await securityService.GetRoles(id);
                 if (roles != null)
                 {
                     return new OkObjectResult(roles);
@@ -68,7 +68,7 @@ namespace SardCoreAPI.Controllers.Security.LibraryRoles
         {
             try
             {
-                await securityService.UpdateRoles(new Role[] { data }, WorldInfo);
+                await securityService.UpdateRoles([data]);
                 return Ok();
             }
             catch (Exception ex)
@@ -83,7 +83,7 @@ namespace SardCoreAPI.Controllers.Security.LibraryRoles
         {
             try
             {
-                await securityService.DeleteRole(Id, WorldInfo);
+                await securityService.DeleteRole(Id);
                 return Ok();
             }
             catch (Exception ex)

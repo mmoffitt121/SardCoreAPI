@@ -23,7 +23,7 @@ namespace SardCoreAPI.Controllers.Security.LibraryRoles
         {
             try
             {
-                ViewableLibraryUser[] roles = await securityService.GetUsersWithRoles(WorldInfo);
+                ViewableLibraryUser[] roles = await securityService.GetUsersWithRoles();
                 if (roles != null)
                 {
                     return new OkObjectResult(roles);
@@ -42,7 +42,7 @@ namespace SardCoreAPI.Controllers.Security.LibraryRoles
         {
             try
             {
-                await securityService.UpdateUserRoles(user, roles, WorldInfo);
+                await securityService.UpdateUserRoles(user, roles);
                 return Ok();
             }
             catch (Exception ex)

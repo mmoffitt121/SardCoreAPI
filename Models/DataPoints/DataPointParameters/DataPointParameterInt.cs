@@ -26,5 +26,10 @@
                 }
             }
         }
+
+        public override string GetStringValue()
+        {
+            return IntValue.ToString();
+        }
     }
 }

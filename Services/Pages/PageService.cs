@@ -1,5 +1,8 @@
-﻿using SardCoreAPI.DataAccess.Easy;
+﻿using Microsoft.EntityFrameworkCore;
+using SardCoreAPI.DataAccess.Easy;
 using SardCoreAPI.Models.Pages.Pages;
+using SardCoreAPI.Services.Context;
+using SardCoreAPI.Utility.DataAccess;
 
 namespace SardCoreAPI.Services.Pages
 {
@@ -9,15 +12,16 @@ namespace SardCoreAPI.Services.Pages
         public Task<List<Page>> GetPages(PageSearchCriteria criteria);
         public Task<int> GetPageCount(PageSearchCriteria criteria);
         public Task PutPage(Page page);
-        public Task DeletePage(int id);
+        public Task DeletePage(string id);
     }
+
     public class PageService : IPageService
     {
-        private IEasyDataAccess _dataAccess;
+        private IDataService data;
 
-        public PageService(IEasyDataAccess dataAccess)
+        public PageService(IDataService data)
         {
-            _dataAccess = dataAccess;
+            this.data = data;
         }
 
         public async Task<Dictionary<ObjectType, List<ElementSetting>>> GetPageObjects()
@@ -27,22 +31,23 @@ namespace SardCoreAPI.Services.Pages
 
         public async Task<List<Page>> GetPages(PageSearchCriteria criteria)
         {
-            return await _dataAccess.Get<Page>(criteria);
+            return await data.Context.Page.Where(criteria.GetQuery()).Paginate(criteria).ToListAsync();
         }
 
         public async Task<int> GetPageCount(PageSearchCriteria criteria)
         {
-            return await _dataAccess.Count<Page>(criteria);
+            return await data.Context.Page.Where(criteria.GetQuery()).CountAsync();
         }
 
         public async Task PutPage(Page page)
         {
-            await _dataAccess.Put(page);
+            data.Context.Page.Put(page, p => p.Id == page.Id);
+            await data.Context.SaveChangesAsync();
         }
 
-        public async Task DeletePage(int id)
+        public async Task DeletePage(string id)
         {
-            await _dataAccess.Delete<Page>(id);
+            await data.Context.Page.Where(p => p.Id.Equals(id)).ExecuteDeleteAsync();
         }
     }
 }

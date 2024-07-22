@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SardCoreAPI.Attributes.Security;
 using SardCoreAPI.DataAccess.Units;
 using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.Units;
+using SardCoreAPI.Services.Context;
+using SardCoreAPI.Utility.DataAccess;
 
 namespace SardCoreAPI.Controllers.Units
 {
@@ -11,78 +14,47 @@ namespace SardCoreAPI.Controllers.Units
     [Route("Library/[controller]/[action]")]
     public class MeasurableController : GenericController
     {
+        private readonly IDataService data;
+        public MeasurableController(IDataService data) 
+        { 
+            this.data = data; 
+        }
+
         [HttpGet]
         [Resource("Library.Setup.Units.Read")]
         public async Task<IActionResult> Get([FromQuery] PagedSearchCriteria criteria)
         {
-            if (criteria == null) { return new BadRequestResult(); }
-
-            List<Measurable> result = await new MeasurableDataAccess().GetMeasurables(criteria, WorldInfo);
-            if (result != null)
-            {
-                return new OkObjectResult(result);
-            }
-            return new BadRequestResult();
+            return await Handle(data.Context.Measurable
+                .Where(criteria.GetQuery<Measurable>()
+                    .AndIf(criteria.Id != null, x => x.Id.Equals(criteria.Id))
+                    .AndIf(criteria.Query != null, x => x.Name.Contains(criteria.Query!))
+                    .AndIf(true, x => true))
+                .Paginate(criteria)
+                .OrderBy(x => x.Name)
+                .ToListAsync());
         }
 
         [HttpPost]
         [Resource("Library.Setup.Units")]
-        public async Task<IActionResult> Post([FromBody] Measurable data)
+        public async Task<IActionResult> Post([FromBody] Measurable measurable)
         {
-            if (data == null) { return new BadRequestResult(); }
-
-            bool result = await new MeasurableDataAccess().PostMeasurable(data, WorldInfo);
-
-            if (result)
-            {
-                return Ok();
-            }
-
-            return new BadRequestResult();
+            data.Context.Measurable.Add(measurable);
+            return await Handle(data.Context.SaveChangesAsync());
         }
 
         [HttpPut]
         [Resource("Library.Setup.Units")]
-        public async Task<IActionResult> Put([FromBody] Measurable data)
+        public async Task<IActionResult> Put([FromBody] Measurable measurable)
         {
-            if (data == null) { return new BadRequestResult(); }
-
-            int result = await new MeasurableDataAccess().PutMeasurable(data, WorldInfo);
-
-            if (result > 0)
-            {
-                return Ok();
-            }
-            else if (result == 0)
-            {
-                return new NotFoundResult();
-            }
-            else
-            {
-                return new BadRequestResult();
-            }
+            data.Context.Measurable.Update(measurable);
+            return await Handle(data.Context.SaveChangesAsync());
         }
 
         [HttpDelete]
         [Resource("Library.Setup.Units")]
         public async Task<IActionResult> Delete([FromQuery] int? Id)
         {
-            if (Id == null) { return new BadRequestResult(); }
-
-            int result = await new MeasurableDataAccess().DeleteMeasurable((int)Id, WorldInfo);
-
-            if (result > 0)
-            {
-                return Ok();
-            }
-            else if (result == 0)
-            {
-                return new NotFoundResult();
-            }
-            else
-            {
-                return new BadRequestResult();
-            }
+            return await Handle(data.Context.Measurable.Where(x => x.Id == Id).ExecuteDeleteAsync());
         }
     }
 }

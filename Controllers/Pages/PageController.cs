@@ -19,6 +19,7 @@ namespace SardCoreAPI.Controllers.Pages
         [Resource("Library.Setup.Pages.Read")]
         public async Task<IActionResult> GetPageObjects()
         {
+            
             return await Handle(_pageService.GetPageObjects());
         }
 
@@ -45,7 +46,7 @@ namespace SardCoreAPI.Controllers.Pages
 
         [HttpDelete]
         [Resource("Library.Setup.Pages")]
-        public async Task<IActionResult> DeletePage(int id)
+        public async Task<IActionResult> DeletePage(string id)
         {
             return await Handle(_pageService.DeletePage(id));
         }

@@ -3,6 +3,9 @@ using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.Settings;
 using Newtonsoft.Json;
 using SardCoreAPI.Models.Pages.Views;
+using SardCoreAPI.Services.Context;
+using SardCoreAPI.Utility.DataAccess;
+using Microsoft.EntityFrameworkCore;
 
 namespace SardCoreAPI.Services.Pages
 {
@@ -16,11 +19,11 @@ namespace SardCoreAPI.Services.Pages
 
     public class ViewService : IViewService
     {
-        private IEasyDataAccess _dataAccess;
+        private IDataService data;
 
-        public ViewService(IEasyDataAccess dataAccess)
+        public ViewService(IDataService data)
         {
-            _dataAccess = dataAccess;
+            this.data = data;
         }
 
         public async Task<int> GetViewCount(ViewSearchCriteria criteria)
@@ -28,12 +31,11 @@ namespace SardCoreAPI.Services.Pages
             int count = 0;
             if (criteria.Ids == null || criteria.Ids.Count == 0)
             {
-                count = await _dataAccess.Count<ViewWrapper>(new { id = $"{ViewServiceConstants.VIEW_SETTING}.%" }, queryOptions: criteria);
+                count = await data.Context.View.CountAsync();
             }
             else
             {
-                criteria.Ids = criteria.Ids.Select(id => $"{ViewServiceConstants.VIEW_SETTING}.{id}").ToList();
-                count = await _dataAccess.Count<ViewWrapper>(new { id = criteria.Ids }, queryOptions: criteria);
+                count = await data.Context.View.Where(v => criteria.Ids.Contains(v.Id)).CountAsync();
             }
 
             return count;
@@ -44,12 +46,11 @@ namespace SardCoreAPI.Services.Pages
             List<ViewWrapper> wrappers = null;
             if (criteria.Ids == null || criteria.Ids.Count == 0)
             {
-                wrappers = await _dataAccess.Get<ViewWrapper>(new {id = $"{ViewServiceConstants.VIEW_SETTING}.%"}, queryOptions: criteria);
+                wrappers = await data.Context.View.Paginate(criteria).ToListAsync();
             }
             else
             {
-                criteria.Ids = criteria.Ids.Select(id => $"{ViewServiceConstants.VIEW_SETTING}.{id}").ToList();
-                wrappers = await _dataAccess.Get<ViewWrapper>(new { id = criteria.Ids }, queryOptions: criteria);
+                wrappers = await data.Context.View.Where(v => criteria.Ids.Contains(v.Id)).Paginate(criteria).ToListAsync();
             }
 
             if (wrappers == null || wrappers.Count() == 0)
@@ -64,8 +65,6 @@ namespace SardCoreAPI.Services.Pages
                 if (view != null) views.Add(view);
             });
 
-            views = views.OrderBy(view => view.Name).ToList();
-
             return views;
         }
 
@@ -75,13 +74,26 @@ namespace SardCoreAPI.Services.Pages
             {
                 view.Id = Guid.NewGuid().ToString();
             }
-            ViewWrapper setting = new ViewWrapper($"{ViewServiceConstants.VIEW_SETTING}.{view.Id}", view.Name, JsonConvert.SerializeObject(view));
-            await _dataAccess.Put(setting, insert: true);
+            ViewWrapper? setting = data.Context.View.SingleOrDefault(v => v.Id.Equals(view.Id));
+
+            if (setting != null)
+            {
+                setting.Name = view.Name;
+                setting.View = JsonConvert.SerializeObject(view);
+                data.Context.View.Update(setting);
+            }
+            else
+            {
+                setting = new ViewWrapper(view.Id, view.Name, JsonConvert.SerializeObject(view));
+                data.Context.View.Add(setting);
+            }
+
+            data.Context.SaveChanges();
         }
 
         public async Task DeleteView(string id)
         {
-            await _dataAccess.Delete<ViewWrapper>(new { id = $"{ViewServiceConstants.VIEW_SETTING}.{id}" });
+            await data.Context.View.Where(v => v.Id.Equals(id)).ExecuteDeleteAsync();
         }
     }
 }

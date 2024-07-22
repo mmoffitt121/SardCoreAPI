@@ -1,14 +1,24 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SardCoreAPI.Models.DataPoints.Queried;
 using SardCoreAPI.Utility.Json;
 
 namespace SardCoreAPI.Models.DataPoints.DataPointParameters
 {
     [JsonConverter(typeof(ParameterJsonConverter))]
+    [PrimaryKey("DataPointId", "DataPointTypeParameterId", "Sequence")]
     public class DataPointParameter
     {
         public int? DataPointId { get; set; }
         public int DataPointTypeParameterId { get; set; }
+        public DataPointTypeParameter? DataPointTypeParameter { get; set; }
+        public int Sequence { get; set; }
+
+        public virtual string GetStringValue()
+        {
+            return string.Empty;
+        }
 
         private class ParameterJsonConverter : DataPointJsonConverter<DataPointParameter>
         {

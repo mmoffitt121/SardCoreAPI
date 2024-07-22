@@ -141,6 +141,7 @@ namespace SardCoreAPI.Services.MenuItems
                                 },
                             }
                         },
+                       
                         new MenuItem() {
                             Name = "Security",
                             Icon = "lock_open",
@@ -164,6 +165,31 @@ namespace SardCoreAPI.Services.MenuItems
                                     IsRoot = false,
                                     Route = "users",
                                     Resource = "Library.Setup.Security"
+                                },
+                            }
+                        },
+                        new MenuItem() {
+                            Name = "Storage",
+                            Icon = "inventory_2",
+                            IsRoot = false,
+                            Expanded = false,
+                            Options = new MenuItem[]
+                            {
+                                new MenuItem()
+                                {
+                                    Name = "Images",
+                                    Icon = "image",
+                                    IsRoot = false,
+                                    Route = "storage/images",
+                                    Resource = "Library.Setup.Images"
+                                },
+                                new MenuItem()
+                                {
+                                    Name = "Usage",
+                                    Icon = "data_usage",
+                                    IsRoot = false,
+                                    Route = "storage/usage",
+                                    Resource = "Library.Setup"
                                 },
                             }
                         },

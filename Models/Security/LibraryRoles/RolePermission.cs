@@ -1,13 +1,15 @@
-﻿using SardCoreAPI.Attributes.Easy;
+﻿using Microsoft.EntityFrameworkCore;
+using SardCoreAPI.Attributes.Easy;
 
 namespace SardCoreAPI.Models.Security.LibraryRoles
 {
-    [Table("RolePermissions")]
+    //[Table("RolePermissions")]
+    [PrimaryKey("RoleId", "Permission")]
     public class RolePermission
     {
-        [Column]
+        //[Column]
         public string RoleId { get; set; }
-        [Column]
+        //[Column]
         public string Permission { get; set; }
     }
 }

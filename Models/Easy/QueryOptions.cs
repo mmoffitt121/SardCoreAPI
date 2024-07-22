@@ -1,4 +1,8 @@
-﻿namespace SardCoreAPI.Models.Easy
+﻿using LinqKit;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Linq.Expressions;
+
+namespace SardCoreAPI.Models.Easy
 {
     public class QueryOptions
     {
@@ -21,6 +25,18 @@
             queryOptions.Descending = null;
             queryOptions.PageNumber = null;
             queryOptions.PageSize = null;
+        }
+
+        public virtual ExpressionStarter<T> GetQuery<T>()
+        {
+            var predicate = PredicateBuilder.New<T>();
+
+            return predicate;
+        }
+
+        public virtual IQueryable<T> GetOrderBy<T>(IQueryable<T> queryable)
+        {
+            return queryable;
         }
     }
 }

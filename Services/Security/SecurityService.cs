@@ -1,19 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using SardCoreAPI.Areas.Identity.Data;
-using SardCoreAPI.DataAccess.DataPoints;
-using SardCoreAPI.DataAccess.Easy;
-using SardCoreAPI.DataAccess.Hub.Worlds;
-using SardCoreAPI.DataAccess.Security.LibraryRoles;
+using SardCoreAPI.Database.DBContext;
 using SardCoreAPI.Models.DataPoints;
 using SardCoreAPI.Models.Hub.Worlds;
+using SardCoreAPI.Models.Security;
 using SardCoreAPI.Models.Security.LibraryRoles;
 using SardCoreAPI.Models.Security.Users;
-using SardCoreAPI.Models.Settings;
-using SardCoreAPI.Services.Easy;
-using SardCoreAPI.Services.MenuItems;
+using SardCoreAPI.Services.Context;
 using SardCoreAPI.Services.WorldContext;
-using System.Runtime.CompilerServices;
 using System.Security.Claims;
 
 namespace SardCoreAPI.Services.Security
@@ -25,22 +19,24 @@ namespace SardCoreAPI.Services.Security
         public Task<bool> HasAccessAny(string resource);
         public Task<bool> HasGlobalAccess(string resource);
         public Task<HashSet<string>> GetUserPermissions();
-        public Task<Permission> GetAllPermissions(WorldInfo info);
+        public Task<Permission> GetAllPermissions();
         public Task<Permission> BuildPermissionObject(HashSet<string> permissions);
-        public Task<List<Role>> GetRoles(string? roleId, WorldInfo info);
-        public Task UpdateRoles(Role[] roles, WorldInfo info);
-        public Task DeleteRole(string roleId, WorldInfo info);
+        public Task<List<Role>> GetRoles(string? roleId);
+        public Task UpdateRoles(Role[] roles);
+        public Task DeleteRole(string roleId);
+        public Task InitializeDefaultUsers();
         public Task InitializeWorldsWithDefaultRoles();
-        public Task<ViewableLibraryUser[]> GetUsersWithRoles(WorldInfo info, string? userId = null);
-        public Task UpdateUserRoles(string userId, string[] roles, WorldInfo info);
+        public Task InitializeWorldWithDefaultRoles(WorldInfo info);
+        public Task<ViewableLibraryUser[]> GetUsersWithRoles(string? userId = null);
+        public Task UpdateUserRoles(string userId, string[] roles);
     }
 
     public class SecurityService : ISecurityService
     {
-        private IEasyDataAccess dataAccess;
         private readonly UserManager<SardCoreAPIUser> _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IWorldInfoService _worldInfoService;
+        private IDataService _dataService;
 
         private HashSet<string>? _currentUserPermissions = null;
 
@@ -97,12 +93,12 @@ namespace SardCoreAPI.Services.Security
             List<Role>? roles;
             if (userId != null)
             {
-                roles = (await GetUsersWithRoles(_worldInfoService.GetWorldInfo(), userId)).FirstOrDefault()?.LibraryRoles;
+                roles = (await GetUsersWithRoles(userId)).FirstOrDefault()?.LibraryRoles;
                 
             }
             else
             {
-                roles = (await GetUsersWithRoles(_worldInfoService.GetWorldInfo(), SecurityServiceConstants.DEFAULT_USER_ID)).FirstOrDefault()?.LibraryRoles;
+                roles = (await GetUsersWithRoles(SecurityServiceConstants.DEFAULT_USER_ID)).FirstOrDefault()?.LibraryRoles;
             }
 
             if (roles == null)
@@ -114,7 +110,7 @@ namespace SardCoreAPI.Services.Security
             _currentUserPermissions = new HashSet<string>();
             await Task.WhenAll(roles.Select(async role =>
             {
-                Role? r = (await GetRoles(role.Id, _worldInfoService.GetWorldInfo())).FirstOrDefault();
+                Role? r = (await GetRoles(role.Id)).FirstOrDefault();
                 if (r != null && r.Permissions != null)
                 {
                     foreach (string p in r.Permissions)
@@ -129,11 +125,11 @@ namespace SardCoreAPI.Services.Security
         #endregion
 
         #region Permissions
-        public async Task<Permission> GetAllPermissions(WorldInfo info)
+        public async Task<Permission> GetAllPermissions()
         {
             HashSet<string> permissionsSet = new HashSet<string>(SecurityServiceConstants.PERMISSIONS);
-            await AddDataPointTypePermissions(permissionsSet, info);
-            await AddMenuItemPermissions(permissionsSet, info);
+            await AddDataPointTypePermissions(permissionsSet);
+            await AddMenuItemPermissions(permissionsSet);
 
             return await BuildPermissionObject(permissionsSet);
         }
@@ -173,9 +169,9 @@ namespace SardCoreAPI.Services.Security
             return list;
         }
 
-        private async Task AddDataPointTypePermissions(HashSet<string> permissions, WorldInfo info)
+        private async Task AddDataPointTypePermissions(HashSet<string> permissions)
         {
-            List<DataPointType> types = await dataAccess.Get<DataPointType>(new { }, info);
+            List<DataPointType> types = _dataService.Context.DataPointType.ToList();
 
             foreach (DataPointType type in types)
             {
@@ -183,7 +179,7 @@ namespace SardCoreAPI.Services.Security
             }
         }
 
-        private async Task AddMenuItemPermissions(HashSet<string> permissions, WorldInfo info)
+        private async Task AddMenuItemPermissions(HashSet<string> permissions)
         {
             /*SettingJSON types = await dataAccess.First<SettingJSON>(new { Id = MenuItemServiceConstants. }, info);
 
@@ -195,12 +191,12 @@ namespace SardCoreAPI.Services.Security
         #endregion
 
         #region Roles
-        public async Task<List<Role>> GetRoles(string? roleId, WorldInfo info)
+        public async Task<List<Role>> GetRoles(string? roleId)
         {
-            List<Role> roles = await dataAccess.Get<Role>(new { Id = roleId }, info);
+            List<Role> roles = _dataService.Context.Role.Where(role => roleId == null ? true : role.Id.Equals(roleId)).ToList();
             foreach (Role role in roles)
             {
-                List<RolePermission> permissions = await dataAccess.Get<RolePermission>(new { RoleId = role.Id }, info);
+                List<RolePermission> permissions = _dataService.Context.RolePermission.Where(rp => rp.RoleId.Equals(role.Id)).ToList();
                 List<string> permissionStrings = new List<string>();
                 foreach (RolePermission permission in permissions)
                 {
@@ -211,57 +207,86 @@ namespace SardCoreAPI.Services.Security
             return roles;
         }
 
-        public async Task UpdateRoles(Role[] roles, WorldInfo info)
+        public async Task UpdateRoles(Role[] roles)
         {
             foreach (Role role in roles)
             {
-                await dataAccess.Put(role, info, true);
-                await dataAccess.Delete<RolePermission>(new { RoleId = role.Id }, info);
-                await dataAccess.Post<RolePermission>(BuildRolePermissionList(role.Id, role.Permissions ?? Array.Empty<string>()), info);
+                if (_dataService.Context.Role.Any(e => e.Id == role.Id))
+                {
+                    _dataService.Context.Role.Update(role);
+                }
+                else
+                {
+                    _dataService.Context.Role.Add(role);
+                }
+
+                _dataService.Context.RolePermission.RemoveRange(_dataService.Context.RolePermission.Where(x => x.RoleId == role.Id).ToList());
+                _dataService.Context.RolePermission.AddRange(BuildRolePermissionList(role.Id, role.Permissions ?? Array.Empty<string>()));
+
+                _dataService.Context.SaveChanges();
             }
         }
 
-        public async Task DeleteRole(string roleId, WorldInfo info)
+        public async Task DeleteRole(string roleId)
         {
-            await dataAccess.Delete<RolePermission>(new { RoleId = roleId }, info);
-            await dataAccess.Delete<Role>(new { Id = roleId }, info);
+            _dataService.Context.RolePermission.Where(rp => rp.RoleId.Equals(roleId)).ExecuteDelete();
+            _dataService.Context.Role.Where(r => r.Id.Equals(roleId)).ExecuteDelete();
+        }
+
+        public async Task InitializeDefaultUsers()
+        {
+            SardCoreAPIUser? user = await _userManager.FindByNameAsync("admin");
+            if (user == null)
+            {
+                SardCoreAPIUser adminUser = new SardCoreAPIUser() { UserName = "admin", Email = "noemail" };
+                var result = await _userManager.CreateAsync(adminUser, "admin");
+                string[] roles = { "Viewer", "Editor", "Administrator" };
+                await _userManager.AddToRolesAsync(adminUser, roles);
+            }
         }
         
         public async Task InitializeWorldsWithDefaultRoles()
         {
-            List<World> worlds = await dataAccess.Get<World>();
-            await Task.WhenAll(worlds.Select(world =>
+            List<World> worlds = _dataService.CoreContext.World.ToList();
+            foreach (World w in worlds)
             {
-                return InitializeWorldWithDefaultRoles(new WorldInfo(world.Location));
-            }));
+                await InitializeWorldWithDefaultRoles(new WorldInfo(w.Location));
+            }
         }
 
-        private async Task InitializeWorldWithDefaultRoles(WorldInfo info)
+        /// <summary>
+        /// Applies the default roles to the world at the location specified in the info
+        /// </summary>
+        /// <param name="info"></param>
+        /// <returns></returns>
+        public async Task InitializeWorldWithDefaultRoles(WorldInfo info)
         {
-            await UpdateRoles(SecurityServiceConstants.DEFAULT_ROLES, info);
-            World world = (await dataAccess.Get<World>(new { location = info.WorldLocation })).First();
-            await UpdateUserRoles(world.OwnerId, new string[] { SecurityServiceConstants.ROLE_ADMINISTRATOR }, info);
-
-            // Initialize default user
-            var defaultUserRoles = await dataAccess.Get<UserRole>(new { UserId = SecurityServiceConstants.DEFAULT_USER_ID }, info);
-            if (defaultUserRoles == null)
+            await _dataService.UsingWorldContext(info, async () => 
             {
-                await UpdateUserRoles(SecurityServiceConstants.DEFAULT_USER_ID, new string[] { SecurityServiceConstants.ROLE_VIEWER }, info);
-            }
+                await UpdateRoles(SecurityServiceConstants.DEFAULT_ROLES);
+                await UpdateUserRoles(_dataService.CoreContext.World.Single(w => w.Location.Equals(info.WorldLocation)).OwnerId, new string[] { SecurityServiceConstants.ROLE_ADMINISTRATOR });
+
+                // Initialize default user
+                var defaultUserRoles = _dataService.Context.UserRole.Where(ur => ur.UserId.Equals(SecurityServiceConstants.DEFAULT_USER_ID));
+                if (defaultUserRoles == null)
+                {
+                    await UpdateUserRoles(SecurityServiceConstants.DEFAULT_USER_ID, new string[] { SecurityServiceConstants.ROLE_VIEWER });
+                }
+            });
         }
         #endregion
 
         #region User Roles
-        public async Task<ViewableLibraryUser[]> GetUsersWithRoles(WorldInfo info, string? userId = null)
+        public async Task<ViewableLibraryUser[]> GetUsersWithRoles(string? userId = null)
         {
             List<UserRole> userRoles;
             if (userId != null)
             {
-                userRoles = await dataAccess.Get<UserRole>(new { userId }, info);
+                userRoles = _dataService.Context.UserRole.Where(x => x.UserId.Equals(userId)).ToList();
             }
             else
             {
-                userRoles = await dataAccess.Get<UserRole>(new { }, info);
+                userRoles = _dataService.Context.UserRole.ToList();
             }
             Dictionary<string, ViewableLibraryUser> users = new Dictionary<string, ViewableLibraryUser>();
             foreach (UserRole userRole in userRoles)
@@ -279,10 +304,10 @@ namespace SardCoreAPI.Services.Security
             return users.Values.ToArray();
         }
 
-        public async Task UpdateUserRoles(string userId, string[] roles, WorldInfo info)
+        public async Task UpdateUserRoles(string userId, string[] roles)
         {
             // Delete existing roles
-            await dataAccess.Delete<UserRole>(new { UserId = userId }, info);
+            _dataService.Context.UserRole.RemoveRange(_dataService.Context.UserRole.Where(x => x.UserId.Equals(userId)).ToList());
 
             // Create new roles
             List<UserRole> roleList = new List<UserRole>();
@@ -290,20 +315,22 @@ namespace SardCoreAPI.Services.Security
             {
                 roleList.Add(new UserRole(userId, role));
             }
-            await dataAccess.Post<UserRole>(roleList, info);
+            _dataService.Context.UserRole.AddRange(roleList);
+
+            _dataService.Context.SaveChanges();
         }
         #endregion
 
         public SecurityService(
-            IEasyDataAccess dataAccess,
             UserManager<SardCoreAPIUser> userManager,
             IHttpContextAccessor httpContextAccessor,
-            IWorldInfoService worldInfoService)
+            IWorldInfoService worldInfoService,
+            IDataService dataService)
         {
             this._userManager = userManager;
-            this.dataAccess = dataAccess;
             this._httpContextAccessor = httpContextAccessor;
             this._worldInfoService = worldInfoService;
+            this._dataService = dataService;
         }
     }
 }

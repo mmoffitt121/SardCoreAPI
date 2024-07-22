@@ -9,7 +9,7 @@ namespace SardCoreAPI.Controllers
 {
     public class GenericController : Controller
     {
-        public async Task<IActionResult> Handle<T>(Task<T> task)
+        protected async Task<IActionResult> Handle<T>(Task<T> task)
         {
             try
             {
@@ -21,7 +21,7 @@ namespace SardCoreAPI.Controllers
             }
         }
 
-        public async Task<IActionResult> Handle(Task task)
+        protected async Task<IActionResult> Handle(Task task)
         {
             try
             {

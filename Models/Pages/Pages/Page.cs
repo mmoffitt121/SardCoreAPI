@@ -1,28 +1,24 @@
 ﻿using SardCoreAPI.Attributes.Easy;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace SardCoreAPI.Models.Pages.Pages
 {
-    [Table("Pages")]
     public class Page
     {
-        [Column(PrimaryKey = true)]
         public string Id { get; set; }
 
-        [Column(OrderBy = true)]
         public string Name { get; set; }
 
-        [Column]
         public string Description { get; set; }
 
-        [Column(OrderBy = true)]
         public string Path { get; set; }
 
+        [NotMapped]
         public PageElement Root { get; set; }
 
         [JsonIgnore]
-        [Column]
         public string PageData 
         { 
             get 

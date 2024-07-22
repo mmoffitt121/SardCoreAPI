@@ -6,7 +6,6 @@ using SardCoreAPI.DataAccess.Units;
 using SardCoreAPI.Models.DataPoints.DataPointParameters;
 using SardCoreAPI.Models.DataPoints;
 using SardCoreAPI.Models.Units;
-using SardCoreAPI.DataAccess.Calendars;
 using SardCoreAPI.Utility.Error;
 using SardCoreAPI.Models.Calendars.CalendarData;
 using SardCoreAPI.Models.Common;
@@ -16,6 +15,9 @@ using SardCoreAPI.Models.Calendars;
 using SardCoreAPI.Attributes.Security;
 using Humanizer.Localisation;
 using SardCoreAPI.Services.Security;
+using SardCoreAPI.Services.Context;
+using SardCoreAPI.Utility.DataAccess;
+using Microsoft.EntityFrameworkCore;
 
 namespace SardCoreAPI.Controllers.Calendars
 {
@@ -23,13 +25,10 @@ namespace SardCoreAPI.Controllers.Calendars
     [Route("Library/[controller]/[action]")]
     public class CalendarController : GenericController
     {
-        private readonly ILogger<MapController> _logger;
-        private readonly IEasyDataAccess _dataAccess;
-
-        public CalendarController(ILogger<MapController> logger, IEasyDataAccess dataAccess)
+        private readonly IDataService _dataService;
+        public CalendarController(IDataService dataService)
         {
-            _logger = logger;
-            _dataAccess = dataAccess;
+            _dataService = dataService;
         }
 
         [HttpGet]
@@ -38,7 +37,12 @@ namespace SardCoreAPI.Controllers.Calendars
         {
             try
             {
-                List<CalendarDataAccessWrapper> wrappers = await _dataAccess.Get<CalendarDataAccessWrapper>(new { Id = criteria?.Id }, queryOptions: criteria);
+                List<CalendarDataAccessWrapper> wrappers = _dataService.Context.Calendar
+                    .Where(c => criteria == null || criteria.Id == null || c.Id.Equals(criteria.Id))
+                    .Skip(criteria?.PageNumber ?? 0 * criteria?.PageSize ?? 0)
+                    .Take(criteria?.PageSize ?? 36)
+                    .ToList();
+
                 List<Calendar> result = new List<Calendar>();
                 foreach (var item in wrappers)
                 {
@@ -57,30 +61,15 @@ namespace SardCoreAPI.Controllers.Calendars
         [Resource("Library.Setup.Calendars")]
         public async Task<IActionResult> Put(Calendar calendar)
         {
-            try
-            {
-                await _dataAccess.Put(new CalendarDataAccessWrapper(calendar), insert: true);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return ex.Handle();
-            }
+            _dataService.Context.Calendar.Put(new CalendarDataAccessWrapper(calendar), c => c.Id == calendar.Id);
+            return await Handle(_dataService.Context.SaveChangesAsync());
         }
 
         [HttpDelete]
         [Resource("Library.Setup.Calendars")]
         public async Task<IActionResult> Delete(int id)
         {
-            try
-            {
-                await _dataAccess.Delete<CalendarDataAccessWrapper>(new { id });
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return ex.Handle();
-            }
+            return await Handle(_dataService.Context.Calendar.Where(c => c.Id == id).ExecuteDeleteAsync());
         }
     }
 }

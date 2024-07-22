@@ -1,23 +1,16 @@
-﻿using SardCoreAPI.Attributes.Easy;
-using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using SardCoreAPI.Models.Common;
 using System.Text.RegularExpressions;
 
 namespace SardCoreAPI.Models.Hub.Worlds
 {
-    [Table("Worlds")]
-    public class World
+    public class World : IValidatable
     {
-        [Column]
         public int Id { get; set; }
-        [Column]
         public string OwnerId { get; set; }
-        [Column]
         public string Location { get; set; }
-        [Column]
         public string Name { get; set; }
-        [Column]
         public string? Summary { get; set; }
-        [Column]
         public DateTime? CreatedDate { get; set; }
 
         public void Normalize()
@@ -25,7 +18,7 @@ namespace SardCoreAPI.Models.Hub.Worlds
             Location = Location.Trim().ToLower().Replace(' ', '_');
         }
 
-        public string Validate()
+        public List<string> Validate()
         {
             List<string> errors = new List<string>();
             if (string.IsNullOrEmpty(OwnerId.Trim())) { errors.Add("OwnerId is empty."); }
@@ -62,7 +55,7 @@ namespace SardCoreAPI.Models.Hub.Worlds
                     break;
             }
 
-            return errors.Count() > 0 ? string.Join(' ', errors) : null;
+            return errors;
         }
     }
 }

@@ -6,11 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MySqlConnector;
-using SardCoreAPI.Areas.Identity.Data;
 using SardCoreAPI.Controllers.Map;
 using SardCoreAPI.DataAccess.Map;
 using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.Map.LocationType;
+using SardCoreAPI.Models.Security;
 using SardCoreAPI.Models.Security.Users;
 using SardCoreAPI.Utility.Error;
 

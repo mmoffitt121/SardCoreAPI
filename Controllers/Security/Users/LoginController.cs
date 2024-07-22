@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using SardCoreAPI.Areas.Identity.Data;
 using SardCoreAPI.Controllers.Map;
+using SardCoreAPI.Models.Security;
 using SardCoreAPI.Models.Security.JWT;
 using SardCoreAPI.Models.Security.Users;
 using SardCoreAPI.Services.Security;

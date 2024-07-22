@@ -10,6 +10,7 @@ namespace SardCoreAPI.Models.Content
         public int? Id2 { get; set; }
         public ImageType? Type { get; set; }
         public string? URL { get; set; }
+        [JsonIgnore]
         public string? WorldPath { get; set; }
         [JsonIgnore]
         public WorldInfo? WorldInfo { get; set; }

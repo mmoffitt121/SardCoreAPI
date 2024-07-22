@@ -1,13 +1,15 @@
 ﻿using SardCoreAPI.Attributes.Easy;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml.Linq;
 
 namespace SardCoreAPI.Models.Security.LibraryRoles
 {
-    [Table("Roles")]
+    //[Table("Roles")]
     public class Role
     {
-        [Column]
+        //[Column]
         public string Id { get; set; }
+        [NotMapped]
         public string[]? Permissions { get; set; }
     }
 }

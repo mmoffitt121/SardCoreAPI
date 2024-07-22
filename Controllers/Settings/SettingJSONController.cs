@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SardCoreAPI.Attributes.Security;
-using SardCoreAPI.DataAccess.Calendars;
 using SardCoreAPI.DataAccess.Map;
 using SardCoreAPI.Models.Map.Location;
 using SardCoreAPI.Models.Map.LocationType;
@@ -47,15 +46,7 @@ namespace SardCoreAPI.Controllers.Map
         [Resource("Library.Setup.Settings")]
         public async Task<IActionResult> Put([FromBody] SettingJSON data)
         {
-            try
-            {
-                await _settingService.Put(data);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return ex.Handle();
-            }
+            return await Handle(_settingService.Put(data));
         }
 
         [HttpDelete]

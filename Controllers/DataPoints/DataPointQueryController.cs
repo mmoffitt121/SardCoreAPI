@@ -26,7 +26,7 @@ namespace SardCoreAPI.Controllers.DataPoints
         {
             if (criteria == null) { return new BadRequestResult(); }
 
-            DataPointQueryResult result = await _dataPointService.GetList(criteria);
+            DataPointQueryResult result = await _dataPointService.GetDataPoints(criteria);
             if (result != null)
             {
                 return new OkObjectResult(result);

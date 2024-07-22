@@ -1,4 +1,5 @@
-﻿using SardCoreAPI.Models.DataPoints;
+﻿using Microsoft.EntityFrameworkCore;
+using SardCoreAPI.Models.DataPoints;
 
 namespace SardCoreAPI.Models.Pages.Views
 {

@@ -1,5 +1,8 @@
-﻿namespace SardCoreAPI.Models.Map.MapTile
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace SardCoreAPI.Models.Map.MapTile
 {
+    [PrimaryKey("X", "Y", "Z", "LayerId")]
     public class MapTile
     {
         public int Z { get; set; }
