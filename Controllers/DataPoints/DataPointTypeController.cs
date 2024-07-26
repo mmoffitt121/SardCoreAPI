@@ -1,19 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MySqlConnector;
 using SardCoreAPI.Attributes.Security;
-using SardCoreAPI.Controllers.Map;
-using SardCoreAPI.DataAccess.DataPoints;
-using SardCoreAPI.DataAccess.Map;
-using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.DataPoints;
 using SardCoreAPI.Models.DataPoints.DataPointParameters;
-using SardCoreAPI.Models.Map.Location;
 using SardCoreAPI.Services.Context;
 using SardCoreAPI.Services.DataPoints;
 using SardCoreAPI.Utility.DataAccess;
-using SardCoreAPI.Utility.Error;
 
 namespace SardCoreAPI.Controllers.DataPoints
 {

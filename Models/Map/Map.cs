@@ -14,6 +14,6 @@ namespace SardCoreAPI.Models.Map
         public int? MinZoom { get; set; }
         public int? MaxZoom { get; set; }
         public bool? IsDefault { get; set; }
-        public byte[]? Icon { get; set; }
+        public string? IconId { get; set; }
     }
 }

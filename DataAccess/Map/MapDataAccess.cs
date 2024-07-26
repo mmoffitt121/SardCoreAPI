@@ -17,40 +17,6 @@ namespace SardCoreAPI.DataAccess.Map
         }
 
         #region Map
-        public async Task<List<mp.Map>> GetMaps(MapSearchCriteria criteria, WorldInfo info)
-        {
-            string pageSettings = "";
-            if (criteria.PageNumber != null && criteria.PageSize != null)
-            {
-                pageSettings = $"LIMIT {criteria.PageSize} OFFSET {(criteria.PageNumber) * criteria.PageSize}";
-            }
-
-            string sql = $@"SELECT 
-                    Id, 
-                    Name,
-                    Summary,
-                    Loops,
-                    DefaultZ,
-                    DefaultX,
-                    DefaultY,
-                    MinZoom,
-                    MaxZoom,
-                    IsDefault
-                FROM Map
-                /**where**/
-                ORDER BY Name
-                {pageSettings};
-            ";
-
-            SqlBuilder builder = new SqlBuilder();
-            var template = builder.AddTemplate(sql);
-
-            if (!string.IsNullOrEmpty(criteria.Query)) { builder.Where("Name LIKE CONCAT('%', IFNULL(@Query, ''), '%')"); }
-            if (criteria.Id != null) { builder.Where("Id = @Id"); }
-            if (criteria.IsDefault != null) { builder.Where("IsDefault = @IsDefault"); }
-
-            return await Query<mp.Map>(template.RawSql, criteria, info);
-        }
 
         public async Task<int> PostMap(mp.Map data, WorldInfo info)
         {

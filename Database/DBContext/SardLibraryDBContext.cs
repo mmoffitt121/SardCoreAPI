@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SardCoreAPI.Migrations.Entities;
 using SardCoreAPI.Models.Calendars;
+using SardCoreAPI.Models.Content;
 using SardCoreAPI.Models.DataPoints;
 using SardCoreAPI.Models.DataPoints.DataPointParameters;
 using SardCoreAPI.Models.Hub.Worlds;
@@ -70,7 +71,7 @@ namespace SardCoreAPI.Database.DBContext
 
         public DbSet<DataPointType> DataPointType { get; set; }
 
-        public DbSet<
+        public DbSet<Image> Image { get; set; }
 
         public DbSet<Location> Location { get; set; }
 

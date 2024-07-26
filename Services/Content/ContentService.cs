@@ -9,7 +9,7 @@ namespace SardCoreAPI.Services.Content
     public interface IContentService
     {
         public Task<byte[]> GetImage(ImageRequest request);
-        public Task<int> PostImage(ImagePostRequest request);
+        public Task<string> PostImage(ImagePostRequest request);
         public Task<int> DeleteImage(ImageRequest request);
         public Task<int> PutImageUrl(ImagePostRequest request);
     }
@@ -26,20 +26,27 @@ namespace SardCoreAPI.Services.Content
             return await new FileHandler().LoadImage(request);
         }
 
-        public async Task<int> PostImage(ImagePostRequest request)
+        public async Task<string> PostImage(ImagePostRequest request)
         {
-            switch (request.Type)
+            if (request.Data == null)
             {
-                case ImageRequest.ImageType.LocationTypeIcon:
-                case ImageRequest.ImageType.LocationIcon:
-                    await new FileHandler().SaveAndResizeImage(request, 64, 64);
-                    break;
-                default:
-                    await new FileHandler().SaveImage(request);
-                    break;
+                throw new ArgumentException("Image data cannot be null");
             }
 
-            return 1;
+            Image image = new Image()
+            {
+                Id = "Image_" + DateTime.Now.ToString(),
+                Name = request.Data.FileName,
+                Size = request.Data.OpenReadStream().Length,
+                Description = request.Description ?? "",
+                Url = request.URL ?? "",
+                CreationDate = DateTime.Now,
+            };
+            _data.Context.Image.Add(image);
+            _data.Context.SaveChanges();
+            await new FileHandler().SaveImage(request);
+
+            return image.Id;
         }
 
         public async Task<int> DeleteImage(ImageRequest request)

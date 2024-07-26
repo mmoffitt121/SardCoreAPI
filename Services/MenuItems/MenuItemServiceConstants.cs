@@ -180,7 +180,7 @@ namespace SardCoreAPI.Services.MenuItems
                                     Name = "Images",
                                     Icon = "image",
                                     IsRoot = false,
-                                    Route = "storage/images",
+                                    Route = "images",
                                     Resource = "Library.Setup.Images"
                                 },
                                 new MenuItem()
@@ -188,7 +188,7 @@ namespace SardCoreAPI.Services.MenuItems
                                     Name = "Usage",
                                     Icon = "data_usage",
                                     IsRoot = false,
-                                    Route = "storage/usage",
+                                    Route = "usage",
                                     Resource = "Library.Setup"
                                 },
                             }

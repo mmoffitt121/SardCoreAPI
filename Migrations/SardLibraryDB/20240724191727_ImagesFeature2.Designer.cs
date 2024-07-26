@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SardCoreAPI.Database.DBContext;
 
@@ -11,9 +12,11 @@ using SardCoreAPI.Database.DBContext;
 namespace SardCoreAPI.Migrations.SardLibraryDB
 {
     [DbContext(typeof(SardLibraryDBContext))]
-    partial class SardLibraryDBContextModelSnapshot : ModelSnapshot
+    [Migration("20240724191727_ImagesFeature2")]
+    partial class ImagesFeature2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,9 +48,6 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
                     b.Property<string>("Id")
                         .HasColumnType("varchar(255)");
 
-                    b.Property<DateTime>("CreationDate")
-                        .HasColumnType("datetime(6)");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -56,8 +56,8 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<long>("Size")
-                        .HasColumnType("bigint");
+                    b.Property<int>("Size")
+                        .HasColumnType("int");
 
                     b.Property<string>("Url")
                         .IsRequired()
@@ -356,8 +356,8 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
                     b.Property<float?>("DefaultZ")
                         .HasColumnType("float");
 
-                    b.Property<string>("IconId")
-                        .HasColumnType("longtext");
+                    b.Property<byte[]>("Icon")
+                        .HasColumnType("longblob");
 
                     b.Property<bool?>("IsDefault")
                         .HasColumnType("tinyint(1)");

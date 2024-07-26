@@ -5,6 +5,7 @@ namespace SardCoreAPI.Models.Content
     public class ImagePostRequest : ImageRequest
     {
         public IFormFile? Data { get; set; }
+        public string? Description { get; set; }
 
         public async Task<byte[]> GetByteArray()
         {

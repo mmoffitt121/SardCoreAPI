@@ -51,13 +51,10 @@ namespace SardCoreAPI.Controllers.Content
             }
 
             request.WorldInfo = GetWorldInfo(request);
+            string id = await _contentService.PostImage(request);
+            await _contentService.PutImageUrl(request);
 
-            if (await _contentService.PostImage(request) != 0)
-            {
-                await _contentService.PutImageUrl(request);
-                return new OkResult();
-            }
-            return new BadRequestResult();
+            return Ok(id);
         }
 
         [HttpDelete]
