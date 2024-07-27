@@ -201,7 +201,7 @@ namespace SardCoreAPI.Controllers.Map
 
             try
             {
-                await new MapLayerDataAccess().PostMapLayerIcon(compressed, file.Id, WorldInfo);
+                //await new MapLayerDataAccess().PostMapLayerIcon(compressed, file.Id, WorldInfo);
                 return new OkResult();
             }
             catch (IOException ex)

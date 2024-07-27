@@ -25,49 +25,21 @@ namespace SardCoreAPI.Controllers.Content
         [HttpGet]
         public async Task<IActionResult> GetImage([FromQuery] ImageRequest request)
         {
-            try
-            {
-                request.WorldInfo = GetWorldInfo(request);
-                byte[] result = await _contentService.GetImage(request);
-                return new FileStreamResult(new MemoryStream(result), "image/png");
-            }
-            catch (FileNotFoundException e)
-            {
-                return new OkObjectResult(null);
-            }
-            catch (DirectoryNotFoundException e)
-            {
-                return new OkObjectResult(null);
-            }
+            return await Handle(_contentService.GetImage(request));
         }
 
         [HttpPost]
         [Resource("Library.General")]
         public async Task<IActionResult> PostImage([FromForm] ImagePostRequest request)
         {
-            if (request == null || request.Data == null || request.Data.Length == 0)
-            {
-                return new BadRequestResult();
-            }
-
-            request.WorldInfo = GetWorldInfo(request);
-            string id = await _contentService.PostImage(request);
-            await _contentService.PutImageUrl(request);
-
-            return Ok(id);
+            return await Handle(_contentService.PostImage(request));
         }
 
         [HttpDelete]
         [Resource("Library.General")]
-        public async Task<IActionResult> DeleteImage([FromForm] ImageRequest request)
+        public async Task<IActionResult> DeleteImage([FromForm] int id)
         {
-            request.WorldInfo = GetWorldInfo(request);
-            int result = await _contentService.DeleteImage(request);
-            if (result == 0)
-            {
-                return new NotFoundResult();
-            }
-            return new OkResult();
+            return Handle(await _contentService.DeleteImage(id));
         }
 
         private WorldInfo GetWorldInfo(ImageRequest request)

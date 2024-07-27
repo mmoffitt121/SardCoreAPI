@@ -32,7 +32,7 @@ namespace SardCoreAPI.Utility.Files
 
         public async Task SaveImage(ImagePostRequest request)
         {
-            Directory.CreateDirectory(request.Directory);
+            /*Directory.CreateDirectory(request.Directory);
             for (int i = 0; i < retryCount; i++)
             {
                 try
@@ -45,12 +45,12 @@ namespace SardCoreAPI.Utility.Files
                     await Task.Delay(retryDelay);
                 }
                 throw new Exception();
-            }
+            }*/
         }
 
         public async Task SaveAndResizeImage(ImagePostRequest request, int width, int height)
         {
-            byte[] data = await CompressImage(await request.GetByteArray(), width, height);
+            /*byte[] data = await CompressImage(await request.GetByteArray(), width, height);
 
             Directory.CreateDirectory(request.Directory);
             for (int i = 0; i < retryCount; i++)
@@ -65,7 +65,7 @@ namespace SardCoreAPI.Utility.Files
                     await Task.Delay(retryDelay);
                 }
                 throw new Exception();
-            }
+            }*/
         }
 
         public async Task<byte[]> LoadImage(string fileName)
