@@ -7,5 +7,6 @@
         public string Description { get; set; }
         public long Size { get; set; }
         public DateTime CreationDate { get; set; }
+        public string Extension { get; set; }
     }
 }

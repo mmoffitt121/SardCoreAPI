@@ -4,6 +4,7 @@ using Microsoft.Extensions.Primitives;
 using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.Hub.Worlds;
 using SardCoreAPI.Utility.Error;
+using System.Threading.Tasks;
 
 namespace SardCoreAPI.Controllers
 {

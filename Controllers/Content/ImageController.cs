@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SardCoreAPI.Attributes.Security;
 using SardCoreAPI.DataAccess.Content;
 using SardCoreAPI.DataAccess.Map;
+using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.Content;
 using SardCoreAPI.Models.Hub.Worlds;
 using SardCoreAPI.Models.Map.MapTile;
@@ -23,9 +25,33 @@ namespace SardCoreAPI.Controllers.Content
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetImage([FromQuery] ImageRequest request)
+        public async Task<IActionResult> GetImages([FromQuery] PagedSearchCriteria criteria)
         {
-            return await Handle(_contentService.GetImage(request));
+            return await Handle(_contentService.GetImages(criteria));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetImageCount([FromQuery] PagedSearchCriteria criteria)
+        {
+            return await Handle(_contentService.GetImageCount(criteria));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Image([FromQuery] string id)
+        {
+            return await GetImage(_contentService.Image(id));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Thumbnail([FromQuery] string id)
+        {
+            return await GetImage(_contentService.Thumbnail(id));
+        }
+
+        private async Task<IActionResult> GetImage(Task<(byte[], string)> task)
+        {
+            (byte[], string) fileTuple = await task;
+            return File(fileTuple.Item1, fileTuple.Item2);
         }
 
         [HttpPost]
@@ -37,9 +63,9 @@ namespace SardCoreAPI.Controllers.Content
 
         [HttpDelete]
         [Resource("Library.General")]
-        public async Task<IActionResult> DeleteImage([FromForm] int id)
+        public async Task<IActionResult> DeleteImage([FromForm] string id)
         {
-            return Handle(await _contentService.DeleteImage(id));
+            return await Handle(_contentService.DeleteImage(id));
         }
 
         private WorldInfo GetWorldInfo(ImageRequest request)

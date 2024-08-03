@@ -197,7 +197,7 @@ namespace SardCoreAPI.Controllers.Map
             }
 
             byte[] bytes = await new FileHandler().FormToByteArray(file.Data);
-            byte[] compressed = await new FileHandler().CompressImage(bytes, 256, 256);
+            byte[] compressed = await new FileHandler().ResizeImage(bytes, 256, 256);
 
             try
             {

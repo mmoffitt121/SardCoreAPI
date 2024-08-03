@@ -32,6 +32,7 @@ using SardCoreAPI.Services.Database;
 using SardCoreAPI.Services.Hub;
 using SardCoreAPI.Models.Security;
 using Newtonsoft.Json;
+using SardCoreAPI.Services.Content;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("SardCoreAPIContextConnection") ?? throw new InvalidOperationException("Connection string 'SardCoreAPIContextConnection' not found.");
@@ -117,6 +118,7 @@ builder.Services.AddScoped<IDataPointService, DataPointService>();
 builder.Services.AddScoped<IDataPointQueryService, MySQLDataPointQueryService>();
 builder.Services.AddScoped<IViewService, ViewService>();
 builder.Services.AddScoped<IDataPointTypeService, DataPointTypeService>();
+builder.Services.AddScoped<IContentService, ContentService>();
 
 builder.Services.AddScoped<IDatabaseService, EFCoreDatabaseService>();
 builder.Services.AddScoped<IWorldService, WorldService>();
