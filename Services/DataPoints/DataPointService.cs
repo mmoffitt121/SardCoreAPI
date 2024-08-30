@@ -15,6 +15,7 @@ using SardCoreAPI.Utility.DataAccess;
 using System.Dynamic;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.Intrinsics.Arm;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SardCoreAPI.Services.DataPoints
@@ -99,11 +100,15 @@ namespace SardCoreAPI.Services.DataPoints
             if (criteria.DataPointIds != null) queryable = queryable.Where(dp => criteria.DataPointIds.Contains(dp.Id ?? -1));
             if (criteria.TypeIds != null) queryable = queryable.Where(dp => criteria.TypeIds.Contains(dp.TypeId));
             if (criteria.Query != null) queryable = queryable.Where(dp => dp.Name.Contains(criteria.Query));
-            
+
+            int? moveToFront = null;
             if (criteria.LocationIds != null)
             {
-                List<int> dataPointLocationIds = data.Context.DataPointLocation.Where(l => criteria.LocationIds.Contains(l.LocationId)).Select(l => l.DataPointId).ToList();
-                queryable.Where(dp => dataPointLocationIds.Contains(dp.Id ?? -1));
+                List<DataPointLocation> dataPointLocations = data.Context.DataPointLocation.Where(l => criteria.LocationIds.Contains(l.LocationId)).ToList();
+                List<int> dataPointLocationIds = dataPointLocations.Select(l => l.DataPointId).ToList();
+                queryable = queryable.Where(dp => dataPointLocationIds.Contains(dp.Id ?? -1));
+
+                moveToFront = dataPointLocations.FirstOrDefault(dpl => dpl.IsPrimary)?.DataPointId;
             }
 
             if (criteria.Parameters != null && criteria.ParameterSearchOptions != null)
@@ -124,6 +129,18 @@ namespace SardCoreAPI.Services.DataPoints
 
             List<DataPoint> dataPoints = await queryable.Paginate(criteria).ToListAsync();
             int count = await queryable.CountAsync();
+
+            
+            if (moveToFront != null)
+            {
+                DataPoint? primary = dataPoints.FirstOrDefault(dp => dp.Id.Equals(moveToFront));
+
+                if (primary != null)
+                {
+                    dataPoints.RemoveAt(dataPoints.IndexOf(primary));
+                    dataPoints.Insert(0, primary);
+                }
+            }
 
             List<DataPointTypeParameter> typeParams = data.Context.DataPointTypeParameter
                 .Where(dptp => dataPoints

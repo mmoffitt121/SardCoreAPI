@@ -4,6 +4,8 @@ using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.Content;
 using SardCoreAPI.Models.Hub.Worlds;
 using SardCoreAPI.Services.Content;
+using SardCoreAPI.Services.Context;
+using SardCoreAPI.Services.Security;
 
 namespace SardCoreAPI.Controllers.Content
 {
@@ -12,10 +14,12 @@ namespace SardCoreAPI.Controllers.Content
     public class ImageController : GenericController
     {
         private IContentService _contentService;
+        private IDataService data;
 
-        public ImageController(IContentService contentService) 
+        public ImageController(IContentService contentService, IDataService data) 
         { 
             _contentService = contentService;
+            this.data = data;
         }
 
         [HttpGet]
@@ -45,6 +49,14 @@ namespace SardCoreAPI.Controllers.Content
         public async Task<IActionResult> Thumbnail([FromQuery] string id)
         {
             Response.Headers["Cache-Control"] = "public,max-age=" + 10000;
+            return await GetImage(_contentService.Thumbnail(id));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Icon([FromQuery] string id, [FromQuery] string world)
+        {
+            Response.Headers["Cache-Control"] = "public,max-age=" + 10000;
+            await data.StartUsingWorldContext(new WorldInfo(world));
             return await GetImage(_contentService.Thumbnail(id));
         }
 

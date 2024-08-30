@@ -8,8 +8,9 @@ namespace SardCoreAPI.Models.DataPoints
     {
         public int DataPointId { get; set; }
         public int LocationId { get; set; }
+        public bool IsPrimary { get; set; }
 
-        public DataPoint DataPoint { get; set; }
-        public Location Location { get; set; }
+        public DataPoint? DataPoint { get; set; }
+        public Location? Location { get; set; }
     }
 }

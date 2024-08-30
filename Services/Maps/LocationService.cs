@@ -23,9 +23,9 @@ namespace SardCoreAPI.Services.Maps
         Task<List<Location>> GetLocationHeiarchy(int id, int depth);
         Task PutLocation(Location location);
         Task DeleteLocation(int Id);
-        Task PutRegion(Region region);
+        Task<int> PutRegion(Region region);
         Task DeleteRegion(int RegionId);
-        Task PostDataPointLocation(DataPointLocation dpl);
+        Task PutDataPointLocation(DataPointLocation dpl);
     }
 
     public class LocationService : ILocationService
@@ -131,7 +131,7 @@ namespace SardCoreAPI.Services.Maps
             await data.Context.Location.Where(l => l.Id.Equals(Id)).ExecuteDeleteAsync();
         }
 
-        public async Task PutRegion(Region region)
+        public async Task<int> PutRegion(Region region)
         {
             Region? old = data.Context.Region.SingleOrDefault(r => r.Id.Equals(region.Id));
 
@@ -146,6 +146,7 @@ namespace SardCoreAPI.Services.Maps
             }
 
             await data.Context.SaveChangesAsync();
+            return (old == null ? region.Id : old.Id) ?? -1;
         }
 
         public async Task DeleteRegion(int RegionId)
@@ -153,9 +154,27 @@ namespace SardCoreAPI.Services.Maps
             await data.Context.Region.Where(r => r.Id.Equals(RegionId)).ExecuteDeleteAsync();
         }
 
-        public async Task PostDataPointLocation(DataPointLocation dpl)
+        public async Task PutDataPointLocation(DataPointLocation dpl)
         {
-            data.Context.Add(dpl);
+            DataPointLocation? old = data.Context.DataPointLocation.SingleOrDefault(x => x.LocationId.Equals(dpl.LocationId) && x.DataPointId.Equals(dpl.DataPointId));
+
+            if (old == null)
+            {
+                data.Context.Add(dpl);
+            }
+            else
+            {
+                if (dpl.IsPrimary)
+                {
+                    data.Context.DataPointLocation
+                        .Where(l => l.LocationId.Equals(dpl.LocationId))
+                        .ExecuteUpdate(setters => setters.SetProperty(l => l.IsPrimary, false));
+                }
+                old.DataPointId = dpl.DataPointId;
+                old.IsPrimary = dpl.IsPrimary;
+                data.Context.Update(old);
+            }
+
             await data.Context.SaveChangesAsync();
         }
     }

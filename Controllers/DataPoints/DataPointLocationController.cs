@@ -11,6 +11,7 @@ using SardCoreAPI.Models.DataPoints;
 using SardCoreAPI.Models.Hub.Worlds;
 using SardCoreAPI.Models.Map.Location;
 using SardCoreAPI.Services.Context;
+using SardCoreAPI.Services.DataPoints;
 using SardCoreAPI.Services.Maps;
 using SardCoreAPI.Utility.DataAccess;
 using SardCoreAPI.Utility.Error;
@@ -26,11 +27,14 @@ namespace SardCoreAPI.Controllers.DataPoints
         private readonly ILogger<MapController> _logger;
         private readonly IDataService data;
         private readonly ILocationService locationService;
+        private readonly IDataPointService dataPointService;
 
-        public DataPointLocationController(ILogger<MapController> logger, IDataService data)
+        public DataPointLocationController(ILogger<MapController> logger, IDataService data, ILocationService locationService, IDataPointService dataPointService)
         {
             _logger = logger;
             this.data = data;
+            this.locationService = locationService;
+            this.dataPointService = dataPointService;
         }
 
         [HttpGet]
@@ -38,15 +42,10 @@ namespace SardCoreAPI.Controllers.DataPoints
         [Resource("Library.Location.Read")]
         public async Task<IActionResult> GetDataPointsFromLocationId([FromQuery] PagedSearchCriteria criteria)
         {
-            return await Handle(data.Context.DataPointLocation.Where(x => x.LocationId.Equals(criteria.Id)).Paginate(criteria).ToListAsync());
-        }
-
-        [HttpGet]
-        [Resource("Library.Document.Read")]
-        [Resource("Library.Location.Read")]
-        public async Task<IActionResult> GetDataPointsFromLocationIdCount([FromQuery] PagedSearchCriteria criteria)
-        {
-            return await Handle(data.Context.DataPointLocation.Where(x => x.LocationId.Equals(criteria.Id)).CountAsync());
+            return await Handle(dataPointService.GetDataPoints(new DataPointSearchCriteria()
+            {
+                LocationIds = new List<int>() { criteria.Id ?? -1 }
+            }));
         }
 
         [HttpGet]
@@ -54,23 +53,20 @@ namespace SardCoreAPI.Controllers.DataPoints
         [Resource("Library.Location.Read")]
         public async Task<IActionResult> GetLocationsFromDataPointId([FromQuery] PagedSearchCriteria criteria)
         {
-            return await Handle(data.Context.DataPointLocation.Where(x => x.DataPointId.Equals(criteria.Id)).Paginate(criteria).ToListAsync());
-        }
-
-        [HttpGet]
-        [Resource("Library.Document.Read")]
-        [Resource("Library.Location.Read")]
-        public async Task<IActionResult> GetLocationsFromDataPointIdCount([FromQuery] PagedSearchCriteria criteria)
-        {
-            return await Handle(data.Context.DataPointLocation.Where(x => x.DataPointId.Equals(criteria.Id)).CountAsync());
+            return await Handle(data.Context.DataPointLocation
+                .Where(x => x.DataPointId.Equals(criteria.Id))
+                .Paginate(criteria)
+                .Include(dpl => dpl.Location)
+                .Select(dpl => dpl.Location)
+                .ToListAsync());
         }
 
         [HttpPost]
         [Resource("Library.Document")]
         [Resource("Library.Location")]
-        public async Task<IActionResult> PostDataPointLocation([FromBody] DataPointLocation dpl)
+        public async Task<IActionResult> PutDataPointLocation([FromBody] DataPointLocation dpl)
         {
-            return await Handle(locationService.PostDataPointLocation(dpl));
+            return await Handle(locationService.PutDataPointLocation(dpl));
         }
 
         [HttpPost]
