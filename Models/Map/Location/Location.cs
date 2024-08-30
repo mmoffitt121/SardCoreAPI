@@ -51,6 +51,8 @@ namespace SardCoreAPI.Models.Map.Location
             LabelFontColor = LabelFontColor ?? type?.LabelFontColor;
             IconSize = IconSize ?? type?.IconSize;
             LocationType = null;
+            ZoomProminenceMin = ZoomProminenceMin ?? type?.ZoomProminenceMin;
+            ZoomProminenceMax = ZoomProminenceMax ?? type?.ZoomProminenceMax;
             return this;
         }
     }

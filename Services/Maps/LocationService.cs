@@ -75,6 +75,16 @@ namespace SardCoreAPI.Services.Maps
 
         public async Task<List<Location>> GetLocations(LocationSearchCriteria criteria)
         {
+            /*double originalMinLongitude;
+            double originalMaxLongitude;
+            if (criteria.MinLongitude != null && criteria.MaxLongitude != null)
+            {
+                originalMinLongitude = (double)criteria.MinLongitude;
+                originalMaxLongitude = (double)criteria.MaxLongitude;
+
+                double span = originalMaxLongitude - originalMinLongitude;
+            }*/
+            
             return await data.Context.Location
                 .Include(x => x.LocationType)
                 .Where(criteria.GetQuery())
@@ -111,6 +121,18 @@ namespace SardCoreAPI.Services.Maps
 
         public async Task PutLocation(Location location)
         {
+            if (location.Longitude > 180)
+            {
+                location.Longitude = (location.Longitude + 180) % 360 - 180;
+            }
+            else if (location.Longitude < -180)
+            {
+                location.Longitude = -location.Longitude;
+                location.Longitude = (location.Longitude + 180) % 360 - 180;
+                location.Longitude = -location.Longitude;
+            }
+            
+
             Location? old = data.Context.Location.SingleOrDefault(l => l.Id.Equals(location.Id));
 
             if (old == null)
