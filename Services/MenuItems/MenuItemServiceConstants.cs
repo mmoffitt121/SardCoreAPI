@@ -185,12 +185,20 @@ namespace SardCoreAPI.Services.MenuItems
                                 },
                                 new MenuItem()
                                 {
+                                    Name = "Tasks",
+                                    Icon = "checklist_rtl",
+                                    IsRoot = false,
+                                    Route = "tasks",
+                                    Resource = "Library.Setup"
+                                },
+                                /*new MenuItem()
+                                {
                                     Name = "Usage",
                                     Icon = "data_usage",
                                     IsRoot = false,
                                     Route = "usage",
                                     Resource = "Library.Setup"
-                                },
+                                },*/
                             }
                         },
                     }

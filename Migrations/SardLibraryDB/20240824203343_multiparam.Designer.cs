@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SardCoreAPI.Database.DBContext;
 
@@ -11,9 +12,11 @@ using SardCoreAPI.Database.DBContext;
 namespace SardCoreAPI.Migrations.SardLibraryDB
 {
     [DbContext(typeof(SardLibraryDBContext))]
-    partial class SardLibraryDBContextModelSnapshot : ModelSnapshot
+    [Migration("20240824203343_multiparam")]
+    partial class multiparam
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

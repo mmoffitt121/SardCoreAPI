@@ -13,7 +13,7 @@ namespace SardCoreAPI.Models.Units
         public ExpressionStarter<Unit> GetQuery()
         {
             return GetQuery<Unit>()
-                .AndIf(MeasurableId != null, m => MeasurableId!.Equals(m.Id))
+                .AndIf(MeasurableId != null, m => m.MeasurableId.Equals(MeasurableId))
                 .AndIf(Query != null && !string.IsNullOrEmpty(Query), m => m.Name.Contains(Query ?? ""))
                 .AndIf(Id != null, m => m.Id.Equals(Id))
                 .AndIf(true, x => true);

@@ -10,6 +10,7 @@
         public int Sequence { get; set; }
         public int? DataPointTypeReferenceId { get; set; }
         public string? Settings { get; set; }
+        public bool? IsMultiple { get; set; }
 
         public string GetTable()
         {

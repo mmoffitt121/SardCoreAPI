@@ -15,7 +15,7 @@ namespace SardCoreAPI.Models.Map
                 .OrIf(IsDefault != null, x => x.IsDefault == IsDefault)
                 .OrIf(Id != null, x => x.Id.Equals(Id))
                 .OrIf(Query != null, x => x.Name.Contains(Query ?? ""))
-                .OrIf(true, x => true);
+                .AndIf(true, x => true);
         }
     }
 }

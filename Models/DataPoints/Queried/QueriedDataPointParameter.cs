@@ -1,4 +1,5 @@
 ﻿using SardCoreAPI.Models.DataPoints.DataPointParameters;
+using System.Collections.ObjectModel;
 using System.Numerics;
 
 namespace SardCoreAPI.Models.DataPoints.Queried
@@ -14,6 +15,9 @@ namespace SardCoreAPI.Models.DataPoints.Queried
         public string? TypeParameterSettings { get; set; }
         public string? Value { get; set; }
         public object? ValueData { get; set; }
+        public List<string>? Values { get; set; }
+        public List<object>? ValuesData { get; set; }
+        public bool IsMultiple { get; set; }
 
         public DataPointParameter GetDataPointParameter(int dataPointId)
         {
@@ -85,6 +89,48 @@ namespace SardCoreAPI.Models.DataPoints.Queried
                     };
                 default:
                     throw new ArgumentException($"Invalid type value '{TypeParameterTypeValue}' specified for parameter {TypeParameterId} of data point {dataPointId}.");
+            }
+        }
+
+        public List<DataPointParameter> GetDataPointParameters(int dataPointId)
+        {
+            List<DataPointParameter> parameters = new List<DataPointParameter>();
+            if (Values != null)
+            {
+                int sequence = 0;
+                foreach (string value in Values)
+                {
+                    parameters.Add(new QueriedDataPointParameter(this) 
+                    { 
+                        Value = value
+                    }
+                    .GetDataPointParameter(dataPointId).SetSequence(sequence));
+                    sequence++;
+                }
+            }
+            return parameters;
+        }
+
+        public QueriedDataPointParameter() { }
+
+        public QueriedDataPointParameter(QueriedDataPointParameter value, bool includeValues = false)
+        {
+            TypeParameterId = value.TypeParameterId;
+            TypeParameterName = value.TypeParameterName;
+            TypeParameterSummary = value.TypeParameterSummary;
+            TypeParameterTypeValue = value.TypeParameterTypeValue;
+            TypeParameterSequence = value.TypeParameterSequence;
+            DataPointTypeReferenceId = value.DataPointTypeReferenceId;
+            TypeParameterSettings = value.TypeParameterSettings;
+            IsMultiple = value.IsMultiple;
+
+            if (includeValues)
+            {
+                Value = value.Value;
+                ValueData = value.ValueData;
+                Values = value.Values;
+                ValuesData = value.ValuesData;
+
             }
         }
     }

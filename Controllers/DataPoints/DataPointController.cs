@@ -1,20 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SardCoreAPI.Controllers.Map;
 using SardCoreAPI.DataAccess.DataPoints;
-using SardCoreAPI.Models.Common;
-using SardCoreAPI.Models.DataPoints.DataPointParameters;
 using SardCoreAPI.Models.DataPoints;
-using Microsoft.AspNetCore.Authorization;
-using System.Diagnostics;
-using SardCoreAPI.Models.Hub.Worlds;
-using SardCoreAPI.DataAccess.Units;
-using SardCoreAPI.Models.Units;
 using SardCoreAPI.Utility.Validation;
 using SardCoreAPI.Attributes.Security;
 using SardCoreAPI.Services.Context;
 using SardCoreAPI.Services.DataPoints;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using System.Runtime.Intrinsics.Arm;
 using SardCoreAPI.Models.DataPoints.Queried;
 
 namespace SardCoreAPI.Controllers.DataPoints

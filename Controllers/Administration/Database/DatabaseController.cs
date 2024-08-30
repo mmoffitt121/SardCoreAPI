@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SardCoreAPI.DataAccess.Content;
-using SardCoreAPI.Models.Content;
 using SardCoreAPI.Services.Database;
 
 namespace SardCoreAPI.Controllers.Administration.Database

@@ -8,34 +8,21 @@ namespace SardCoreAPI.Utility.Map
 {
     public static class MapTileCutter
     {
-        public static readonly int SLICING_PROGRESS_INTERVAL = 30;
-        public static readonly double SLICING_PROGRESS_MIN = 40;
-        public static readonly double SLICING_PROGRESS_MAX = 95;
-
         /// <summary>
         /// Make sure to dispose of the Images this creates.
         /// </summary>
         /// <param name="file">A file containing an image, sized a multiple of 256, and in a square shape.</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public async static Task<MapTile[]> Slice(IFormFile file, int rootZ, int rootX, int rootY, int layerId, IHubContext<ProgressManager> hubContext)
+        public async static Task<MapTile[]> Slice(IFormFile file, int rootZ, int rootX, int rootY, int layerId)
         {
-            // Report Progress ---
-            await hubContext.Clients.All.SendAsync("ProgressUpdate", 10, "Readying tiles for slicing...");
-
             using (var stream = file.OpenReadStream())
             {
-                // Report Progress ---
-                await hubContext.Clients.All.SendAsync("ProgressUpdate", 20, "Converting tiles...");
                 using (var image = new MagickImage(stream))
                 {
-                    await hubContext.Clients.All.SendAsync("ProgressUpdate", 25, "Matching root to size...");
                     ResizeImage(image);
 
                     List<MapTile> mapTiles = new List<MapTile>();
-
-                    // Report Progress ---
-                    await hubContext.Clients.All.SendAsync("ProgressUpdate", 30, "Preparing");
 
                     var resized = image.Clone();
 
@@ -45,8 +32,6 @@ namespace SardCoreAPI.Utility.Map
                     int jTransform = rootY;
                     for (int k = 0; k <= subdivisions; k++)
                     {
-                        double progress = (double)k / (double)subdivisions * (SLICING_PROGRESS_MAX - SLICING_PROGRESS_MIN) + SLICING_PROGRESS_MIN;
-                        await hubContext.Clients.All.SendAsync("ProgressUpdate", progress, "Creating levels... (" + (k+1) + "/" + (subdivisions+1) + " levels)");
                         resized = image.Clone();
                         resized.Resize(256 * (int)Math.Pow(2, k), 256 * (int)Math.Pow(2, k)); // Bounds error
                         for (int i = 0; i < Math.Pow(2, k); i++)

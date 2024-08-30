@@ -11,6 +11,7 @@ namespace SardCoreAPI.Services.Context
     {
         public SardLibraryDBContext Context { get; }
         public SardCoreDBContext CoreContext { get; }
+        public string WorldLocation { get; }
         /// <summary>
         /// IMPORTANT! Be very careful using this, as allowing user-input world strings is vulnerable to SQL injection.
         /// </summary>
@@ -18,14 +19,22 @@ namespace SardCoreAPI.Services.Context
         /// <returns></returns>
         public SardLibraryDBContext CreateContext(string world);
         public Task UsingWorldContext(WorldInfo worldInfo, Action action);
+        public Task StartUsingWorldContext(WorldInfo worldInfo);
+        public Task EndUsingWorldContext();
     }
 
     public class DataService : IDataService
     {
         IConfiguration _config;
+        ILogger<IDataService> _logger;
 
         private SardLibraryDBContext _dbContext;
         private SardCoreDBContext _dbContextCore;
+
+        private string _currentWorldLocation;
+
+        private SardLibraryDBContext _storedLibraryContext;
+        private string _storedWorldLocation;
 
         public SardLibraryDBContext Context
         {
@@ -47,9 +56,19 @@ namespace SardCoreAPI.Services.Context
             }
         }
 
-        public DataService(IWorldInfoService worldInfoService, IConfiguration config) 
+        public string WorldLocation
+        {
+            get
+            {
+                return _currentWorldLocation;
+            }
+        }
+
+        public DataService(IWorldInfoService worldInfoService, IConfiguration config, ILogger<IDataService> logger) 
         {
             _config = config;
+            _currentWorldLocation = worldInfoService.WorldLocation;
+            _logger = logger;
 
             if (worldInfoService.WorldLocation != null)
             {
@@ -72,14 +91,21 @@ namespace SardCoreAPI.Services.Context
             }
 
             SardLibraryDBContext previousContext = _dbContext;
+            string previousWorldLocation = _currentWorldLocation;
+            _currentWorldLocation = worldInfo.WorldLocation;
             _dbContext = CreateContext(worldInfo.WorldLocation);
             try
             {
                 action();
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+            }
             finally
             {
                 _dbContext = previousContext;
+                _currentWorldLocation = previousWorldLocation;
             }
         }
 
@@ -95,6 +121,29 @@ namespace SardCoreAPI.Services.Context
             builder.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 32)));
 
             return new SardLibraryDBContext(builder.Options);
+        }
+
+        public async Task StartUsingWorldContext(WorldInfo worldInfo)
+        {
+            World? world = await _dbContextCore.World.Where(w => w.Location == worldInfo.WorldLocation).FirstOrDefaultAsync();
+            if (world == null)
+            {
+                throw new ArgumentException("Tried to get context of non-existent world.");
+            }
+
+            _storedLibraryContext = _dbContext;
+            string previousWorldLocation = _currentWorldLocation;
+            _currentWorldLocation = worldInfo.WorldLocation;
+            _dbContext = CreateContext(worldInfo.WorldLocation);
+        }
+
+        public async Task EndUsingWorldContext()
+        {
+            _dbContext = _storedLibraryContext;
+            _currentWorldLocation = _storedWorldLocation;
+
+            _storedLibraryContext = null!;
+            _storedWorldLocation = null!;
         }
     }
 }

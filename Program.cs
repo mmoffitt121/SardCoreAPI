@@ -1,23 +1,14 @@
 using SardCoreAPI.Utility.Progress;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using SardCoreAPI;
-using Microsoft.Extensions.Configuration;
-using SardCoreAPI.Models.Security.JWT;
-using Microsoft.Extensions.Configuration.Json;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using SardCoreAPI.Utility.JwtHandler;
-using SardCoreAPI.Models.Security.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.Extensions.Hosting;
 using SardCoreAPI.DataAccess.DataPoints;
 using SardCoreAPI.Services.Security;
-using SardCoreAPI.DataAccess.Security.LibraryRoles;
 using SardCoreAPI.DataAccess.Easy;
 using SardCoreAPI.Services.Easy;
 using SardCoreAPI.Services.MenuItems;
@@ -33,6 +24,8 @@ using SardCoreAPI.Services.Hub;
 using SardCoreAPI.Models.Security;
 using Newtonsoft.Json;
 using SardCoreAPI.Services.Content;
+using SardCoreAPI.Services.Maps;
+using SardCoreAPI.Services.Tasks;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("SardCoreAPIContextConnection") ?? throw new InvalidOperationException("Connection string 'SardCoreAPIContextConnection' not found.");
@@ -106,8 +99,10 @@ builder.Services.AddAuthentication(opt =>
 builder.Services.AddScoped<JwtHandler>();
 
 builder.Services.AddScoped<IDataPointTypeDataAccess, DataPointTypeDataAccess>();
-builder.Services.AddScoped<ILibraryPermissionDataAccess, LibraryPermissionDataAccess>();
 builder.Services.AddScoped<IEasyDataAccess, EasyDataAccess>();
+
+builder.Services.AddSingleton<TaskService>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<TaskService>());
 
 builder.Services.AddScoped<ISecurityService, SecurityService>();
 builder.Services.AddScoped<ISettingJSONService, SettingJSONService>();
@@ -119,6 +114,9 @@ builder.Services.AddScoped<IDataPointQueryService, MySQLDataPointQueryService>()
 builder.Services.AddScoped<IViewService, ViewService>();
 builder.Services.AddScoped<IDataPointTypeService, DataPointTypeService>();
 builder.Services.AddScoped<IContentService, ContentService>();
+builder.Services.AddScoped<IMapService, MapService>();
+builder.Services.AddScoped<IMapTileService, MapTileService>();
+builder.Services.AddScoped<ILocationService, LocationService>();
 
 builder.Services.AddScoped<IDatabaseService, EFCoreDatabaseService>();
 builder.Services.AddScoped<IWorldService, WorldService>();
@@ -127,6 +125,14 @@ builder.Services.AddScoped<IGenericDataAccess, GenericDataAccess>();
 builder.Services.AddScoped<IDataService, DataService>();
 
 builder.Services.AddHttpContextAccessor();
+
+
+builder.Services.Configure<HostOptions>(x =>
+{
+    x.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
+    x.ServicesStartConcurrently = true;
+    x.ServicesStopConcurrently = false;
+});
 
 var app = builder.Build();
 

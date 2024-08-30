@@ -20,6 +20,12 @@ namespace SardCoreAPI.Models.DataPoints.DataPointParameters
             return string.Empty;
         }
 
+        public DataPointParameter SetSequence(int sequence)
+        {
+            Sequence = sequence;
+            return this;
+        }
+
         private class ParameterJsonConverter : DataPointJsonConverter<DataPointParameter>
         {
             protected override DataPointParameter Create(Type objectType, JObject jObject)

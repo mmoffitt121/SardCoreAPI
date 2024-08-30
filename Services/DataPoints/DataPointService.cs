@@ -8,6 +8,7 @@ using SardCoreAPI.Models.DataPoints;
 using SardCoreAPI.Models.DataPoints.DataPointParameters;
 using SardCoreAPI.Models.DataPoints.Queried;
 using SardCoreAPI.Models.Hub.Worlds;
+using SardCoreAPI.Models.Map.Location;
 using SardCoreAPI.Services.Context;
 using SardCoreAPI.Services.WorldContext;
 using SardCoreAPI.Utility.DataAccess;
@@ -71,6 +72,7 @@ namespace SardCoreAPI.Services.DataPoints
                     TypeParameterSettings = tp.Settings ?? "",
                     Value = null,
                     ValueData = null,
+                    IsMultiple = tp.IsMultiple ?? false
                 }).ToList(),
             };
 
@@ -84,140 +86,9 @@ namespace SardCoreAPI.Services.DataPoints
 
         public async Task<DataPointQueryResult> GetDataPoints(DataPointSearchCriteria criteria)
         {
-            /*// Build Queries
-            (ExpandoObject, string) idQueryInfo = _queryService.BuildIdQuery(criteria);
-            (ExpandoObject, string) countQueryInfo = _queryService.BuildCountQuery(criteria);
-            WorldInfo info = _worldInfoService.GetWorldInfo();
-
-            // Get count
-            int count = await _genericDataAccess.QueryFirst<int>(countQueryInfo.Item2, countQueryInfo.Item1, info);
-
-            if (count == 0)
-            {
-                return new DataPointQueryResult() { Count = 0, Results = new List<QueriedDataPoint>() };
-            }
-
-            // Get base list
-            List<DataPoint> baseDataPoints = await _genericDataAccess.Query<DataPoint>(idQueryInfo.Item2, idQueryInfo.Item1, info);
-            
-            // Add parameters if requested
-            List<QueriedDataPoint> dataPoints = new List<QueriedDataPoint>();
-            if (criteria.IncludeParameters == true)
-            {
-                List<int> ids = baseDataPoints.Select(x => x.Id ?? -1).ToList();
-
-                // Build construction query
-                string constructionQuery = _queryService.BuildDataPointQuery(criteria, idQueryInfo.Item1);
-
-                idQueryInfo.Item1.TryAdd("ids", ids);
-
-                // Get flat list of needed parameters
-                List<FlatDataPointComponent> flat = await _genericDataAccess.Query<FlatDataPointComponent>(constructionQuery, idQueryInfo.Item1, info);
-
-                baseDataPoints.ForEach(dp =>
-                {
-                    List<QueriedDataPointParameter> parameters = flat.Where(p => dp.Id.Equals(p.Id)).Select(p => new QueriedDataPointParameter()
-                    {
-                        TypeParameterId = p.TypeParameterId,
-                        TypeParameterName = p.TypeParameterName,
-                        TypeParameterSummary = p.TypeParameterSummary,
-                        TypeParameterTypeValue = p.TypeParameterTypeValue,
-                        TypeParameterSequence = p.TypeParameterSequence,
-                        DataPointTypeReferenceId = p.DataPointTypeReferenceId,
-                        TypeParameterSettings = p.TypeParameterSettings,
-                        Value = p.Value,
-                    }).ToList();
-                    FlatDataPointComponent? first = flat.Where(p => dp.Id.Equals(p.Id)).FirstOrDefault();
-                    QueriedDataPoint qdp = new QueriedDataPoint()
-                    {
-                        Id = dp.Id ?? -1,
-                        Name = dp.Name,
-                        Settings = first?.Settings,
-                        TypeId = dp.TypeId,
-                        TypeName = first?.TypeName ?? "",
-                        TypeSummary = first?.TypeSummary,
-                        TypeSettings = first?.TypeSettings,
-                        Parameters = parameters,
-                    };
-                    dataPoints.Add(qdp);
-                });
-            }
-            else
-            {
-                // We don't need the parameters, so just format data point as queried data point
-                baseDataPoints.ForEach(dp =>
-                {
-                    QueriedDataPoint qdp = new QueriedDataPoint()
-                    {
-                        Id = dp.Id ?? -1,
-                        Name = dp.Name,
-                        Settings = null,
-                        TypeId = dp.TypeId,
-                        TypeName = "",
-                        TypeSummary = null,
-                        TypeSettings = null,
-                        Parameters = null,
-                    };
-                    dataPoints.Add(qdp);
-                });
-            }
-            
-
-            // Get attached datapoints
-            if (criteria.IncludeChildDataPoints == true)
-            {
-                List<QueriedDataPoint> childResult;
-                DataPointSearchCriteria childCriteria = new DataPointSearchCriteria();
-                childCriteria.DataPointIds = new List<int>();
-                childCriteria.IncludeParameters = criteria.IncludeChildParameters;
-                dataPoints.ForEach(dp =>
-                {
-                    dp.Parameters?.ForEach(p =>
-                    {
-                        int childId;
-                        if ("dat".Equals(p.TypeParameterTypeValue) && Int32.TryParse(p.Value, out childId))
-                        {
-                            childCriteria.DataPointIds.Add(childId);
-                        }
-                    });
-                });
-
-                childResult = (await GetDataPoints(childCriteria)).Results;
-
-                dataPoints.ForEach(dp =>
-                {
-                    dp.Parameters?.ForEach(p =>
-                    {
-                        int childId;
-                        if ("dat".Equals(p.TypeParameterTypeValue) && Int32.TryParse(p.Value, out childId))
-                        {
-                            p.ValueData = childResult.Find(c => c.Id == childId);
-                        }
-                    });
-                });
-            }
-
-            // Get attached units TODO
-
-            // Get included types if requested
-            List<DataPointType>? types;
-
-            if (criteria.IncludeTypes == true)
-            {
-                types = await _typeDataAccess.GetDataPointTypes(new DataPointTypeSearchCriteria() { DataPointTypeIds = criteria.TypeIds?.ToArray() ?? new int[0] }, _worldInfoService.GetWorldInfo());
-            }
-            else
-            {
-                types = null;
-            }
-
-
-
             // Get relevant locations TODO
 
             // Get relevant data points TODO
-
-            return new DataPointQueryResult() { Count = count, Results = dataPoints, Types = types };*/
 
 
             IQueryable<DataPoint> queryable = data.Context.DataPoint.Include(dp => dp.Type);
@@ -228,6 +99,12 @@ namespace SardCoreAPI.Services.DataPoints
             if (criteria.DataPointIds != null) queryable = queryable.Where(dp => criteria.DataPointIds.Contains(dp.Id ?? -1));
             if (criteria.TypeIds != null) queryable = queryable.Where(dp => criteria.TypeIds.Contains(dp.TypeId));
             if (criteria.Query != null) queryable = queryable.Where(dp => dp.Name.Contains(criteria.Query));
+            
+            if (criteria.LocationIds != null)
+            {
+                List<int> dataPointLocationIds = data.Context.DataPointLocation.Where(l => criteria.LocationIds.Contains(l.LocationId)).Select(l => l.DataPointId).ToList();
+                queryable.Where(dp => dataPointLocationIds.Contains(dp.Id ?? -1));
+            }
 
             if (criteria.Parameters != null && criteria.ParameterSearchOptions != null)
             {
@@ -276,13 +153,21 @@ namespace SardCoreAPI.Services.DataPoints
                     TypeParameterSequence = typeParam.Sequence,
                     DataPointTypeReferenceId = typeParam.DataPointTypeReferenceId,
                     TypeParameterSettings = typeParam.Settings,
-                    Value = dp.Parameters.SingleOrDefault(p => p.DataPointTypeParameterId.Equals(typeParam.Id))?.GetStringValue(),
+                    Value = dp.Parameters.FirstOrDefault(p => p.DataPointTypeParameterId.Equals(typeParam.Id))?.GetStringValue(),
                     ValueData = 
-                        (dp.Parameters.SingleOrDefault(p => p.DataPointTypeParameterId.Equals(typeParam.Id))?.GetType().IsAssignableFrom(typeof(DataPointParameterDataPoint)) ?? false)
-                        ? (((DataPointParameterDataPoint)dp.Parameters.SingleOrDefault(p => p.DataPointTypeParameterId.Equals(typeParam.Id))).DataPointValue) 
-                        : (null)
+                        (dp.Parameters.FirstOrDefault(p => p.DataPointTypeParameterId.Equals(typeParam.Id))?.GetType().IsAssignableFrom(typeof(DataPointParameterDataPoint)) ?? false)
+                        ? (((DataPointParameterDataPoint)dp.Parameters.FirstOrDefault(p => p.DataPointTypeParameterId.Equals(typeParam.Id))).DataPointValue)
+                        : (null),
+                    Values = dp.Parameters.Where(p => p.DataPointTypeParameterId.Equals(typeParam.Id))?.Select(x => x.GetStringValue()).ToList(),
+                    ValuesData =
+                        (dp.Parameters.FirstOrDefault(p => p.DataPointTypeParameterId.Equals(typeParam.Id))?.GetType().IsAssignableFrom(typeof(DataPointParameterDataPoint)) ?? false && (typeParam.IsMultiple ?? false))
+                        ? ((dp.Parameters.Where(p => p.DataPointTypeParameterId.Equals(typeParam.Id)).Select(x => (object)((DataPointParameterDataPoint)x).DataPointValue))).ToList()
+                        : (null),
+                    IsMultiple = typeParam.IsMultiple ?? false
                 }).ToList() : null,
             }).ToList();
+
+            
 
             List<DataPointType> types = null;
             if (criteria.IncludeTypes == true)

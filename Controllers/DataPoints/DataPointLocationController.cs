@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MySqlConnector;
 using SardCoreAPI.Attributes.Security;
 using SardCoreAPI.Controllers.Map;
@@ -9,7 +10,11 @@ using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.DataPoints;
 using SardCoreAPI.Models.Hub.Worlds;
 using SardCoreAPI.Models.Map.Location;
+using SardCoreAPI.Services.Context;
+using SardCoreAPI.Services.Maps;
+using SardCoreAPI.Utility.DataAccess;
 using SardCoreAPI.Utility.Error;
+using System.Runtime.Intrinsics.Arm;
 using System.Xml.Linq;
 
 namespace SardCoreAPI.Controllers.DataPoints
@@ -19,10 +24,13 @@ namespace SardCoreAPI.Controllers.DataPoints
     public class DataPointLocationController : GenericController
     {
         private readonly ILogger<MapController> _logger;
+        private readonly IDataService data;
+        private readonly ILocationService locationService;
 
-        public DataPointLocationController(ILogger<MapController> logger)
+        public DataPointLocationController(ILogger<MapController> logger, IDataService data)
         {
             _logger = logger;
+            this.data = data;
         }
 
         [HttpGet]
@@ -30,14 +38,7 @@ namespace SardCoreAPI.Controllers.DataPoints
         [Resource("Library.Location.Read")]
         public async Task<IActionResult> GetDataPointsFromLocationId([FromQuery] PagedSearchCriteria criteria)
         {
-            if (criteria == null) { return new BadRequestResult(); }
-
-            List<DataPoint> result = await new DataPointLocationDataAccess().GetDataPointsFromLocationId(criteria, WorldInfo);
-            if (result != null)
-            {
-                return new OkObjectResult(result);
-            }
-            return new BadRequestResult();
+            return await Handle(data.Context.DataPointLocation.Where(x => x.LocationId.Equals(criteria.Id)).Paginate(criteria).ToListAsync());
         }
 
         [HttpGet]
@@ -45,14 +46,7 @@ namespace SardCoreAPI.Controllers.DataPoints
         [Resource("Library.Location.Read")]
         public async Task<IActionResult> GetDataPointsFromLocationIdCount([FromQuery] PagedSearchCriteria criteria)
         {
-            if (criteria == null) { return new BadRequestResult(); }
-
-            int result = await new DataPointLocationDataAccess().GetDataPointsFromLocationIdCount(criteria, WorldInfo);
-            if (result != null)
-            {
-                return new OkObjectResult(result);
-            }
-            return new BadRequestResult();
+            return await Handle(data.Context.DataPointLocation.Where(x => x.LocationId.Equals(criteria.Id)).CountAsync());
         }
 
         [HttpGet]
@@ -60,14 +54,7 @@ namespace SardCoreAPI.Controllers.DataPoints
         [Resource("Library.Location.Read")]
         public async Task<IActionResult> GetLocationsFromDataPointId([FromQuery] PagedSearchCriteria criteria)
         {
-            if (criteria == null) { return new BadRequestResult(); }
-
-            List<Location> result = await new DataPointLocationDataAccess().GetLocationsFromDataPointId(criteria, WorldInfo);
-            if (result != null)
-            {
-                return new OkObjectResult(result);
-            }
-            return new BadRequestResult();
+            return await Handle(data.Context.DataPointLocation.Where(x => x.DataPointId.Equals(criteria.Id)).Paginate(criteria).ToListAsync());
         }
 
         [HttpGet]
@@ -75,60 +62,23 @@ namespace SardCoreAPI.Controllers.DataPoints
         [Resource("Library.Location.Read")]
         public async Task<IActionResult> GetLocationsFromDataPointIdCount([FromQuery] PagedSearchCriteria criteria)
         {
-            if (criteria == null) { return new BadRequestResult(); }
-
-            int result = await new DataPointLocationDataAccess().GetLocationsFromDataPointIdCount(criteria, WorldInfo);
-            if (result != null)
-            {
-                return new OkObjectResult(result);
-            }
-            return new BadRequestResult();
+            return await Handle(data.Context.DataPointLocation.Where(x => x.DataPointId.Equals(criteria.Id)).CountAsync());
         }
 
         [HttpPost]
         [Resource("Library.Document")]
         [Resource("Library.Location")]
-        public async Task<IActionResult> PostDataPointLocation([FromBody] DataPointLocation location)
+        public async Task<IActionResult> PostDataPointLocation([FromBody] DataPointLocation dpl)
         {
-            if (location == null) { return new BadRequestResult(); }
-
-            try
-            {
-                await new DataPointLocationDataAccess().PostDataPointLocation(location, WorldInfo);
-            }
-            catch (MySqlException ex)
-            {
-                return ex.Handle();
-            }
-            catch (Exception ex)
-            {
-                return ex.Handle();
-            }
-
-            return Ok();
+            return await Handle(locationService.PostDataPointLocation(dpl));
         }
 
         [HttpPost]
         [Resource("Library.Document")]
         [Resource("Library.Location")]
-        public async Task<IActionResult> DeleteDataPointLocation([FromBody] DataPointLocation location)
+        public async Task<IActionResult> DeleteDataPointLocation([FromBody] DataPointLocation dpl)
         {
-            if (location == null) { return new BadRequestResult(); }
-
-            try
-            {
-                await new DataPointLocationDataAccess().DeleteDataPointLocation(location, WorldInfo);
-            }
-            catch (MySqlException ex)
-            {
-                return ex.Handle();
-            }
-            catch (Exception ex)
-            {
-                return ex.Handle();
-            }
-
-            return Ok();
+            return await Handle(data.Context.DataPointLocation.Where(x => x.LocationId.Equals(dpl.LocationId) && x.DataPointId.Equals(dpl.DataPointId)).ExecuteDeleteAsync());
         }
     }
 }

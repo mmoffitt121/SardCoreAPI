@@ -21,10 +21,17 @@ namespace SardCoreAPI.Models.DataPoints
             Name = qdp.Name;
             TypeId = qdp.TypeId;
             Parameters = new List<DataPointParameter>();
-            qdp.Parameters = qdp.Parameters?.Where(p => !p.Value.IsNullOrEmpty()).ToList();
+            qdp.Parameters = qdp.Parameters?.Where(p => !(p.Value.IsNullOrEmpty() && p.Values.IsNullOrEmpty())).ToList();
             qdp.Parameters?.ForEach(p =>
             {
-                Parameters.Add(p.GetDataPointParameter(Id ?? -1));
+                if (p.IsMultiple)
+                {
+                    Parameters.AddRange(p.GetDataPointParameters(Id ?? -1));
+                }
+                else
+                {
+                    Parameters.Add(p.GetDataPointParameter(Id ?? -1));
+                }
             });
         }
     }

@@ -1,15 +1,9 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SardCoreAPI.Attributes.Security;
-using SardCoreAPI.DataAccess.Content;
-using SardCoreAPI.DataAccess.Map;
 using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.Content;
 using SardCoreAPI.Models.Hub.Worlds;
-using SardCoreAPI.Models.Map.MapTile;
 using SardCoreAPI.Services.Content;
-using SardCoreAPI.Utility.Map;
 
 namespace SardCoreAPI.Controllers.Content
 {
@@ -25,26 +19,32 @@ namespace SardCoreAPI.Controllers.Content
         }
 
         [HttpGet]
+        [Resource("Library.General.Read")]
         public async Task<IActionResult> GetImages([FromQuery] PagedSearchCriteria criteria)
         {
             return await Handle(_contentService.GetImages(criteria));
         }
 
         [HttpGet]
+        [Resource("Library.General.Read")]
         public async Task<IActionResult> GetImageCount([FromQuery] PagedSearchCriteria criteria)
         {
             return await Handle(_contentService.GetImageCount(criteria));
         }
 
         [HttpGet]
+        [Resource("Library.General.Read")]
         public async Task<IActionResult> Image([FromQuery] string id)
         {
+            Response.Headers["Cache-Control"] = "public,max-age=" + 10000;
             return await GetImage(_contentService.Image(id));
         }
 
         [HttpGet]
+        [Resource("Library.General.Read")]
         public async Task<IActionResult> Thumbnail([FromQuery] string id)
         {
+            Response.Headers["Cache-Control"] = "public,max-age=" + 10000;
             return await GetImage(_contentService.Thumbnail(id));
         }
 
@@ -63,7 +63,7 @@ namespace SardCoreAPI.Controllers.Content
 
         [HttpDelete]
         [Resource("Library.General")]
-        public async Task<IActionResult> DeleteImage([FromForm] string id)
+        public async Task<IActionResult> DeleteImage([FromQuery] string id)
         {
             return await Handle(_contentService.DeleteImage(id));
         }

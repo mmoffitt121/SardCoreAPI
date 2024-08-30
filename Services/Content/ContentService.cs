@@ -1,15 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.Content;
-using SardCoreAPI.Models.Map.Location;
-using SardCoreAPI.Models.Map.LocationType;
 using SardCoreAPI.Services.Context;
 using SardCoreAPI.Services.WorldContext;
-using SardCoreAPI.Utility.DataAccess;
 using SardCoreAPI.Utility.Files;
-using System.Collections.Specialized;
 
 namespace SardCoreAPI.Services.Content
 {
@@ -162,7 +156,7 @@ namespace SardCoreAPI.Services.Content
 
         private string GetImagePath(string id)
         {
-            return STORAGE_ROOT + _worldInfo.WorldLocation.ToString() + "/" + id.Replace('_', '/') + '/';
+            return STORAGE_ROOT + _data.WorldLocation + "/" + id.Replace('_', '/') + '/';
         }
 
         private string GetFileExtension(string fileName)
@@ -186,7 +180,7 @@ namespace SardCoreAPI.Services.Content
 
         public async Task DeleteImage(string id)
         {
-            string directory = _worldInfo.WorldLocation.ToString() + "/";
+            string directory = _data.WorldLocation + "/";
             string file = id.Replace('_', '/');
             string thumbnailFile = id.Replace('_', '/') + "-thumb";
 

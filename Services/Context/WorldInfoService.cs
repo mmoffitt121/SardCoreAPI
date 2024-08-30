@@ -43,7 +43,6 @@ namespace SardCoreAPI.Services.WorldContext
         {
             get
             {
-                return "adminadmin";
                 StringValues loc = new StringValues();
                 bool? worldPresent = _contextAccessor.HttpContext?.Request.Headers.TryGetValue("WorldLocation", out loc);
                 if (worldPresent == true)

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SardCoreAPI.Models.Map.MapTile
 {
@@ -9,6 +10,8 @@ namespace SardCoreAPI.Models.Map.MapTile
         public int X { get; set; }
         public int Y { get; set; }
         public int LayerId { get; set; }
+        public long Size { get; set; }
+        [NotMapped]
         public byte[] Tile { get; set; }
 
         public override bool Equals(object? obj)
