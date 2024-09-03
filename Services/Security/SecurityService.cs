@@ -267,7 +267,7 @@ namespace SardCoreAPI.Services.Security
                 await UpdateUserRoles(_dataService.CoreContext.World.Single(w => w.Location.Equals(info.WorldLocation)).OwnerId, new string[] { SecurityServiceConstants.ROLE_ADMINISTRATOR });
 
                 // Initialize default user
-                var defaultUserRoles = _dataService.Context.UserRole.Where(ur => ur.UserId.Equals(SecurityServiceConstants.DEFAULT_USER_ID));
+                var defaultUserRoles = _dataService.Context.UserRole.Where(ur => ur.UserId.Equals(SecurityServiceConstants.DEFAULT_USER_ID)).ToList();
                 if (defaultUserRoles == null)
                 {
                     await UpdateUserRoles(SecurityServiceConstants.DEFAULT_USER_ID, new string[] { SecurityServiceConstants.ROLE_VIEWER });
@@ -291,15 +291,29 @@ namespace SardCoreAPI.Services.Security
             Dictionary<string, ViewableLibraryUser> users = new Dictionary<string, ViewableLibraryUser>();
             foreach (UserRole userRole in userRoles)
             {
-                SardCoreAPIUser user = await _userManager.FindByIdAsync(userRole.UserId);
-                users.TryAdd(user.Id, new ViewableLibraryUser()
+                if (SecurityServiceConstants.DEFAULT_USER_ID.Equals(userRole.UserId))
                 {
-                    Id = user.Id,
-                    UserName = user.UserName,
-                    Roles = Array.Empty<string>(),
-                    LibraryRoles = new List<Role>()
-                });
-                users.GetValueOrDefault(user.Id)!.LibraryRoles.Add(new Role() { Id = userRole.RoleId });
+                    users.TryAdd(SecurityServiceConstants.DEFAULT_USER_ID, new ViewableLibraryUser()
+                    {
+                        Id = SecurityServiceConstants.DEFAULT_USER_ID,
+                        UserName = "(Not Logged In)",
+                        Roles = Array.Empty<string>(),
+                        LibraryRoles = new List<Role>()
+                    });
+                    users.GetValueOrDefault(SecurityServiceConstants.DEFAULT_USER_ID)!.LibraryRoles.Add(new Role() { Id = userRole.RoleId });
+                }
+                else
+                {
+                    SardCoreAPIUser user = await _userManager.FindByIdAsync(userRole.UserId);
+                    users.TryAdd(user.Id, new ViewableLibraryUser()
+                    {
+                        Id = user.Id,
+                        UserName = user.UserName,
+                        Roles = Array.Empty<string>(),
+                        LibraryRoles = new List<Role>()
+                    });
+                    users.GetValueOrDefault(user.Id)!.LibraryRoles.Add(new Role() { Id = userRole.RoleId });
+                }
             }
             return users.Values.ToArray();
         }

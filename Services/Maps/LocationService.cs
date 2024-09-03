@@ -75,15 +75,17 @@ namespace SardCoreAPI.Services.Maps
 
         public async Task<List<Location>> GetLocations(LocationSearchCriteria criteria)
         {
-            /*double originalMinLongitude;
+            double originalMinLongitude;
             double originalMaxLongitude;
+            List<(double, double)> ranges = new List<(double, double)>();
+
             if (criteria.MinLongitude != null && criteria.MaxLongitude != null)
             {
                 originalMinLongitude = (double)criteria.MinLongitude;
                 originalMaxLongitude = (double)criteria.MaxLongitude;
 
                 double span = originalMaxLongitude - originalMinLongitude;
-            }*/
+            }
             
             return await data.Context.Location
                 .Include(x => x.LocationType)

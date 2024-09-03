@@ -14,10 +14,11 @@ namespace SardCoreAPI.Models.Hub.Worlds
         public ExpressionStarter<World> GetQuery()
         {
             return GetQuery<World>()
-                .OrIf(Id != null, w => w.Id == Id)
-                .OrIf(Query != null, w => w.Name.Contains(Query ?? ""))
-                .OrIf(OwnerId != null, w => w.OwnerId == OwnerId)
-                .OrIf(Location != null, w => w.Location == Location);
+                .AndIf(Id != null, w => w.Id == Id)
+                .AndIf(Query != null, w => w.Name.Contains(Query ?? ""))
+                .AndIf(OwnerId != null, w => w.OwnerId == OwnerId)
+                .AndIf(Location != null, w => w.Location == Location)
+                .AndIf(true, w => true);
         }
     }
 }
