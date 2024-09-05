@@ -10,7 +10,7 @@ namespace SardCoreAPI.DataAccess.DataPoints
 {
     public class DataPointTypeParameterDataAccess : GenericDataAccess
     {
-        public async Task<List<DataPointTypeParameter>> GetDataPointTypeParameters(int Id, WorldInfo info)
+        public async Task<List<DataPointTypeParameter>> GetDataPointTypeParameters(int? Id, WorldInfo info)
         {
             string sql = @"SELECT Id, Name, Summary, DataPointTypeId, TypeValue, Sequence, DataPointTypeReferenceId, Settings
                     FROM DataPointTypeParameter
@@ -20,9 +20,9 @@ namespace SardCoreAPI.DataAccess.DataPoints
             SqlBuilder builder = new SqlBuilder();
             var template = builder.AddTemplate(sql);
 
-            builder.Where("DataPointTypeId = @Id");
+            if (Id != null) builder.Where("DataPointTypeId = @Id");
 
-            return await Query<DataPointTypeParameter>(template.RawSql, new { Id }, info);
+            return await Query<DataPointTypeParameter>(template.RawSql, Id == null ? null : new { Id }, info);
         }
 
         public async Task<int> PostDataPointTypeParameter(DataPointTypeParameter data, WorldInfo info)
