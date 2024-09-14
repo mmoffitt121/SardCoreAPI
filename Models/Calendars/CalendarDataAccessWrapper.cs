@@ -1,4 +1,5 @@
 ﻿using SardCoreAPI.Models.Calendars.CalendarData;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 
 namespace SardCoreAPI.Models.Calendars
@@ -8,8 +9,10 @@ namespace SardCoreAPI.Models.Calendars
     /// </summary>
     public class CalendarDataAccessWrapper
     {
+        [Column]
         public int? Id { get; set; }
         private string _data { get; set; }
+        [NotMapped]
         public Calendar Calendar
         {
             get
@@ -23,7 +26,8 @@ namespace SardCoreAPI.Models.Calendars
                 _data = JsonSerializer.Serialize(value);
             }
         }
-        public string Data
+        [Column("CalendarObject")]
+        public string CalendarObject
         {
             get { return _data; }
             set { _data = value; } 

@@ -1,5 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using LinqKit;
+using Newtonsoft.Json;
 using SardCoreAPI.Models.Common;
+using SardCoreAPI.Utility.DataAccess;
 
 namespace SardCoreAPI.Models.Hub.Worlds
 {
@@ -7,47 +9,16 @@ namespace SardCoreAPI.Models.Hub.Worlds
     {
         public string? OwnerId { get; set; }
         public string? OwnerName { get; set; }
-        public DateTime? StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
-        public OrderOptions? OrderBy { get; set; }
-        public bool? OrderDesc { get; set; }
         public string? Location { get; set; }
 
-        public enum OrderOptions
+        public ExpressionStarter<World> GetQuery()
         {
-            CreatedDate = 0,
-            Name = 1
-        }
-
-        [JsonIgnore]
-        public string OrderByString
-        {
-            get
-            {
-                string orderDirection = (OrderDesc == null || OrderDesc == false) ? ("ASC") : ("DESC");
-                string orderBy;
-                if (OrderBy == null)
-                {
-                    orderBy = "Name";
-                }
-                else
-                {
-                    switch (OrderBy)
-                    {
-                        case OrderOptions.Name: 
-                            orderBy = "Name"; 
-                            break;
-                        case OrderOptions.CreatedDate:
-                            orderBy = "CreatedDate";
-                            break;
-                        default:
-                            orderBy = "Name"; 
-                            break;
-                    }
-                }
-
-                return orderBy + " " + orderDirection;
-            }
+            return GetQuery<World>()
+                .AndIf(Id != null, w => w.Id == Id)
+                .AndIf(Query != null, w => w.Name.Contains(Query ?? ""))
+                .AndIf(OwnerId != null, w => w.OwnerId == OwnerId)
+                .AndIf(Location != null, w => w.Location == Location)
+                .AndIf(true, w => true);
         }
     }
 }

@@ -15,7 +15,9 @@ namespace SardCoreAPI.Models.DataPoints
             StartsWith = 2,
             EndsWith = 3,
             GreaterThan = 5,
-            LessThan = 6
+            LessThan = 6,
+            True = 7,
+            False = 8,
         }
     }
 }

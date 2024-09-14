@@ -1,11 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using SardCoreAPI.DataAccess.Content;
-using SardCoreAPI.DataAccess.Map;
+﻿using Microsoft.AspNetCore.Mvc;
+using SardCoreAPI.Attributes.Security;
+using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.Content;
 using SardCoreAPI.Models.Hub.Worlds;
-using SardCoreAPI.Models.Map.MapTile;
-using SardCoreAPI.Utility.Map;
+using SardCoreAPI.Services.Content;
+using SardCoreAPI.Services.Context;
+using SardCoreAPI.Services.Security;
 
 namespace SardCoreAPI.Controllers.Content
 {
@@ -13,55 +13,71 @@ namespace SardCoreAPI.Controllers.Content
     [Route("Library/[controller]/[action]")]
     public class ImageController : GenericController
     {
-        [HttpGet]
-        public async Task<IActionResult> GetImage([FromQuery] ImageRequest request)
-        {
-            try
-            {
-                request.WorldInfo = GetWorldInfo(request);
-                byte[] result = await new ImageDataAccess().GetImage(request);
-                return new FileStreamResult(new MemoryStream(result), "image/png");
-            }
-            catch (FileNotFoundException e)
-            {
-                return new OkObjectResult(null);
-            }
-            catch (DirectoryNotFoundException e)
-            {
-                return new OkObjectResult(null);
-            }
+        private IContentService _contentService;
+        private IDataService data;
+
+        public ImageController(IContentService contentService, IDataService data) 
+        { 
+            _contentService = contentService;
+            this.data = data;
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
+        [HttpGet]
+        [Resource("Library.General.Read")]
+        public async Task<IActionResult> GetImages([FromQuery] PagedSearchCriteria criteria)
+        {
+            return await Handle(_contentService.GetImages(criteria));
+        }
+
+        [HttpGet]
+        [Resource("Library.General.Read")]
+        public async Task<IActionResult> GetImageCount([FromQuery] PagedSearchCriteria criteria)
+        {
+            return await Handle(_contentService.GetImageCount(criteria));
+        }
+
+        [HttpGet]
+        [Resource("Library.General.Read")]
+        public async Task<IActionResult> Image([FromQuery] string id)
+        {
+            Response.Headers["Cache-Control"] = "public,max-age=" + 10000;
+            return await GetImage(_contentService.Image(id));
+        }
+
+        [HttpGet]
+        [Resource("Library.General.Read")]
+        public async Task<IActionResult> Thumbnail([FromQuery] string id)
+        {
+            Response.Headers["Cache-Control"] = "public,max-age=" + 10000;
+            return await GetImage(_contentService.Thumbnail(id));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Icon([FromQuery] string id, [FromQuery] string world)
+        {
+            Response.Headers["Cache-Control"] = "public,max-age=" + 10000;
+            await data.StartUsingWorldContext(new WorldInfo(world));
+            return await GetImage(_contentService.Thumbnail(id));
+        }
+
+        private async Task<IActionResult> GetImage(Task<(byte[], string)> task)
+        {
+            (byte[], string) fileTuple = await task;
+            return File(fileTuple.Item1, fileTuple.Item2);
+        }
+
         [HttpPost]
+        [Resource("Library.General")]
         public async Task<IActionResult> PostImage([FromForm] ImagePostRequest request)
         {
-            if (request == null || request.Data == null || request.Data.Length == 0)
-            {
-                return new BadRequestResult();
-            }
-
-            request.WorldInfo = GetWorldInfo(request);
-
-            if (await new ImageDataAccess().PostImage(request) != 0)
-            {
-                await new ImageDataAccess().PutImageUrl(request);
-                return new OkResult();
-            }
-            return new BadRequestResult();
+            return await Handle(_contentService.PostImage(request));
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete]
-        public async Task<IActionResult> DeleteImage([FromForm] ImageRequest request)
+        [Resource("Library.General")]
+        public async Task<IActionResult> DeleteImage([FromQuery] string id)
         {
-            request.WorldInfo = GetWorldInfo(request);
-            int result = await new ImageDataAccess().DeleteImage(request);
-            if (result == 0)
-            {
-                return new NotFoundResult();
-            }
-            return new OkResult();
+            return await Handle(_contentService.DeleteImage(id));
         }
 
         private WorldInfo GetWorldInfo(ImageRequest request)

@@ -47,6 +47,7 @@ namespace SardCoreAPI.Utility.Error
         public static IActionResult Handle(this Exception ex)
         {
             Debug.WriteLine(ex);
+            Console.Write(ex);
             if (ex is MySqlException)
             {
                 return ((MySqlException)ex).Handle();

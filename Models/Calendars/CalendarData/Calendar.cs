@@ -1,4 +1,5 @@
-﻿using SardCoreAPI.Models.Common;
+﻿using SardCoreAPI.Attributes.Easy;
+using SardCoreAPI.Models.Common;
 using SardCoreAPI.Utility.Validation;
 
 namespace SardCoreAPI.Models.Calendars.CalendarData

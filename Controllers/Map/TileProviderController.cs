@@ -5,6 +5,8 @@ using SardCoreAPI.Utility.Map;
 using Microsoft.AspNetCore.SignalR;
 using SardCoreAPI.Utility.Progress;
 using Microsoft.AspNetCore.Authorization;
+using SardCoreAPI.Attributes.Security;
+using SardCoreAPI.Services.Maps;
 
 namespace SardCoreAPI.Controllers.Map
 {
@@ -13,87 +15,26 @@ namespace SardCoreAPI.Controllers.Map
     public class TileProviderController : GenericController
     {
         private readonly ILogger<MapController> _logger;
-        private readonly IHubContext<ProgressManager> _progressHubContext;
+        private readonly IMapTileService _mapTileService;
 
-        public TileProviderController(ILogger<MapController> logger, IHubContext<ProgressManager> hubContext)
+        public TileProviderController(ILogger<MapController> logger, IMapTileService mapTileService)
         {
             _logger = logger;
-            _progressHubContext = hubContext;
+            _mapTileService = mapTileService;
         }
 
         [HttpGet(Name = "GetTile")]
         public async Task<IActionResult> GetTile(int z, int x, int y, int layerId, string worldLocation)
         {
-            MapTile result = await new MapTileDataAccess().GetTile(z, x, y, layerId, new Models.Hub.Worlds.WorldInfo(worldLocation));
-            return new FileStreamResult(new MemoryStream(result.Tile), "image/png");
+            Response.Headers["Cache-Control"] = "public,max-age=" + 10000;
+            return await _mapTileService.GetTile(z, x, y, layerId, worldLocation);
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost]
+        [Resource("Library.Map")]
         public async Task<IActionResult> UploadTile([FromForm] TileUploadRequest request)
         {
-            if (request == null || request.Data == null || request.Data.Length == 0)
-            {
-                return new BadRequestResult();
-            }
-
-            await _progressHubContext.Clients.All.SendAsync("ProgressUpdate", 10, "Slicing tiles...");
-
-            MapTile[] mapTiles = await MapTileCutter.Slice(request.Data, request.Z, request.X, request.Y, request.LayerId, _progressHubContext);
-
-            if (request.ReplaceRoot != null && !(bool)request.ReplaceRoot)
-            {
-                mapTiles = mapTiles.Where(m => !m.Equals(new MapTile() { Z = request.Z, X = request.X, Y = request.Y, LayerId = request.LayerId })).ToArray();
-            }
-
-            await _progressHubContext.Clients.All.SendAsync("ProgressUpdate", 95, "Comparing Tiles...");
-
-            // Remove tiles that already exist if option is set.
-            if (request.ReplaceMode != null && request.ReplaceMode.Equals("fill"))
-            {
-                MapTile[] existing = await new MapTileDataAccess().GetTiles(request.Z, request.X, request.Y, mapTiles.Last().Z, request.LayerId, WorldInfo);
-                mapTiles = mapTiles.Where(m => !existing.Contains(m)).ToArray();
-                if (mapTiles.Length == 0)
-                {
-                    return new OkResult();
-                }
-            }
-
-            await _progressHubContext.Clients.All.SendAsync("ProgressUpdate", 98, "Saving Tiles...");
-
-            if (await new MapTileDataAccess().PostTiles(mapTiles, WorldInfo) != 0)
-            {
-                return new OkResult();
-            }
-            return new BadRequestResult();
-        }
-
-        [Authorize(Roles = "Administrator,Editor")]
-        [HttpDelete]
-        public async Task<IActionResult> DeleteTile(int z, int x, int y, int layerId)
-        {
-            int result = await new MapTileDataAccess().DeleteTile(z, x, y, layerId, WorldInfo);
-            if (result == 0)
-            {
-                return new NotFoundResult();
-            }
-            return new OkResult();
-        }
-
-        [Authorize(Roles = "Administrator,Editor")]
-        [HttpDelete]
-        public async Task<IActionResult> DeleteTilesOfLayer(int layerId)
-        {
-            int result = await new MapTileDataAccess().DeleteTiles(layerId, WorldInfo);
-            return new OkResult();
-        }
-
-        [Authorize(Roles = "Administrator,Editor")]
-        [HttpDelete]
-        public async Task<IActionResult> DeleteTilesOfMap(int mapId)
-        {
-            int result = await new MapTileDataAccess().DeleteTilesOfMap(mapId, WorldInfo);
-            return new OkResult();
+            return await Handle(_mapTileService.PostTile(request));
         }
     }
 }

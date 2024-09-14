@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using SardCoreAPI.DataAccess.Units;
-using SardCoreAPI.Models.Common;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SardCoreAPI.Attributes.Security;
 using SardCoreAPI.Models.Units;
+using SardCoreAPI.Services.Context;
+using SardCoreAPI.Utility.DataAccess;
 
 namespace SardCoreAPI.Controllers.Units
 {
@@ -10,91 +11,63 @@ namespace SardCoreAPI.Controllers.Units
     [Route("Library/[controller]/[action]")]
     public class UnitController : GenericController
     {
+        private readonly IDataService data;
+        public UnitController(IDataService data)
+        {
+            this.data = data;
+        }
+
         [HttpGet]
+        [Resource("Library.Setup.Units.Read")]
         public async Task<IActionResult> GetTables([FromQuery] UnitSearchCriteria criteria)
         {
-            if (criteria == null) { return new BadRequestResult(); }
-
-            List<UnitTable> result = await new UnitDataAccess().GetUnitTables(criteria, WorldInfo);
-            if (result != null)
-            {
-                return new OkObjectResult(result);
-            }
-            return new BadRequestResult();
+            return await Handle(data.Context.Unit
+                .Where(criteria.GetQuery())
+                .OrderBy(u => u.Name)
+                .Paginate(criteria)
+                .Include(u => u.Measurable)
+                .GroupBy(u => u.Measurable)
+                .Select(group => new UnitTable()
+                {
+                    Measurable = group.Key!,
+                    Units = group.ToArray()
+                })
+                .OrderBy(tab => tab.Measurable.Name)
+                .ToListAsync());
         }
 
         [HttpGet]
+        [Resource("Library.Setup.Units.Read")]
         public async Task<IActionResult> Get([FromQuery] UnitSearchCriteria criteria)
         {
-            if (criteria == null) { return new BadRequestResult(); }
-
-            List<Unit> result = await new UnitDataAccess().GetUnits(criteria, WorldInfo);
-            if (result != null)
-            {
-                return new OkObjectResult(result);
-            }
-            return new BadRequestResult();
+            return await Handle(data.Context.Unit
+                .Where(criteria.GetQuery())
+                .OrderBy(u => u.Name)
+                .Paginate(criteria)
+                .ToListAsync());
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Unit data)
+        [Resource("Library.Setup.Units")]
+        public async Task<IActionResult> Post([FromBody] Unit unit)
         {
-            if (data == null) { return new BadRequestResult(); }
-
-            bool result = await new UnitDataAccess().PostUnit(data, WorldInfo);
-
-            if (result)
-            {
-                return Ok();
-            }
-
-            return new BadRequestResult();
+            data.Context.Unit.Add(unit);
+            return await Handle(data.Context.SaveChangesAsync());
         }
 
-
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPut]
-        public async Task<IActionResult> Put([FromBody] Unit data)
+        [Resource("Library.Setup.Units")]
+        public async Task<IActionResult> Put([FromBody] Unit unit)
         {
-            if (data == null) { return new BadRequestResult(); }
-
-            int result = await new UnitDataAccess().PutUnit(data, WorldInfo);
-
-            if (result > 0)
-            {
-                return Ok();
-            }
-            else if (result == 0)
-            {
-                return new NotFoundResult();
-            }
-            else
-            {
-                return new BadRequestResult();
-            }
+            data.Context.Unit.Update(unit);
+            return await Handle(data.Context.SaveChangesAsync());
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete]
+        [Resource("Library.Setup.Units")]
         public async Task<IActionResult> Delete([FromQuery] int? Id)
         {
-            if (Id == null) { return new BadRequestResult(); }
-
-            int result = await new UnitDataAccess().DeleteUnit((int)Id, WorldInfo);
-
-            if (result > 0)
-            {
-                return Ok();
-            }
-            else if (result == 0)
-            {
-                return new NotFoundResult();
-            }
-            else
-            {
-                return new BadRequestResult();
-            }
+            return await Handle(data.Context.Unit.Where(x => x.Id == Id).ExecuteDeleteAsync());
         }
     }
 }
