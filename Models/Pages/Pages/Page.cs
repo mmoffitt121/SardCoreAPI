@@ -7,7 +7,7 @@ namespace SardCoreAPI.Models.Pages.Pages
 {
     public class Page
     {
-        public string Id { get; set; }
+        public string? Id { get; set; }
 
         public string Name { get; set; }
 
@@ -16,10 +16,10 @@ namespace SardCoreAPI.Models.Pages.Pages
         public string Path { get; set; }
 
         [NotMapped]
-        public PageElement Root { get; set; }
+        public PageElement? Root { get; set; }
 
         [JsonIgnore]
-        public string PageData 
+        public string? PageData 
         { 
             get 
             {
@@ -27,7 +27,7 @@ namespace SardCoreAPI.Models.Pages.Pages
             } 
             set
             {
-                Root = JsonSerializer.Deserialize<PageElement>(value) ?? new PageElement();
+                Root = !string.IsNullOrEmpty(value) ? JsonSerializer.Deserialize<PageElement>(value)! : new PageElement();
             }
         }
     }

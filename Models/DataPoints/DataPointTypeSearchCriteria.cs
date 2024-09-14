@@ -12,10 +12,10 @@ namespace SardCoreAPI.Models.DataPoints
         public ExpressionStarter<DataPointType> GetQuery()
         {
             return GetQuery<DataPointType>()
-                .OrIf(DataPointTypeIds != null && DataPointTypeIds.Count() > 0, x => DataPointTypeIds!.Contains(x.Id))
-                .OrIf(Id != null, x => x.Id.Equals(Id))
-                .OrIf(Query != null, x => x.Name.Contains(Query ?? ""))
-                .OrIf(true, x => true);
+                .AndIf(DataPointTypeIds != null && DataPointTypeIds.Count() > 0, x => DataPointTypeIds!.Contains(x.Id))
+                .AndIf(Id != null, x => x.Id.Equals(Id))
+                .AndIf(Query != null, x => x.Name.Contains(Query ?? ""))
+                .AndIf(true, x => true);
         }
 
         public override IQueryable<T> GetOrderBy<T>(IQueryable<T> queryable)
@@ -26,8 +26,7 @@ namespace SardCoreAPI.Models.DataPoints
                 {
                     case "Name":
                     default:
-                        ((IQueryable<DataPointType>)queryable).OrderBy(x => x.Name);
-                        break;
+                        return (IQueryable<T>)((IQueryable<DataPointType>)queryable).OrderBy(x => x.Name);
                 }
             }
 

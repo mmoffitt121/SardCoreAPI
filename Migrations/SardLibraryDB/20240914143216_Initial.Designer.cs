@@ -12,8 +12,8 @@ using SardCoreAPI.Database.DBContext;
 namespace SardCoreAPI.Migrations.SardLibraryDB
 {
     [DbContext(typeof(SardLibraryDBContext))]
-    [Migration("20240803004123_FileExtensions")]
-    partial class FileExtensions
+    [Migration("20240914143216_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -101,6 +101,9 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
                     b.Property<int>("LocationId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsPrimary")
+                        .HasColumnType("tinyint(1)");
+
                     b.HasKey("DataPointId", "LocationId");
 
                     b.HasIndex("LocationId");
@@ -148,6 +151,9 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
 
                     b.Property<int?>("DataPointTypeReferenceId")
                         .HasColumnType("int");
+
+                    b.Property<bool?>("IsMultiple")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -256,7 +262,7 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
                     b.Property<int>("LayerId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("LocationTypeId")
+                    b.Property<int>("LocationTypeId")
                         .HasColumnType("int");
 
                     b.Property<string>("LocationTypeName")
@@ -285,6 +291,8 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("LocationTypeId");
 
                     b.ToTable("Location");
                 });
@@ -449,9 +457,8 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
                     b.Property<int>("LayerId")
                         .HasColumnType("int");
 
-                    b.Property<byte[]>("Tile")
-                        .IsRequired()
-                        .HasColumnType("longblob");
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint");
 
                     b.HasKey("X", "Y", "Z", "LayerId");
 
@@ -503,7 +510,6 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
                         .HasColumnType("longtext");
 
                     b.Property<string>("PageData")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Path")
@@ -795,6 +801,17 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
                         .HasForeignKey("DataPointTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("SardCoreAPI.Models.Map.Location.Location", b =>
+                {
+                    b.HasOne("SardCoreAPI.Models.Map.LocationType.LocationType", "LocationType")
+                        .WithMany()
+                        .HasForeignKey("LocationTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LocationType");
                 });
 
             modelBuilder.Entity("SardCoreAPI.Models.Map.MapLayer.PersistentZoomLevel", b =>

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SardCoreAPI.Migrations.SardLibraryDB
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -50,35 +50,23 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "Location",
+                name: "Image",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Id = table.Column<string>(type: "varchar(255)", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     Name = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    LocationTypeId = table.Column<int>(type: "int", nullable: true),
-                    LocationTypeName = table.Column<string>(type: "longtext", nullable: true)
+                    Description = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    LayerId = table.Column<int>(type: "int", nullable: false),
-                    Longitude = table.Column<double>(type: "double", nullable: true),
-                    Latitude = table.Column<double>(type: "double", nullable: true),
-                    ParentId = table.Column<int>(type: "int", nullable: true),
-                    ZoomProminenceMin = table.Column<int>(type: "int", nullable: true),
-                    ZoomProminenceMax = table.Column<int>(type: "int", nullable: true),
-                    UsesIcon = table.Column<bool>(type: "tinyint(1)", nullable: true),
-                    UsesLabel = table.Column<bool>(type: "tinyint(1)", nullable: true),
-                    IconURL = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    LabelFontSize = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    LabelFontColor = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    IconSize = table.Column<int>(type: "int", nullable: true)
+                    Size = table.Column<long>(type: "bigint", nullable: false),
+                    CreationDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Extension = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Location", x => x.Id);
+                    table.PrimaryKey("PK_Image", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -131,7 +119,8 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
                     MinZoom = table.Column<int>(type: "int", nullable: true),
                     MaxZoom = table.Column<int>(type: "int", nullable: true),
                     IsDefault = table.Column<bool>(type: "tinyint(1)", nullable: true),
-                    Icon = table.Column<byte[]>(type: "longblob", nullable: true)
+                    IconId = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
@@ -169,7 +158,7 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
                     X = table.Column<int>(type: "int", nullable: false),
                     Y = table.Column<int>(type: "int", nullable: false),
                     LayerId = table.Column<int>(type: "int", nullable: false),
-                    Tile = table.Column<byte[]>(type: "longblob", nullable: false)
+                    Size = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -207,7 +196,7 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Path = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    PageData = table.Column<string>(type: "longtext", nullable: false)
+                    PageData = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
@@ -372,7 +361,8 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
                     Sequence = table.Column<int>(type: "int", nullable: false),
                     DataPointTypeReferenceId = table.Column<int>(type: "int", nullable: true),
                     Settings = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    IsMultiple = table.Column<bool>(type: "tinyint(1)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -381,6 +371,45 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
                         name: "FK_DataPointTypeParameter_DataPointType_DataPointTypeId",
                         column: x => x.DataPointTypeId,
                         principalTable: "DataPointType",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Location",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    LocationTypeId = table.Column<int>(type: "int", nullable: false),
+                    LocationTypeName = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    LayerId = table.Column<int>(type: "int", nullable: false),
+                    Longitude = table.Column<double>(type: "double", nullable: true),
+                    Latitude = table.Column<double>(type: "double", nullable: true),
+                    ParentId = table.Column<int>(type: "int", nullable: true),
+                    ZoomProminenceMin = table.Column<int>(type: "int", nullable: true),
+                    ZoomProminenceMax = table.Column<int>(type: "int", nullable: true),
+                    UsesIcon = table.Column<bool>(type: "tinyint(1)", nullable: true),
+                    UsesLabel = table.Column<bool>(type: "tinyint(1)", nullable: true),
+                    IconURL = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    LabelFontSize = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    LabelFontColor = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    IconSize = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Location", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Location_LocationType_LocationTypeId",
+                        column: x => x.LocationTypeId,
+                        principalTable: "LocationType",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
@@ -438,7 +467,8 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
                 columns: table => new
                 {
                     DataPointId = table.Column<int>(type: "int", nullable: false),
-                    LocationId = table.Column<int>(type: "int", nullable: false)
+                    LocationId = table.Column<int>(type: "int", nullable: false),
+                    IsPrimary = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -475,9 +505,9 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
                     IntValue = table.Column<long>(type: "bigint", nullable: true),
                     IntValueString = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    StringValue = table.Column<string>(type: "longtext", nullable: true)
+                    StringValue = table.Column<string>(type: "varchar(1000)", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    SummaryValue = table.Column<string>(type: "longtext", nullable: true)
+                    SummaryValue = table.Column<string>(type: "varchar(5000)", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     TimeValue = table.Column<long>(type: "bigint", nullable: true),
                     UnitID = table.Column<int>(type: "int", nullable: true),
@@ -499,11 +529,16 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
+                        name: "FK_DataPointParameter_DataPoint_DataPointValueId",
+                        column: x => x.DataPointValueId,
+                        principalTable: "DataPoint",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_DataPointParameter_Unit_UnitID",
                         column: x => x.UnitID,
                         principalTable: "Unit",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -523,6 +558,11 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
                 column: "DataPointTypeParameterId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_DataPointParameter_DataPointValueId",
+                table: "DataPointParameter",
+                column: "DataPointValueId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_DataPointParameter_UnitID",
                 table: "DataPointParameter",
                 column: "UnitID");
@@ -531,6 +571,11 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
                 name: "IX_DataPointTypeParameter_DataPointTypeId",
                 table: "DataPointTypeParameter",
                 column: "DataPointTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Location_LocationTypeId",
+                table: "Location",
+                column: "LocationTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PersistentZoomLevel_MapLayerId",
@@ -562,7 +607,7 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
                 name: "DataPointParameter");
 
             migrationBuilder.DropTable(
-                name: "LocationType");
+                name: "Image");
 
             migrationBuilder.DropTable(
                 name: "Map");
@@ -611,6 +656,9 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
 
             migrationBuilder.DropTable(
                 name: "MapLayer");
+
+            migrationBuilder.DropTable(
+                name: "LocationType");
 
             migrationBuilder.DropTable(
                 name: "DataPointType");

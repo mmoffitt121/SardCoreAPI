@@ -19,22 +19,21 @@ namespace SardCoreAPI.Controllers.Pages
         [Resource("Library.Setup.Pages.Read")]
         public async Task<IActionResult> GetPageObjects()
         {
-            
             return await Handle(_pageService.GetPageObjects());
         }
 
         [HttpGet]
         [Resource("Library.Setup.Pages.Read")]
-        public async Task<IActionResult> GetPages(PageSearchCriteria criteria)
+        public async Task<IActionResult> GetPages([FromQuery] PageSearchCriteria criteria)
         {
             return await Handle(_pageService.GetPages(criteria));
         }
 
         [HttpGet]
         [Resource("Library.Setup.Pages.Read")]
-        public async Task<IActionResult> GetPageCount(PageSearchCriteria criteria)
+        public async Task<IActionResult> GetPageCount([FromQuery] PageSearchCriteria criteria)
         {
-            return await Handle(_pageService.GetPages(criteria));
+            return await Handle(_pageService.GetPageCount(criteria));
         }
 
         [HttpPut]

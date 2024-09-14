@@ -161,7 +161,7 @@ namespace SardCoreAPI.Services.Content
 
         private string GetFileExtension(string fileName)
         {
-            string extension = Path.GetExtension(fileName).ToLower();
+            string extension = Path.GetExtension(fileName).ToLower().Trim();
             switch (extension)
             {
                 case ".png":

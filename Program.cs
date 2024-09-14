@@ -112,6 +112,7 @@ builder.Services.AddScoped<IEasyQueryService, MySQLEasyQueryService>();
 builder.Services.AddScoped<IDataPointService, DataPointService>();
 builder.Services.AddScoped<IDataPointQueryService, MySQLDataPointQueryService>();
 builder.Services.AddScoped<IViewService, ViewService>();
+builder.Services.AddScoped<IPageService, PageService>();
 builder.Services.AddScoped<IDataPointTypeService, DataPointTypeService>();
 builder.Services.AddScoped<IContentService, ContentService>();
 builder.Services.AddScoped<IMapService, MapService>();

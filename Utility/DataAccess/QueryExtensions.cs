@@ -51,7 +51,8 @@ namespace SardCoreAPI.Utility.DataAccess
         {
             if (options.PageNumber != null && options.PageSize != null)
             {
-                query.Skip((int)(options.PageNumber * options.PageSize)).Take((int)options.PageSize);
+                int pageNumber = ((int)options.PageNumber) - 1;
+                query = query.Skip((int)(pageNumber * options.PageSize)).Take((int)options.PageSize);
             }
 
             return query;

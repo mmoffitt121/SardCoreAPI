@@ -42,6 +42,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Migrations\SardLibraryDB\" />
     <Folder Include="Models\Pages\MenuItems\" />
     <Folder Include="Tests\Unit\" />
     <Folder Include="Utility\ActionResult\ActionResults\" />

@@ -107,7 +107,7 @@ namespace SardCoreAPI.Services.MenuItems
                                 },
                             }
                         },
-                        new MenuItem() {
+                        /*new MenuItem() {
                             Name = "Pages",
                             Icon = "web",
                             IsRoot = false,
@@ -140,7 +140,7 @@ namespace SardCoreAPI.Services.MenuItems
                                     Resource = "Library.Setup.Pages"
                                 },
                             }
-                        },
+                        },*/
                        
                         new MenuItem() {
                             Name = "Security",

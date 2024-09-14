@@ -507,7 +507,6 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
                         .HasColumnType("longtext");
 
                     b.Property<string>("PageData")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.Property<string>("Path")

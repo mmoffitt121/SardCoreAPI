@@ -15,9 +15,10 @@ namespace SardCoreAPI.Models.Pages.Pages
         public ExpressionStarter<Page> GetQuery()
         {
             return GetQuery<Page>()
-                .OrIf(Ids != null && Ids.Count() > 0, p => Ids!.Contains(p.Id))
-                .OrIf(Query != null, p => p.Name.Contains(Query ?? ""))
-                .OrIf(Path != null, p => p.Path.Equals(Path ?? ""));
+                .AndIf(Ids != null && Ids.Count() > 0, p => Ids!.Contains(p.Id))
+                .AndIf(Query != null, p => p.Name.Contains(Query ?? ""))
+                .AndIf(Path != null, p => p.Path.Equals(Path ?? ""))
+                .AndIf(true, p => true);
         }
     }
 }
