@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Drawing;
+using System.IO;
 using ImageMagick;
 using Microsoft.AspNetCore.Routing;
 using SardCoreAPI.Models.Content;
@@ -30,45 +31,7 @@ namespace SardCoreAPI.Utility.Files
             throw new Exception();
         }
 
-        public async Task SaveImage(ImagePostRequest request)
-        {
-            Directory.CreateDirectory(request.Directory);
-            for (int i = 0; i < retryCount; i++)
-            {
-                try
-                {
-                    File.WriteAllBytes(request.FilePath, await request.GetByteArray());
-                    return;
-                }
-                catch (IOException)
-                {
-                    await Task.Delay(retryDelay);
-                }
-                throw new Exception();
-            }
-        }
-
-        public async Task SaveAndResizeImage(ImagePostRequest request, int width, int height)
-        {
-            byte[] data = await CompressImage(await request.GetByteArray(), width, height);
-
-            Directory.CreateDirectory(request.Directory);
-            for (int i = 0; i < retryCount; i++)
-            {
-                try
-                {
-                    File.WriteAllBytes(request.FilePath, data);
-                    return;
-                }
-                catch (IOException)
-                {
-                    await Task.Delay(retryDelay);
-                }
-                throw new Exception();
-            }
-        }
-
-        public async Task<byte[]> LoadImage(string fileName)
+        public async Task<byte[]> LoadImage(string filePath)
         {
             byte[] data;
 
@@ -76,16 +39,8 @@ namespace SardCoreAPI.Utility.Files
             {
                 try
                 {
-                    data = File.ReadAllBytes(fileName);
+                    data = File.ReadAllBytes(filePath);
                     return data;
-                }
-                catch (FileNotFoundException e)
-                {
-                    throw e;
-                }
-                catch (DirectoryNotFoundException e)
-                {
-                    throw e;
                 }
                 catch (IOException)
                 {
@@ -96,41 +51,13 @@ namespace SardCoreAPI.Utility.Files
             throw new Exception();
         }
 
-        public async Task<byte[]> LoadImage(ImageRequest request)
-        {
-            byte[] data;
-
-            for (int i = 0; i < retryCount; i++)
-            {
-                try
-                {
-                    data = File.ReadAllBytes(request.FilePath);
-                    return data;
-                }
-                catch (FileNotFoundException e)
-                {
-                    throw e;
-                }
-                catch (DirectoryNotFoundException e)
-                {
-                    throw e;
-                }
-                catch (IOException)
-                {
-                    await Task.Delay(retryDelay);
-                }
-            }
-
-            throw new Exception();
-        }
-
-        public async Task<int> DeleteImage(ImageRequest request)
+        public async Task<int> DeleteImage(string fileDirectory, string fileName)
         {
             for (int i = 0; i < retryCount; i++)
             {
                 try
                 {
-                    File.Delete(request.FilePath);
+                    File.Delete(fileDirectory + fileName);
                     return 1;
                 }
                 catch (FileNotFoundException e)
@@ -146,10 +73,10 @@ namespace SardCoreAPI.Utility.Files
                     await Task.Delay(retryDelay);
                 }
             }
-            throw new Exception();
+            throw new FileLoadException("File could not be deleted");
         }
 
-        public async Task<byte[]> CompressImage(byte[] data, int x, int y)
+        public async Task<byte[]> ResizeImage(byte[] data, int x, int y)
         {
             using (var stream = new MemoryStream(data))
             {

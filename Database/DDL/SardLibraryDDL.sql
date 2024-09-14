@@ -334,3 +334,42 @@ CREATE TABLE IF NOT EXISTS SettingJSON (
     Setting             MEDIUMTEXT,
     PRIMARY KEY (Id)
 );
+
+/** Security **/
+
+CREATE TABLE IF NOT EXISTS Roles (
+	Id       VARCHAR(255) NOT NULL,
+    PRIMARY KEY (Id)
+);
+
+CREATE TABLE IF NOT EXISTS UserRoles (
+	UserId VARCHAR(255) CHARACTER SET utf8mb4 NOT NULL,
+    RoleId VARCHAR(255) NOT NULL,
+    PRIMARY KEY (UserId, RoleId),
+    FOREIGN KEY (RoleId) REFERENCES Roles (Id)
+);
+
+CREATE TABLE IF NOT EXISTS RolePermissions (
+	RoleId VARCHAR(255) NOT NULL,
+    Permission VARCHAR(512) NOT NULL,
+    PRIMARY KEY (Permission, RoleId),
+    FOREIGN KEY (RoleId) REFERENCES Roles (Id)
+);
+
+/** Pages **/
+
+CREATE TABLE IF NOT EXISTS Views (
+	Id       VARCHAR(256),
+    Name     VARCHAR(1000),
+    View     MEDIUMTEXT,
+    PRIMARY KEY (Id)
+);
+
+CREATE TABLE IF NOT EXISTS Pages (
+	Id              VARCHAR(256),
+    Name            VARCHAR(1000),
+    Description     VARCHAR(5000),
+    Path            VARCHAR(256),
+    PageData        MEDIUMTEXT,
+    PRIMARY KEY (Id)
+);

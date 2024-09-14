@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SardCoreAPI.DataAccess.Calendars;
+using SardCoreAPI.Attributes.Security;
 using SardCoreAPI.DataAccess.Map;
 using SardCoreAPI.Models.Map.Location;
 using SardCoreAPI.Models.Map.LocationType;
 using SardCoreAPI.Models.Settings;
+using SardCoreAPI.Services.Setting;
 using SardCoreAPI.Utility.Error;
 
 namespace SardCoreAPI.Controllers.Map
@@ -14,18 +15,21 @@ namespace SardCoreAPI.Controllers.Map
     public class SettingJSONController : GenericController
     {
         private readonly ILogger<MapController> _logger;
+        private readonly ISettingJSONService _settingService;
 
-        public SettingJSONController(ILogger<MapController> logger)
+        public SettingJSONController(ILogger<MapController> logger, ISettingJSONService settingService)
         {
             _logger = logger;
+            _settingService = settingService;
         }
 
         [HttpGet]
+        [Resource("Library.Setup.Settings.Read")]
         public async Task<IActionResult> Get([FromQuery] string Id)
         {
             try
             {
-                List<SettingJSON> result = await new SettingJSONDataAccess().Get(Id, WorldInfo);
+                List<SettingJSON> result = await _settingService.Get(Id);
                 if (result != null)
                 {
                     return new OkObjectResult(result);
@@ -38,28 +42,20 @@ namespace SardCoreAPI.Controllers.Map
             }
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPut]
+        [Resource("Library.Setup.Settings")]
         public async Task<IActionResult> Put([FromBody] SettingJSON data)
         {
-            try
-            {
-                await new SettingJSONDataAccess().Put(data, WorldInfo);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return ex.Handle();
-            }
+            return await Handle(_settingService.Put(data));
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete]
+        [Resource("Library.Setup.Settings")]
         public async Task<IActionResult> Delete([FromQuery] string Id)
         {
             try
             {
-                await new SettingJSONDataAccess().Delete(Id, WorldInfo);
+                await _settingService.Delete(Id);
                 return Ok();
             }
             catch (Exception ex)

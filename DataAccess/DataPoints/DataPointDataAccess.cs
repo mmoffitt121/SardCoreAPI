@@ -124,6 +124,16 @@ namespace SardCoreAPI.DataAccess.DataPoints
                     builder.Where($"Value < {lessThan}");
                     AddParamToBank(valueBank, lessThan, param);
                     break;
+                case ParameterSearchOptions.FilterModeEnum.True:
+                    string equalsT = $"@Parameter{searchOptions.SequenceId}";
+                    builder.Where($"Value = {equalsT}");
+                    AddParamToBank(valueBank, equalsT, param);
+                    break;
+                case ParameterSearchOptions.FilterModeEnum.False:
+                    string equalsF = $"@Parameter{searchOptions.SequenceId}";
+                    builder.Where($"Value = {equalsF}");
+                    AddParamToBank(valueBank, equalsF, param);
+                    break;
             }
 
             return template.RawSql;

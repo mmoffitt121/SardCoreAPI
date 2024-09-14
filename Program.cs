@@ -1,36 +1,47 @@
 using SardCoreAPI.Utility.Progress;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using SardCoreAPI;
-using Microsoft.Extensions.Configuration;
-using SardCoreAPI.Models.Security.JWT;
-using Microsoft.Extensions.Configuration.Json;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using SardCoreAPI.Utility.JwtHandler;
-using SardCoreAPI.Models.Security.Users;
 using Microsoft.AspNetCore.Identity;
-using SardCoreAPI.Data;
-using SardCoreAPI.Areas.Identity.Data;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.Extensions.Hosting;
-using SardCoreAPI.DataAccess.Administration.Database;
+using SardCoreAPI.DataAccess.DataPoints;
+using SardCoreAPI.Services.Security;
+using SardCoreAPI.DataAccess.Easy;
+using SardCoreAPI.Services.Easy;
+using SardCoreAPI.Services.MenuItems;
+using SardCoreAPI.Services.WorldContext;
+using SardCoreAPI.Services.Setting;
+using SardCoreAPI.Services.DataPoints;
+using SardCoreAPI.DataAccess;
+using SardCoreAPI.Services.Pages;
+using SardCoreAPI.Database.DBContext;
+using SardCoreAPI.Services.Context;
+using SardCoreAPI.Services.Database;
+using SardCoreAPI.Services.Hub;
+using SardCoreAPI.Models.Security;
+using Newtonsoft.Json;
+using SardCoreAPI.Services.Content;
+using SardCoreAPI.Services.Maps;
+using SardCoreAPI.Services.Tasks;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("SardCoreAPIContextConnection") ?? throw new InvalidOperationException("Connection string 'SardCoreAPIContextConnection' not found.");
 Connection.SetGlobalConnectionString(connectionString);
-var baseConnectionString = builder.Configuration.GetConnectionString("SardCoreAPIWorldContextConnection") ?? throw new InvalidOperationException("Connection string 'SardCoreAPIWorldContextConnection' not found.");
-Connection.SetConnectionString(baseConnectionString);
+var libraryConnectionString = builder.Configuration.GetConnectionString("SardCoreAPIWorldContextConnection") ?? throw new InvalidOperationException("Connection string 'SardCoreAPIWorldContextConnection' not found.");
+Connection.SetConnectionString(libraryConnectionString);
 
-builder.Services.AddDbContext<SardCoreAPIContext>(options =>
+builder.Services.AddDbContext<SardCoreDBContext>(options =>
     options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 32))));
+
+builder.Services.AddDbContext<SardLibraryDBContext>(options =>
+    options.UseMySql(libraryConnectionString, new MySqlServerVersion(new Version(8, 0, 32))));
 
 builder.Services.AddDefaultIdentity<SardCoreAPIUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<SardCoreAPIContext>();
+    .AddEntityFrameworkStores<SardCoreDBContext>();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
@@ -45,7 +56,7 @@ Console.WriteLine(builder.Host);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -87,7 +98,42 @@ builder.Services.AddAuthentication(opt =>
 );
 builder.Services.AddScoped<JwtHandler>();
 
-/* builder.Services.AddHttpContextAccessor(); */
+builder.Services.AddScoped<IDataPointTypeDataAccess, DataPointTypeDataAccess>();
+builder.Services.AddScoped<IEasyDataAccess, EasyDataAccess>();
+
+builder.Services.AddSingleton<TaskService>();
+builder.Services.AddHostedService(sp => sp.GetRequiredService<TaskService>());
+
+builder.Services.AddScoped<ISecurityService, SecurityService>();
+builder.Services.AddScoped<ISettingJSONService, SettingJSONService>();
+builder.Services.AddScoped<IMenuItemService, MenuItemService>();
+builder.Services.AddScoped<IWorldInfoService, WorldInfoService>();
+builder.Services.AddScoped<IEasyQueryService, MySQLEasyQueryService>();
+builder.Services.AddScoped<IDataPointService, DataPointService>();
+builder.Services.AddScoped<IDataPointQueryService, MySQLDataPointQueryService>();
+builder.Services.AddScoped<IViewService, ViewService>();
+builder.Services.AddScoped<IPageService, PageService>();
+builder.Services.AddScoped<IDataPointTypeService, DataPointTypeService>();
+builder.Services.AddScoped<IContentService, ContentService>();
+builder.Services.AddScoped<IMapService, MapService>();
+builder.Services.AddScoped<IMapTileService, MapTileService>();
+builder.Services.AddScoped<ILocationService, LocationService>();
+
+builder.Services.AddScoped<IDatabaseService, EFCoreDatabaseService>();
+builder.Services.AddScoped<IWorldService, WorldService>();
+builder.Services.AddScoped<IGenericDataAccess, GenericDataAccess>();
+
+builder.Services.AddScoped<IDataService, DataService>();
+
+builder.Services.AddHttpContextAccessor();
+
+
+builder.Services.Configure<HostOptions>(x =>
+{
+    x.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
+    x.ServicesStartConcurrently = true;
+    x.ServicesStopConcurrently = false;
+});
 
 var app = builder.Build();
 
@@ -113,7 +159,7 @@ app.Use(async (context, next) =>
 {
     var request = context.Request;
     var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-    logger.LogInformation($"Received Request: {request.Method} {request.Path}");
+    logger.LogTrace($"Received Request: {request.Method} {request.Path}");
 
     await next.Invoke();
 });
@@ -129,7 +175,9 @@ app.UseEndpoints(endpoints =>
 });
 app.MapControllers();
 
-await new DatabaseDataAccess().UpdateDatabase();
-await new DatabaseDataAccess().UpdateWorldDatabases();
+await app.Services.CreateScope().ServiceProvider.GetRequiredService<IDatabaseService>().UpdateDatabase();
+await app.Services.CreateScope().ServiceProvider.GetRequiredService<IDatabaseService>().UpdateWorldDatabases();
+await app.Services.CreateScope().ServiceProvider.GetRequiredService<ISecurityService>().InitializeDefaultUsers();
+await app.Services.CreateScope().ServiceProvider.GetRequiredService<ISecurityService>().InitializeWorldsWithDefaultRoles();
 
 app.Run();

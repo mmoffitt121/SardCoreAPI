@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SardCoreAPI.DataAccess.Administration.Database;
-using SardCoreAPI.DataAccess.Content;
-using SardCoreAPI.Models.Content;
+using SardCoreAPI.Services.Database;
 
 namespace SardCoreAPI.Controllers.Administration.Database
 {
@@ -10,18 +8,25 @@ namespace SardCoreAPI.Controllers.Administration.Database
     [Route("Library/[controller]/[action]")]
     public class DatabaseController : Controller
     { 
+        private IDatabaseService databaseDataAccess;
+
         [Authorize(Roles = "Administrator")]
         [HttpGet]
         public async Task<IActionResult> GetServerVersion()
         {
-            return Ok(new { Version = await new DatabaseDataAccess().GetServerVersion() });
+            return Ok(new { Version = await databaseDataAccess.GetServerVersion() });
         }
 
         [Authorize(Roles = "Administrator")]
         [HttpGet]
         public async Task<IActionResult> GetDatabases()
         {
-            return Ok(await new DatabaseDataAccess().GetDatabases());
+            return Ok(await databaseDataAccess.GetDatabases());
+        }
+
+        public DatabaseController(IDatabaseService databaseDataAccess)
+        {
+            this.databaseDataAccess = databaseDataAccess;
         }
     }
 }

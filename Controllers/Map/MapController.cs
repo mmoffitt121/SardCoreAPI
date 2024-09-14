@@ -14,6 +14,11 @@ using SardCoreAPI.Models.Map.MapLayer;
 using SardCoreAPI.Models.Content;
 using Microsoft.AspNetCore.Authorization;
 using SardCoreAPI.Utility.Auth;
+using SardCoreAPI.Attributes.Security;
+using SardCoreAPI.Services.Context;
+using Microsoft.EntityFrameworkCore;
+using SardCoreAPI.Utility.DataAccess;
+using SardCoreAPI.Services.Maps;
 
 namespace SardCoreAPI.Controllers.Map
 {
@@ -22,146 +27,52 @@ namespace SardCoreAPI.Controllers.Map
     public class MapController : GenericController
     {
         private readonly ILogger<MapController> _logger;
+        private readonly IDataService data;
+        private readonly IMapService mapService;
 
-        public MapController(ILogger<MapController> logger)
+        public MapController(ILogger<MapController> logger, IDataService data, IMapService mapService)
         {
             _logger = logger;
+            this.data = data;
+            this.mapService = mapService;
         }
 
         #region Map
 
         [HttpGet(Name = "GetMaps")]
+        [Resource("Library.Map.Read")]
         public async Task<IActionResult> GetMaps([FromQuery] MapSearchCriteria criteria)
         {
-            if (criteria == null) { return new BadRequestResult(); }
-
-            List<m.Map> result = await new MapDataAccess().GetMaps(criteria, WorldInfo);
-            if (result != null)
-            {
-                return new OkObjectResult(result);
-            }
-            return new BadRequestResult();
+            return await Handle(data.Context.Map.Where(criteria.GetQuery()).Paginate(criteria).ToListAsync());
         }
 
         [HttpGet(Name = "GetMapCount")]
+        [Resource("Library.Map.Read")]
         public async Task<IActionResult> GetMapCount([FromQuery] MapSearchCriteria criteria)
         {
-            if (criteria == null) { return new BadRequestResult(); }
-
-            int result = (await new MapDataAccess().GetMaps(criteria, WorldInfo)).Count();
-            return new OkObjectResult(result);
+            return await Handle(data.Context.Map.Where(criteria.GetQuery()).CountAsync());
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPost(Name = "PostMap")]
-        public async Task<IActionResult> PostMap([FromBody] m.Map data)
+        [Resource("Library.Map")]
+        public async Task<IActionResult> PostMap([FromBody] m.Map map)
         {
-            if (data == null) { return new BadRequestResult(); }
-
-            int result = await new MapDataAccess().PostMap(data, WorldInfo);
-
-            if (result != 0)
-            {
-                return new OkObjectResult(result);
-            }
-
-            return new BadRequestResult();
+            return await Handle(mapService.PostMap(map));
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpPut(Name = "PutMap")]
-        public async Task<IActionResult> PutMap([FromBody] m.Map data)
+        [Resource("Library.Map")]
+        public async Task<IActionResult> PutMap([FromBody] m.Map map)
         {
-            if (data == null) { return new BadRequestResult(); }
-
-            int result = await new MapDataAccess().PutMap(data, WorldInfo);
-
-            if (result > 0)
-            {
-                return new OkResult();
-            }
-            else if (result == 0)
-            {
-                return new NotFoundResult();
-            }
-            else
-            {
-                return new BadRequestResult();
-            }
+            return await Handle(mapService.PutMap(map));
         }
 
-        [Authorize(Roles = "Administrator,Editor")]
         [HttpDelete(Name = "DeleteMap")]
-        public async Task<IActionResult> DeleteMap([FromQuery] int? Id)
+        [Resource("Library.Map")]
+
+        public async Task<IActionResult> DeleteMap([FromQuery] int Id)
         {
-            if (Id == null) { return new BadRequestResult(); }
-
-            int result = await new MapDataAccess().DeleteMap((int)Id, WorldInfo);
-
-            if (result > 0)
-            {
-                return new OkResult();
-            }
-            else if (result == 0)
-            {
-                return new NotFoundResult();
-            }
-            else
-            {
-                return new BadRequestResult();
-            }
-        }
-        #endregion
-
-        #region Map Icon
-        [HttpGet(Name = "GetMapIcon")]
-        public async Task<IActionResult> GetMapIcon(int id)
-        {
-            try
-            {
-                byte[] result = await new MapDataAccess().GetMapIcon(id, WorldInfo);
-                return new FileStreamResult(new MemoryStream(result), "image/png");
-            }
-            catch (FileNotFoundException ex)
-            {
-                return new OkObjectResult(null);
-            }
-            catch (DirectoryNotFoundException ex)
-            {
-                return new OkObjectResult(null);
-            }
-            catch (IOException ex)
-            {
-                return ex.Handle();
-            }
-            catch (Exception ex)
-            {
-                return new BadRequestResult();
-            }
-            
-        }
-
-        [Authorize(Roles = "Administrator,Editor")]
-        [HttpPost(Name = "PostMapIcon")]
-        public async Task<IActionResult> PostMapIcon([FromForm] ImagePostRequest file)
-        {
-            if (file == null || file.Data.Length == 0)
-            {
-                return new BadRequestResult();
-            }
-
-            byte[] bytes = await new FileHandler().FormToByteArray(file.Data);
-            byte[] compressed = await new FileHandler().CompressImage(bytes, 256, 256);
-
-            try
-            {
-                await new MapDataAccess().UploadMapIcon(compressed, file.Id, WorldInfo);
-                return new OkResult();
-            }
-            catch (IOException ex)
-            {
-                return ex.Handle();
-            }
+            return await Handle(mapService.DeleteMap(Id));
         }
         #endregion
     }

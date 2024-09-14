@@ -8,5 +8,14 @@
         public string Shape { get; set; }
         public bool ShowByDefault { get; set; }
         public string Color { get; set; }
+
+        public void CopyValuesFrom(Region region)
+        {
+            LocationId = region.LocationId;
+            Name = region.Name;
+            Shape = region.Shape;
+            ShowByDefault = region.ShowByDefault;
+            Color = region.Color;
+        }
     }
 }

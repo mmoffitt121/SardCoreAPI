@@ -1,10 +1,12 @@
-﻿using System.Numerics;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Numerics;
 
 namespace SardCoreAPI.Models.DataPoints.DataPointParameters
 {
     public class DataPointParameterTime : DataPointParameter
     {
         public BigInteger? TimeValue { get; set; }
+        [NotMapped]
         public string? TimeValueString {
             get
             {
@@ -14,6 +16,11 @@ namespace SardCoreAPI.Models.DataPoints.DataPointParameters
             {
                 TimeValue = BigInteger.Parse(value ?? "");
             }
+        }
+
+        public override string GetStringValue()
+        {
+            return TimeValue.ToString();
         }
     }
 }
