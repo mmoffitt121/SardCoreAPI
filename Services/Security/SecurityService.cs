@@ -268,7 +268,7 @@ namespace SardCoreAPI.Services.Security
 
                 // Initialize default user
                 var defaultUserRoles = _dataService.Context.UserRole.Where(ur => ur.UserId.Equals(SecurityServiceConstants.DEFAULT_USER_ID)).ToList();
-                if (defaultUserRoles == null)
+                if (defaultUserRoles == null || defaultUserRoles.Count() == 0)
                 {
                     await UpdateUserRoles(SecurityServiceConstants.DEFAULT_USER_ID, new string[] { SecurityServiceConstants.ROLE_VIEWER });
                 }
