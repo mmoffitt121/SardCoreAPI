@@ -12,6 +12,7 @@ namespace SardCoreAPI.Models.Hub.Worlds
         public string Name { get; set; }
         public string? Summary { get; set; }
         public DateTime? CreatedDate { get; set; }
+        public string? IconId { get; set; }
 
         public void Normalize()
         {

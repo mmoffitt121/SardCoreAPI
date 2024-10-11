@@ -107,7 +107,7 @@ namespace SardCoreAPI.Services.MenuItems
                                 },
                             }
                         },
-                        /*new MenuItem() {
+                        new MenuItem() {
                             Name = "Pages",
                             Icon = "web",
                             IsRoot = false,
@@ -140,8 +140,7 @@ namespace SardCoreAPI.Services.MenuItems
                                     Resource = "Library.Setup.Pages"
                                 },
                             }
-                        },*/
-                       
+                        },
                         new MenuItem() {
                             Name = "Security",
                             Icon = "lock_open",
@@ -200,6 +199,14 @@ namespace SardCoreAPI.Services.MenuItems
                                     Resource = "Library.Setup"
                                 },*/
                             }
+                        },
+                        new MenuItem()
+                        {
+                            Name = "World",
+                            Icon = "public",
+                            IsRoot = false,
+                            Route = "worldsettings",
+                            Resource = "Library.Setup"
                         },
                     }
                 };

@@ -38,14 +38,24 @@ namespace SardCoreAPI.Services.Content
         {
             if (criteria.PageSize == null || criteria.PageNumber == null)
             {
-                return new List<Image>();
+                criteria.PageSize = 50;
+                criteria.PageNumber = 0;
             }
-            return await _data.Context.Image
-                .Where(x => x.Description.Contains(criteria.Query ?? ""))
+
+            IQueryable<Image> query = _data.Context.Image
+                .Where(x => x.Description.Contains(criteria.Query ?? ""));
+
+            if (criteria.StringId != null)
+            {
+                query = query.Where(x => x.Id.Equals(criteria.StringId));
+            }
+
+            query = query
                 .OrderByDescending(x => x.CreationDate)
                 .Skip((int)criteria.PageSize * (int)criteria.PageNumber)
-                .Take((int)criteria.PageSize)
-                .ToListAsync();
+                .Take((int)criteria.PageSize);
+
+            return await query.ToListAsync();
         }
 
         public async Task<int> GetImageCount(PagedSearchCriteria criteria)

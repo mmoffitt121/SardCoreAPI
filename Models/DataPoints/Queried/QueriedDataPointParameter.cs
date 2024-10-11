@@ -10,6 +10,7 @@ namespace SardCoreAPI.Models.DataPoints.Queried
         public string TypeParameterName { get; set; }
         public string? TypeParameterSummary { get; set; }
         public string TypeParameterTypeValue { get; set; }
+        public string? TypeParameterSubType { get; set; }
         public int TypeParameterSequence { get; set; }
         public int? DataPointTypeReferenceId { get; set; }
         public string? TypeParameterSettings { get; set; }

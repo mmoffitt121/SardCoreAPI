@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SardCoreAPI.Database.DBContext;
 
@@ -11,9 +12,11 @@ using SardCoreAPI.Database.DBContext;
 namespace SardCoreAPI.Migrations.SardLibraryDB
 {
     [DbContext(typeof(SardLibraryDBContext))]
-    partial class SardLibraryDBContextModelSnapshot : ModelSnapshot
+    [Migration("20241007184714_DataPointParameterSubtypes")]
+    partial class DataPointParameterSubtypes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -124,6 +127,9 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
                         .HasMaxLength(34)
                         .HasColumnType("varchar(34)");
 
+                    b.Property<string>("SubType")
+                        .HasColumnType("longtext");
+
                     b.HasKey("DataPointId", "DataPointTypeParameterId", "Sequence");
 
                     b.HasIndex("DataPointTypeParameterId");
@@ -160,9 +166,6 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
                         .HasColumnType("int");
 
                     b.Property<string>("Settings")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("SubType")
                         .HasColumnType("longtext");
 
                     b.Property<string>("Summary")

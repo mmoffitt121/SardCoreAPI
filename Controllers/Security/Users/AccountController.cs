@@ -90,7 +90,6 @@ namespace SardCoreAPI.Controllers.Security.Users
             return Ok();
         }
 
-        [Authorize(Roles = "Administrator")]
         [HttpGet]
         public async Task<IActionResult> GetUsers()
         {

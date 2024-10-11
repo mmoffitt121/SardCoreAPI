@@ -68,13 +68,14 @@ namespace SardCoreAPI.Services.DataPoints
                     TypeParameterName = tp.Name,
                     TypeParameterSummary = tp.Summary,
                     TypeParameterTypeValue = tp.TypeValue,
+                    TypeParameterSubType = tp.SubType,
                     TypeParameterSequence = tp.Sequence,
                     DataPointTypeReferenceId = tp.DataPointTypeReferenceId,
                     TypeParameterSettings = tp.Settings ?? "",
                     Value = null,
                     ValueData = null,
                     IsMultiple = tp.IsMultiple ?? false
-                }).ToList(),
+                }).OrderBy(tp => tp.TypeParameterSequence).ToList(),
             };
 
             return new DataPointQueryResult()
@@ -167,6 +168,7 @@ namespace SardCoreAPI.Services.DataPoints
                     TypeParameterName = typeParam.Name,
                     TypeParameterSummary = typeParam.Summary,
                     TypeParameterTypeValue = typeParam.TypeValue,
+                    TypeParameterSubType = typeParam.SubType,
                     TypeParameterSequence = typeParam.Sequence,
                     DataPointTypeReferenceId = typeParam.DataPointTypeReferenceId,
                     TypeParameterSettings = typeParam.Settings,

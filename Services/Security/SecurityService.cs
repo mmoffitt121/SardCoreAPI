@@ -238,11 +238,11 @@ namespace SardCoreAPI.Services.Security
             SardCoreAPIUser? user = await _userManager.FindByNameAsync("admin");
             if (user == null)
             {
-                SardCoreAPIUser adminUser = new SardCoreAPIUser() { UserName = "admin", Email = "noemail" };
-                var result = await _userManager.CreateAsync(adminUser, "admin");
-                string[] roles = { "Viewer", "Editor", "Administrator" };
-                await _userManager.AddToRolesAsync(adminUser, roles);
+                user = new SardCoreAPIUser() { UserName = "admin", Email = "noemail" };
+                var result = await _userManager.CreateAsync(user, "admin");
             }
+            string[] roles = { "Viewer", "Editor", "Administrator" };
+            await _userManager.AddToRolesAsync(user, roles);
         }
         
         public async Task InitializeWorldsWithDefaultRoles()

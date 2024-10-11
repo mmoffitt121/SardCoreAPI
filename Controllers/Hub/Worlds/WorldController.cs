@@ -6,6 +6,7 @@ using SardCoreAPI.Services.Context;
 using Microsoft.EntityFrameworkCore;
 using SardCoreAPI.Services.Hub;
 using SardCoreAPI.Utility.Validation;
+using SardCoreAPI.Attributes.Security;
 
 namespace SardCoreAPI.Controllers.Hub.Worlds
 {
@@ -55,6 +56,20 @@ namespace SardCoreAPI.Controllers.Hub.Worlds
         {
             _data.CoreContext.World.Update(data);
             return await Handle(_data.CoreContext.SaveChangesAsync());
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetWorld([FromQuery] string location)
+        {
+            return await Handle(_worldService.GetWorld(location));
+        }
+
+        [Resource("Library")]
+        [HttpPut]
+        [Validate]
+        public async Task<IActionResult> UpdateWorld([FromBody] World world)
+        {
+            return await Handle(_worldService.UpdateWorld(world));
         }
     }
 }
