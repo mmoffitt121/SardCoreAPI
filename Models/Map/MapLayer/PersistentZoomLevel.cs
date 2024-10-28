@@ -2,7 +2,7 @@
 
 namespace SardCoreAPI.Models.Map.MapLayer
 {
-    [PrimaryKey("Zoom")]
+    [PrimaryKey("Zoom", "MapLayerId")]
     public class PersistentZoomLevel
     {
         public int Zoom { get; set; }

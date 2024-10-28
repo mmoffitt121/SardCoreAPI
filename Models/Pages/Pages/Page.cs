@@ -18,6 +18,7 @@ namespace SardCoreAPI.Models.Pages.Pages
         [NotMapped]
         public PageElement? Root { get; set; }
 
+        [Newtonsoft.Json.JsonIgnore]
         [JsonIgnore]
         public string? PageData 
         { 
