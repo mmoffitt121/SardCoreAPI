@@ -8,44 +8,6 @@ namespace SardCoreAPI.Services.MenuItems
     {
         public static readonly string MENU_ITEMS_SETTING = SettingConstants.SETTING_ROOT + ".menu";
         public static readonly string MENU_ITEM_RESOURCE = SecurityServiceConstants.PERMISSION_ROOT + ".Menu";
-        public static MenuItem NAVIGATION
-        {
-            get
-            {
-                return new MenuItem()
-                {
-                    Name = "Navigation",
-                    Expanded = true,
-                    Options = new MenuItem[]
-                    {
-                        new MenuItem() {
-                            Name = "Home",
-                            Icon = "home",
-                            IsRoot = false,
-                            Route = "home",
-                            Expanded = true,
-                            Resource = $"Library.Menu.Home",
-                        },
-                        new MenuItem() {
-                            Name = "Map",
-                            Icon = "map",
-                            IsRoot = false,
-                            Route = "map",
-                            Expanded = true,
-                            Resource = $"Library.Menu.Map",
-                        },
-                        new MenuItem() {
-                            Name = "Document",
-                            Icon = "history_edu",
-                            IsRoot = false,
-                            Route = "document",
-                            Expanded = true,
-                            Resource = $"Library.Menu.Document",
-                        },
-                    }
-                };
-            }
-        }
         public static MenuItem WORLD_SETUP
         {
             get

@@ -29,56 +29,56 @@ namespace SardCoreAPI.Models.DataPoints.Queried
                     {
                         DataPointId = dataPointId,
                         DataPointTypeParameterId = TypeParameterId,
-                        BoolValue = bool.Parse(Value ?? "false")
+                        BoolValue = bool.Parse(Value ?? "false"),
                     };
                 case "dat":
                     return new DataPointParameterDataPoint()
                     {
                         DataPointId = dataPointId,
                         DataPointTypeParameterId = TypeParameterId,
-                        DataPointValueId = int.Parse(Value ?? "-1")
+                        DataPointValueId = int.Parse(Value ?? "-1"),
                     };
                 case "doc":
                     return new DataPointParameterDocument()
                     {
                         DataPointId = dataPointId,
                         DataPointTypeParameterId = TypeParameterId,
-                        DocumentValue = Value ?? ""
+                        DocumentValue = Value ?? "",
                     };
                 case "dub":
                     return new DataPointParameterDouble()
                     {
                         DataPointId = dataPointId,
                         DataPointTypeParameterId = TypeParameterId,
-                        DoubleValue = double.Parse(Value ?? "0")
+                        DoubleValue = double.Parse(Value ?? "0"),
                     };
                 case "int":
                     return new DataPointParameterInt()
                     {
                         DataPointId = dataPointId,
                         DataPointTypeParameterId = TypeParameterId,
-                        IntValue = int.Parse(Value ?? "0")
+                        IntValue = int.Parse(Value ?? "0"),
                     };
                 case "str":
                     return new DataPointParameterString()
                     {
                         DataPointId = dataPointId,
                         DataPointTypeParameterId = TypeParameterId,
-                        StringValue = Value ?? ""
+                        StringValue = Value ?? "",
                     };
                 case "sum":
                     return new DataPointParameterSummary()
                     {
                         DataPointId = dataPointId,
                         DataPointTypeParameterId = TypeParameterId,
-                        SummaryValue = Value ?? ""
+                        SummaryValue = Value ?? "",
                     };
                 case "tim":
                     return new DataPointParameterTime()
                     {
                         DataPointId = dataPointId,
                         DataPointTypeParameterId = TypeParameterId,
-                        TimeValue = BigInteger.Parse(Value ?? "0")
+                        TimeValue = BigInteger.Parse(Value ?? "0"),
                     };
                 case "uni":
                     return new DataPointParameterUnit()

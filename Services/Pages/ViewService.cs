@@ -13,6 +13,7 @@ namespace SardCoreAPI.Services.Pages
     {
         public Task<int> GetViewCount(ViewSearchCriteria criteria); 
         public Task<List<View>> GetViews(ViewSearchCriteria criteria);
+        public Task<List<IdNamePair>> GetViewIds();
         public Task PutView(View view);
         public Task DeleteView(string id);
     }
@@ -66,6 +67,11 @@ namespace SardCoreAPI.Services.Pages
             });
 
             return views;
+        }
+
+        public async Task<List<IdNamePair>> GetViewIds()
+        {
+            return await data.Context.View.Select(view => new IdNamePair() { Id = view.Id, Name = view.Name }).ToListAsync();
         }
 
         public async Task PutView(View view)

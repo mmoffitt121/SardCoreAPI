@@ -1,44 +1,47 @@
-﻿using SardCoreAPI.Models.Pages.Pages;
+﻿using SardCoreAPI.Models.Common;
+using SardCoreAPI.Models.Pages.Pages;
 
 namespace SardCoreAPI.Services.Pages
 {
     public class PageServiceConstants
     {
-        public static Dictionary<ObjectType, List<ElementSetting>> PAGE_OBJECT_SETTINGS = new Dictionary<ObjectType, List<ElementSetting>>()
+        public static Dictionary<ObjectType, List<ElementSetting>> GetPageObjectSettings()
         {
-            { 
-                ObjectType.Root, new List<ElementSetting>() 
-                {
-                    new ElementSetting(ElementSettingType.String, "Element Name", "Page Root", false),
-                }
-            },
+            return new Dictionary<ObjectType, List<ElementSetting>>()
             {
-                ObjectType.TabGroup, new List<ElementSetting>()
                 {
-                    new ElementSetting(ElementSettingType.String, "Element Name", "Tab Group", false),
-                }
-            },
-            {
-                ObjectType.SplitContainer, new List<ElementSetting>()
+                    ObjectType.Root, new List<ElementSetting>()
+                    {
+                        new ElementSetting(ElementSettingType.String, "Element Name", "Page Root", false),
+                    }
+                },
                 {
-                    new ElementSetting(ElementSettingType.String, "Element Name", "Split Container", false),
-                    new ElementSetting(ElementSettingType.String, "Orientation", "Vertical", true, new string[] { "Vertical", "Horizontal" }),
-                }
-            },
-            {
-                ObjectType.Grid, new List<ElementSetting>()
+                    ObjectType.Directory, new List<ElementSetting>()
+                    {
+                        new ElementSetting(ElementSettingType.String, "Element Name", "Directory", false),
+                    }
+                },
                 {
-                    new ElementSetting(ElementSettingType.String, "Element Name", "Grid", false),
-                    new ElementSetting(ElementSettingType.Number, "Columns", "2", true),
-                }
-            },
-            {
-                ObjectType.View, new List<ElementSetting>()
+                    ObjectType.TabGroup, new List<ElementSetting>()
+                    {
+                        new ElementSetting(ElementSettingType.String, "Element Name", "Tab Group", false),
+                    }
+                },
                 {
-                    new ElementSetting(ElementSettingType.String, "Element Name", "View", false),
-                    new ElementSetting(ElementSettingType.View, "View", "View", true),
-                }
-            },
-        };
+                    ObjectType.SplitContainer, new List<ElementSetting>()
+                    {
+                        new ElementSetting(ElementSettingType.String, "Element Name", "Split Container", false),
+                        new ElementSetting(ElementSettingType.String, "Orientation", "Vertical", true, new IdNamePair[] { new IdNamePair("Vertical"), new IdNamePair("Horizontal") }),
+                    }
+                },
+                {
+                    ObjectType.Document, new List<ElementSetting>()
+                    {
+                        new ElementSetting(ElementSettingType.String, "Element Name", "Document", false),
+                        new ElementSetting(ElementSettingType.Document, "Document", "", false),
+                    }
+                },
+            };
+        }
     }
 }

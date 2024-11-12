@@ -15,6 +15,8 @@ namespace SardCoreAPI.Models.Pages.Pages
 
         public string Path { get; set; }
 
+        public string HeaderSettings { get; set; }
+
         [NotMapped]
         public PageElement? Root { get; set; }
 

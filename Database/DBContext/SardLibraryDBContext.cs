@@ -12,6 +12,7 @@ using SardCoreAPI.Models.Map.LocationType;
 using SardCoreAPI.Models.Map.MapLayer;
 using SardCoreAPI.Models.Map.MapTile;
 using SardCoreAPI.Models.Map.Region;
+using SardCoreAPI.Models.Pages.MenuItems;
 using SardCoreAPI.Models.Pages.Pages;
 using SardCoreAPI.Models.Pages.Views;
 using SardCoreAPI.Models.Security.LibraryRoles;

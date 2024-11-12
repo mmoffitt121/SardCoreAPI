@@ -90,6 +90,34 @@ namespace SardCoreAPI.Controllers.Security.Users
             return Ok();
         }
 
+        [Authorize(Roles = "Administrator")]
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword([FromBody] PasswordResetRequest request)
+        {
+            try
+            {
+                var user = await _userManager.FindByNameAsync(request.UserName);
+
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+                var result = await _userManager.ResetPasswordAsync(user, token, request.Password);
+                if (!result.Succeeded)
+                {
+                    return BadRequest(result.Errors.Select(e => e.Description));
+                }
+            }
+            catch (MySqlException ex)
+            {
+                return ex.Handle();
+            }
+            catch (Exception ex)
+            {
+                return new BadRequestObjectResult(ex);
+            }
+
+            return Ok();
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetUsers()
         {

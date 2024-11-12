@@ -1,9 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.EntityFrameworkCore;
 using SardCoreAPI.DataAccess.Easy;
 using SardCoreAPI.Models.Common;
 using SardCoreAPI.Models.Pages.Pages;
 using SardCoreAPI.Services.Context;
 using SardCoreAPI.Utility.DataAccess;
+using System.Collections.Generic;
 
 namespace SardCoreAPI.Services.Pages
 {
@@ -12,6 +14,7 @@ namespace SardCoreAPI.Services.Pages
         public Task<Dictionary<ObjectType, List<ElementSetting>>> GetPageObjects();
         public Task<List<Page>> GetPages(PageSearchCriteria criteria);
         public Task<int> GetPageCount(PageSearchCriteria criteria);
+        public Task<List<string>> GetPossiblePaths();
         public Task<StringIDResponse> PutPage(Page page);
         public Task DeletePage(string id);
     }
@@ -19,15 +22,28 @@ namespace SardCoreAPI.Services.Pages
     public class PageService : IPageService
     {
         private IDataService data;
+        private IViewService viewService;
 
-        public PageService(IDataService data)
+        private static readonly string PAGE_PATH_PREFIX = "page/";
+
+        public PageService(IDataService data, IViewService viewService)
         {
             this.data = data;
+            this.viewService = viewService;
         }
 
         public async Task<Dictionary<ObjectType, List<ElementSetting>>> GetPageObjects()
         {
-            return PageServiceConstants.PAGE_OBJECT_SETTINGS;
+            Dictionary<ObjectType, List<ElementSetting>> dict = PageServiceConstants.GetPageObjectSettings();
+
+            dict.Add(ObjectType.View, new List<ElementSetting>()
+                {
+                    new ElementSetting(ElementSettingType.String, "Element Name", "View", false),
+                    new ElementSetting(ElementSettingType.View, "View", "View", true, (await viewService.GetViewIds()).ToArray()),
+                }
+            );
+
+            return dict;
         }
 
         public async Task<List<Page>> GetPages(PageSearchCriteria criteria)
@@ -38,6 +54,16 @@ namespace SardCoreAPI.Services.Pages
         public async Task<int> GetPageCount(PageSearchCriteria criteria)
         {
             return await data.Context.Page.Where(criteria.GetQuery()).CountAsync();
+        }
+
+        public async Task<List<string>> GetPossiblePaths()
+        {
+            List<string> paths = new List<string>();
+            paths.Add("document");
+            paths.Add("map");
+            paths.AddRange(data.Context.Page.Select(p => PAGE_PATH_PREFIX + p.Path).ToList());
+
+            return paths;
         }
 
         public async Task<StringIDResponse> PutPage(Page page)

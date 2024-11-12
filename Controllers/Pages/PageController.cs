@@ -36,6 +36,13 @@ namespace SardCoreAPI.Controllers.Pages
             return await Handle(_pageService.GetPageCount(criteria));
         }
 
+        [HttpGet]
+        [Resource("Library.Setup.Pages.Read")]
+        public async Task<IActionResult> GetPossiblePaths()
+        {
+            return await Handle(_pageService.GetPossiblePaths());
+        }
+
         [HttpPut]
         [Resource("Library.Setup.Pages")]
         public async Task<IActionResult> PutPage(Page page)
