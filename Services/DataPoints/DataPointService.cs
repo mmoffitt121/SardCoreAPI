@@ -1,6 +1,7 @@
 ﻿using LinqKit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
 using SardCoreAPI.DataAccess;
 using SardCoreAPI.DataAccess.DataPoints;
@@ -88,10 +89,7 @@ namespace SardCoreAPI.Services.DataPoints
 
         public async Task<DataPointQueryResult> GetDataPoints(DataPointSearchCriteria criteria)
         {
-            // Get relevant locations TODO
-
             // Get relevant data points TODO
-
 
             IQueryable<DataPoint> queryable = data.Context.DataPoint.Include(dp => dp.Type);
 
@@ -120,6 +118,14 @@ namespace SardCoreAPI.Services.DataPoints
                     queryable = FilterByParam(queryable, criteria.Parameters[i], criteria.ParameterSearchOptions[i]);
                 }
             }
+
+            if (criteria.SearchBinCriteria != null && criteria.SearchBinCriteria.Count() > 0)
+            {
+                foreach (var bin in criteria.SearchBinCriteria)
+                {
+                    queryable = FilterByBin(queryable, bin);
+                }
+            } 
 
             // Inclusion
             if (criteria.IncludeParameters == true) queryable = queryable.Include(dp => dp.Parameters).ThenInclude(p => p.DataPointTypeParameter);
@@ -187,6 +193,12 @@ namespace SardCoreAPI.Services.DataPoints
             }).ToList();
 
             
+            if (criteria.IncludeRelevantLocations == true)
+            {
+                List<DataPointLocation> dplocations = new List<DataPointLocation>();
+                dplocations = data.Context.DataPointLocation.Where(dpl => dataPoints.Select(d => d.Id).ToList().Contains(dpl.DataPointId)).Include(dpl => dpl.Location).ToList();
+                queriedDataPoints.ForEach(q => q.Locations = dplocations.Where(l => l.DataPointId == q.Id && l.Location != null).Select(dpl => dpl.Location).ToList());
+            }
 
             List<DataPointType> types = null;
             if (criteria.IncludeTypes == true)
@@ -202,6 +214,272 @@ namespace SardCoreAPI.Services.DataPoints
             }
 
             return new DataPointQueryResult(count, queriedDataPoints, types);
+        }
+
+        private IQueryable<DataPoint> FilterByBin(IQueryable<DataPoint> queryable, SearchBinCriteria bin)
+        {
+            if (bin.Value.Trim().Equals(""))
+            {
+                return queryable;
+            }
+            var predicate = PredicateBuilder.New<DataPoint>();
+
+            switch (bin.TypeValue)
+            {
+                case "bit":
+                    bool boolValue = bin.Value.ToLower().Equals("true");
+                    switch (bin.FilterMode)
+                    {
+                        case ParameterSearchOptions.FilterModeEnum.Equals:
+                        case ParameterSearchOptions.FilterModeEnum.True:
+                        case ParameterSearchOptions.FilterModeEnum.False:
+                            bin.Parameters.ForEach(p =>
+                            {
+                                predicate = predicate.Or(dp =>
+                                    ((DataPointParameterBoolean)dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).First())
+                                        .BoolValue.Equals(boolValue));
+                            });
+                            break;
+                    }
+
+                    break;
+                case "dat":
+                    int dataPointValue = Int32.Parse(bin.Value);
+                    switch (bin.FilterMode)
+                    {
+                        case ParameterSearchOptions.FilterModeEnum.Equals:
+                            bin.Parameters.ForEach(p =>
+                            {
+                                predicate = predicate.Or(dp =>
+                                    ((DataPointParameterDataPoint)dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).First())
+                                        .DataPointValueId.Equals(dataPointValue));
+                            });
+                            break;
+                    }
+                    break;
+                case "doc":
+                    string documentValue = bin.Value;
+                    switch (bin.FilterMode)
+                    {
+                        case ParameterSearchOptions.FilterModeEnum.Equals:
+                            bin.Parameters.ForEach(p =>
+                            {
+                                predicate = predicate.Or(dp =>
+                                    ((DataPointParameterDocument)dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).First())
+                                        .DocumentValue.Equals(documentValue));
+                            });
+                            break;
+                        case ParameterSearchOptions.FilterModeEnum.Contains:
+                            bin.Parameters.ForEach(p =>
+                            {
+                                predicate = predicate.Or(dp =>
+                                    ((DataPointParameterDocument)dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).First())
+                                        .DocumentValue.Contains(documentValue));
+                            });
+                            break;
+                    }
+                    break;
+                case "dub":
+                    double doubleValue = Double.Parse(bin.Value);
+                    switch (bin.FilterMode)
+                    {
+                        case ParameterSearchOptions.FilterModeEnum.Equals:
+                            bin.Parameters.ForEach(p =>
+                            {
+                                predicate = predicate.Or(dp =>
+                                    ((DataPointParameterDouble)dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).First())
+                                        .DoubleValue.Equals(doubleValue));
+                            });
+                            break;
+                        case ParameterSearchOptions.FilterModeEnum.GreaterThan:
+                            bin.Parameters.ForEach(p =>
+                            {
+                                predicate = predicate.Or(dp =>
+                                    ((DataPointParameterDouble)dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).First())
+                                        .DoubleValue >= doubleValue);
+                            });
+                            break;
+                        case ParameterSearchOptions.FilterModeEnum.LessThan:
+                            bin.Parameters.ForEach(p =>
+                            {
+                                predicate = predicate.Or(dp =>
+                                    ((DataPointParameterDouble)dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).First())
+                                        .DoubleValue <= doubleValue);
+                            });
+                            break;
+                    }
+                    break;
+                case "int":
+                    long? intValue = Int32.Parse(bin.Value);
+                    switch (bin.FilterMode)
+                    {
+                        case ParameterSearchOptions.FilterModeEnum.Equals:
+                            bin.Parameters.ForEach(p =>
+                            {
+                                predicate = predicate.Or(dp =>
+                                    ((DataPointParameterInt)dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).First())
+                                        .IntValue.Equals(intValue));
+                            });
+                            break;
+                        case ParameterSearchOptions.FilterModeEnum.GreaterThan:
+                            bin.Parameters.ForEach(p =>
+                            {
+                                predicate = predicate.Or(dp =>
+                                    ((DataPointParameterInt)dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).First())
+                                        .IntValue >= intValue);
+                            });
+                            break;
+                        case ParameterSearchOptions.FilterModeEnum.LessThan:
+                            bin.Parameters.ForEach(p =>
+                            {
+                                predicate = predicate.Or(dp =>
+                                    ((DataPointParameterInt)dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).First())
+                                        .IntValue <= intValue);
+                            });
+                            break;
+                    }
+                    break;
+                case "str":
+                    string stringValue = bin.Value;
+                    switch (bin.FilterMode)
+                    {
+                        case ParameterSearchOptions.FilterModeEnum.Equals:
+                            bin.Parameters.ForEach(p =>
+                            {
+                                predicate = predicate.Or(dp =>
+                                    ((DataPointParameterString)dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).First())
+                                        .StringValue.Equals(stringValue));
+                            });
+                            break;
+                        case ParameterSearchOptions.FilterModeEnum.Contains:
+                            bin.Parameters.ForEach(p =>
+                            {
+                                predicate = predicate.Or(dp =>
+                                    ((DataPointParameterString)dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).First())
+                                        .StringValue.Contains(stringValue));
+                            });
+                            break;
+                        case ParameterSearchOptions.FilterModeEnum.StartsWith:
+                            bin.Parameters.ForEach(p =>
+                            {
+                                predicate = predicate.Or(dp =>
+                                    ((DataPointParameterString)dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).First())
+                                        .StringValue.StartsWith(stringValue));
+                            });
+                            break;
+                        case ParameterSearchOptions.FilterModeEnum.EndsWith:
+                            bin.Parameters.ForEach(p =>
+                            {
+                                predicate = predicate.Or(dp =>
+                                    ((DataPointParameterString)dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).First())
+                                        .StringValue.EndsWith(stringValue));
+                            });
+                            break;
+                    }
+                    break;
+                case "sum":
+                    string summaryValue = bin.Value;
+                    switch (bin.FilterMode)
+                    {
+                        case ParameterSearchOptions.FilterModeEnum.Equals:
+                            bin.Parameters.ForEach(p =>
+                            {
+                                predicate = predicate.Or(dp =>
+                                    ((DataPointParameterSummary)dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).First())
+                                        .SummaryValue.Equals(summaryValue));
+                            });
+                            break;
+                        case ParameterSearchOptions.FilterModeEnum.Contains:
+                            bin.Parameters.ForEach(p =>
+                            {
+                                predicate = predicate.Or(dp =>
+                                    ((DataPointParameterSummary)dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).First())
+                                        .SummaryValue.Contains(summaryValue));
+                            });
+                            break;
+                        case ParameterSearchOptions.FilterModeEnum.StartsWith:
+                            bin.Parameters.ForEach(p =>
+                            {
+                                predicate = predicate.Or(dp =>
+                                    ((DataPointParameterSummary)dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).First())
+                                        .SummaryValue.StartsWith(summaryValue));
+                            });
+                            break;
+                        case ParameterSearchOptions.FilterModeEnum.EndsWith:
+                            bin.Parameters.ForEach(p =>
+                            {
+                                predicate = predicate.Or(dp =>
+                                    ((DataPointParameterSummary)dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).First())
+                                        .SummaryValue.EndsWith(summaryValue));
+                            });
+                            break;
+                    }
+                    break;
+                case "tim":
+                    BigInteger? timeValue = BigInteger.Parse(bin.Value);
+                    switch (bin.FilterMode)
+                    {
+                        case ParameterSearchOptions.FilterModeEnum.Equals:
+                            bin.Parameters.ForEach(p =>
+                            {
+                                predicate = predicate.Or(dp =>
+                                    ((DataPointParameterTime)dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).First())
+                                        .TimeValue.Equals(timeValue));
+                            });
+                            break;
+                        case ParameterSearchOptions.FilterModeEnum.GreaterThan:
+                            bin.Parameters.ForEach(p =>
+                            {
+                                predicate = predicate.Or(dp =>
+                                    ((DataPointParameterTime)dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).First())
+                                        .TimeValue >= timeValue);
+                            });
+                            break;
+                        case ParameterSearchOptions.FilterModeEnum.LessThan:
+                            bin.Parameters.ForEach(p =>
+                            {
+                                predicate = predicate.Or(dp =>
+                                    ((DataPointParameterTime)dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).First())
+                                        .TimeValue <= timeValue);
+                            });
+                            break;
+                    }
+                    break;
+                case "uni":
+                    double unitValue = Double.Parse(bin.Value);
+                    switch (bin.FilterMode)
+                    {
+                        case ParameterSearchOptions.FilterModeEnum.Equals:
+                            bin.Parameters.ForEach(p =>
+                            {
+                                predicate = predicate.Or(dp =>
+                                    ((DataPointParameterUnit)dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).First())
+                                        .UnitValue.Equals(unitValue));
+                            });
+                            break;
+                        case ParameterSearchOptions.FilterModeEnum.GreaterThan:
+                            bin.Parameters.ForEach(p =>
+                            {
+                                predicate = predicate.Or(dp =>
+                                    ((DataPointParameterUnit)dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).First())
+                                        .UnitValue >= unitValue);
+                            });
+                            break;
+                        case ParameterSearchOptions.FilterModeEnum.LessThan:
+                            bin.Parameters.ForEach(p =>
+                            {
+                                predicate = predicate.Or(dp =>
+                                    ((DataPointParameterUnit)dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).First())
+                                        .UnitValue <= unitValue);
+                            });
+                            break;
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            return queryable.Where(predicate);
         }
 
         private IQueryable<DataPoint> FilterByParam(IQueryable<DataPoint> queryable, DataPointParameter searchParameter, ParameterSearchOptions searchOptions)

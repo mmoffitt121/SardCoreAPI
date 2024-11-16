@@ -1,4 +1,5 @@
 ﻿using SardCoreAPI.Models.DataPoints.DataPointParameters;
+using SardCoreAPI.Models.Map.Location;
 
 namespace SardCoreAPI.Models.DataPoints.Queried
 {
@@ -12,5 +13,6 @@ namespace SardCoreAPI.Models.DataPoints.Queried
         public string? TypeSummary { get; set; }
         public string? TypeSettings { get; set; }
         public List<QueriedDataPointParameter>? Parameters { get; set; }
+        public List<Location>? Locations { get; set; }
     }
 }

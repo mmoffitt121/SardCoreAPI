@@ -23,7 +23,6 @@ namespace SardCoreAPI.Controllers.Pages
         }
 
         [HttpGet]
-        [Resource("Library.Setup.Pages.Read")]
         public async Task<IActionResult> GetPages([FromQuery] PageSearchCriteria criteria)
         {
             return await Handle(_pageService.GetPages(criteria));
@@ -36,6 +35,12 @@ namespace SardCoreAPI.Controllers.Pages
             return await Handle(_pageService.GetPageCount(criteria));
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetDefaultPage()
+        {
+            return await Handle(_pageService.GetDefaultPagePath());
+        }
+        
         [HttpGet]
         [Resource("Library.Setup.Pages.Read")]
         public async Task<IActionResult> GetPossiblePaths()

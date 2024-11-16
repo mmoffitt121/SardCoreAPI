@@ -32,7 +32,7 @@ namespace SardCoreAPI.Controllers.DataPoints
 
         [HttpPost(Name = "GetDataPoints")]
         [Validate]
-        [Resource("Library.Document.Read")]
+        //[Resource("Library.Document.Read")]
         public async Task<IActionResult> GetDataPoints([FromBody] DataPointSearchCriteria criteria)
         {
             return await Handle(dpService.GetDataPoints(criteria));

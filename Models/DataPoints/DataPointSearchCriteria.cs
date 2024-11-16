@@ -15,6 +15,7 @@ namespace SardCoreAPI.Models.DataPoints
         public List<ParameterSearchOptions>? ParameterSearchOptions { get; set; }
         public DataPointTypeParameter? OrderByTypeParam { get; set; }
         public bool? OrderByTypeParamDesc { get; set; }
+        public List<SearchBinCriteria>? SearchBinCriteria { get; set; }
 
         public bool? IncludeTypes { get; set; }
         public bool? IncludeChildDataPoints { get; set; }
