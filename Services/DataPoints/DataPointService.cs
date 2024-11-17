@@ -125,14 +125,25 @@ namespace SardCoreAPI.Services.DataPoints
                 {
                     queryable = FilterByBin(queryable, bin);
                 }
-            } 
+            }
 
             // Inclusion
             if (criteria.IncludeParameters == true) queryable = queryable.Include(dp => dp.Parameters).ThenInclude(p => p.DataPointTypeParameter);
             if (criteria.IncludeChildDataPoints == true) queryable = queryable.Include(dp => dp.Parameters).ThenInclude(p => ((DataPointParameterDataPoint)p).DataPointValue);
             if (criteria.IncludeChildParameters == true) queryable = queryable.Include(dp => dp.Parameters).ThenInclude(p => ((DataPointParameterDataPoint)p).DataPointValue).ThenInclude(dp => dp.Parameters);
 
-            queryable = OrderByParam(queryable, criteria);
+            if (criteria.OrderByBin != null)
+            {
+                if (criteria.OrderByBin >= criteria.SearchBinCriteria.Count())
+                {
+                    throw new Exception("Specified bin to order by not found.");
+                }
+                queryable = OrderByBin(queryable, criteria.SearchBinCriteria[criteria.OrderByBin ?? 0]);
+            } 
+            else
+            {
+                queryable = OrderByParam(queryable, criteria);
+            }
 
             List<DataPoint> dataPoints = await queryable.Paginate(criteria).ToListAsync();
             int count = await queryable.CountAsync();
@@ -667,6 +678,49 @@ namespace SardCoreAPI.Services.DataPoints
                     break;
             }
 
+            return queryable;
+        }
+
+        private IQueryable<DataPoint> OrderByBin(IQueryable<DataPoint> queryable, SearchBinCriteria bin)
+        {
+            switch (bin.TypeValue)
+            {
+                case "bit":
+                    queryable = queryable.OrderBy(dp => dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).Select(p => ((DataPointParameterBoolean)p).BoolValue).FirstOrDefault());
+                    queryable = queryable.Where(dp => ((DataPointParameterBoolean)dp.Parameters.FirstOrDefault(p => bin.Parameters.Contains(p.DataPointTypeParameterId))).BoolValue != null);
+                    break;
+                case "dat":
+                    break;
+                case "doc":
+                    break;
+                case "dub":
+                    queryable = queryable.OrderBy(dp => dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).Select(p => ((DataPointParameterDouble)p).DoubleValue).FirstOrDefault());
+                    queryable = queryable.Where(dp => ((DataPointParameterDouble)dp.Parameters.FirstOrDefault(p => bin.Parameters.Contains(p.DataPointTypeParameterId))).DoubleValue != null);
+                    break;
+                case "int":
+                    queryable = queryable.OrderBy(dp => dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).Select(p => ((DataPointParameterInt)p).IntValue).FirstOrDefault());
+                    queryable = queryable.Where(dp => ((DataPointParameterInt)dp.Parameters.FirstOrDefault(p => bin.Parameters.Contains(p.DataPointTypeParameterId))).IntValue != null);
+                    break;
+                case "str":
+                    queryable = queryable.OrderBy(dp => dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).Select(p => ((DataPointParameterString)p).StringValue).FirstOrDefault());
+                    queryable = queryable.Where(dp => ((DataPointParameterString)dp.Parameters.FirstOrDefault(p => bin.Parameters.Contains(p.DataPointTypeParameterId))).StringValue != null);
+                    break;
+                case "sum":
+                    queryable = queryable.OrderBy(dp => dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).Select(p => ((DataPointParameterSummary)p).SummaryValue).FirstOrDefault());
+                    queryable = queryable.Where(dp => ((DataPointParameterSummary)dp.Parameters.FirstOrDefault(p => bin.Parameters.Contains(p.DataPointTypeParameterId))).SummaryValue != null);
+                    break;
+                case "tim":
+                    queryable = queryable.OrderBy(dp => dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).Select(p => ((DataPointParameterTime)p).TimeValue).FirstOrDefault());
+                    queryable = queryable.Where(dp => ((DataPointParameterTime)dp.Parameters.FirstOrDefault(p => bin.Parameters.Contains(p.DataPointTypeParameterId))).TimeValue != null);
+                    break;
+                case "uni":
+                    queryable = queryable.OrderBy(dp => dp.Parameters.Where(p => bin.Parameters.Contains(p.DataPointTypeParameterId)).Select(p => ((DataPointParameterUnit)p).UnitValue).FirstOrDefault());
+                    queryable = queryable.Where(dp => ((DataPointParameterUnit)dp.Parameters.FirstOrDefault(p => bin.Parameters.Contains(p.DataPointTypeParameterId))).UnitValue != null);
+                    break;
+                default:
+                    break;
+
+            }
             return queryable;
         }
 
