@@ -72,7 +72,7 @@ namespace SardCoreAPI.Services.Pages
             else
             {
                 string setting = JsonConvert.DeserializeObject<string>(settings.First().Setting) ?? "";
-                List<Page> pages = await GetPages(new PageSearchCriteria() { Ids = new List<string>() {  } });
+                List<Page> pages = await GetPages(new PageSearchCriteria() { Ids = new List<string>() { setting } });
                 if (pages.Count() > 0)
                 {
                     return $"\"page/{pages.First().Path}\"";
