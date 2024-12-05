@@ -37,6 +37,7 @@ namespace SardCoreAPI.Controllers.Map
         {
             return await Handle(data.Context.LocationType
                 .Where(lt => lt.Name.Contains(criteria.Query ?? ""))
+                .Where(lt => criteria.Id != null ? lt.Id == criteria.Id : true)
                 .Paginate(criteria)
                 .OrderBy(lt => lt.Name)
                 .ToListAsync());
