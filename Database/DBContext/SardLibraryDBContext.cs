@@ -19,6 +19,7 @@ using SardCoreAPI.Models.Security.LibraryRoles;
 using SardCoreAPI.Models.Settings;
 using SardCoreAPI.Models.Units;
 using System.Numerics;
+using SardCoreAPI.Models.Map.MapMode;
 
 namespace SardCoreAPI.Database.DBContext
 {
@@ -81,6 +82,10 @@ namespace SardCoreAPI.Database.DBContext
         public DbSet<Map> Map { get; set; }
 
         public DbSet<MapLayer> MapLayer { get; set; }
+        
+        public DbSet<MapMode>  MapMode { get; set; }
+
+        public DbSet<MapModeGroup> MapModeGroup { get; set; }
 
         public DbSet<MapTile> MapTile { get; set; }
 

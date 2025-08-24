@@ -443,6 +443,55 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
                     b.ToTable("PersistentZoomLevel");
                 });
 
+            modelBuilder.Entity("SardCoreAPI.Models.Map.MapMode.MapMode", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Icon")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("Index")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MapModeGroupId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MapModeGroupId");
+
+                    b.ToTable("MapMode");
+                });
+
+            modelBuilder.Entity("SardCoreAPI.Models.Map.MapMode.MapModeGroup", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Icon")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("Index")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MapModeGroup");
+                });
+
             modelBuilder.Entity("SardCoreAPI.Models.Map.MapTile.MapTile", b =>
                 {
                     b.Property<int>("X")
@@ -827,6 +876,13 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("SardCoreAPI.Models.Map.MapMode.MapMode", b =>
+                {
+                    b.HasOne("SardCoreAPI.Models.Map.MapMode.MapModeGroup", null)
+                        .WithMany("MapModes")
+                        .HasForeignKey("MapModeGroupId");
+                });
+
             modelBuilder.Entity("SardCoreAPI.Models.Units.Unit", b =>
                 {
                     b.HasOne("SardCoreAPI.Models.Units.Measurable", "Measurable")
@@ -871,6 +927,11 @@ namespace SardCoreAPI.Migrations.SardLibraryDB
             modelBuilder.Entity("SardCoreAPI.Models.Map.MapLayer.MapLayer", b =>
                 {
                     b.Navigation("PersistentZoomLevels");
+                });
+
+            modelBuilder.Entity("SardCoreAPI.Models.Map.MapMode.MapModeGroup", b =>
+                {
+                    b.Navigation("MapModes");
                 });
 #pragma warning restore 612, 618
         }
